@@ -1,6 +1,6 @@
 package com.notnoop.apns.internal;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.regex.Pattern;
 
@@ -11,10 +11,10 @@ import javax.net.ssl.TrustManagerFactory;
 
 public class Utilities {
 
-    public static SSLSocketFactory socketFactory(String cert, String password,
+    public static SSLSocketFactory socketFactory(InputStream cert, String password,
             String ksType, String ksAlgorithm) throws Exception {
         KeyStore ks = KeyStore.getInstance(ksType);
-        ks.load(new FileInputStream(cert), password.toCharArray());
+        ks.load(cert, password.toCharArray());
 
         // Get a KeyManager and initialize it
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(ksAlgorithm);

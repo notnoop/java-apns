@@ -1,5 +1,9 @@
 package com.notnoop.apns;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
 import javax.net.SocketFactory;
 
 import com.notnoop.apns.internal.ApnsConnection;
@@ -20,10 +24,22 @@ public class ApnsServiceBuilder {
 
     protected ApnsServiceBuilder() { }
 
-    public ApnsServiceBuilder withCert(String fileName, String password) throws Exception {
-        return withSocketFactory(
-                Utilities.socketFactory(fileName, password,
-                        KEYSTORE_TYPE, KEY_ALGORITHM));
+    public ApnsServiceBuilder withCert(String fileName, String password) {
+        try {
+            return withCert(new FileInputStream(fileName), password);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public ApnsServiceBuilder withCert(InputStream stream, String password) {
+        try {
+            return withSocketFactory(
+                    Utilities.socketFactory(stream, password,
+                            KEYSTORE_TYPE, KEY_ALGORITHM));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private ApnsServiceBuilder withSocketFactory(SocketFactory socketFactory) {
