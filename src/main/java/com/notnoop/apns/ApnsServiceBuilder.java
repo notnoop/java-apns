@@ -19,6 +19,8 @@ public class ApnsServiceBuilder {
     private String host;
     private int port;
 
+    protected ApnsServiceBuilder() { }
+
     public ApnsServiceBuilder withCert(String fileName, String password) {
         this.cert = fileName;
         this.password = password;

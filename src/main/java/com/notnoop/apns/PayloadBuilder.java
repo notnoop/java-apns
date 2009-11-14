@@ -2,7 +2,7 @@ package com.notnoop.apns;
 
 import net.sf.json.JSONObject;
 
-public class PayloadBuilder {
+public final class PayloadBuilder {
     private JSONObject aps;
 
     PayloadBuilder() {
