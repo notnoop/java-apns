@@ -19,6 +19,6 @@ Sample code:
         .withSandboxDestination()
         .build();
 
-    String msg = APNS.alert("Love you").sound("").build();
+    String msg = APNS.alert("Check your email!").sound("default").build();
     String deviceToken = "fedfbcfb....";
     service.push(token, msg);
