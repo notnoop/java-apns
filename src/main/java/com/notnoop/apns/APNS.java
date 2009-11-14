@@ -2,10 +2,6 @@ package com.notnoop.apns;
 
 public class APNS {
 
-    public static PayloadBuilder notification() {
-        return new PayloadBuilder();
-    }
-
     public static PayloadBuilder alert(String alert) {
         return new PayloadBuilder().alert(alert);
     }

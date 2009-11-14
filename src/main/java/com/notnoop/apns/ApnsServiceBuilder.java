@@ -1,29 +1,33 @@
 package com.notnoop.apns;
 
-import java.io.FileInputStream;
-import java.security.KeyStore;
-
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
+import javax.net.SocketFactory;
 
 import com.notnoop.apns.internal.ApnsConnection;
 import com.notnoop.apns.internal.ApnsServiceImpl;
+import com.notnoop.apns.internal.ThreadedApnsService;
+import com.notnoop.apns.internal.Utilities;
 
 public class ApnsServiceBuilder {
+    private static final String KEYSTORE_TYPE = "PKCS12";
+    private static final String KEY_ALGORITHM = "sunx509";
 
-    private String cert;
-    private String password;
+    private SocketFactory socketFactory;
 
     private String host;
     private int port;
 
+    private boolean isThreaded = false;
+
     protected ApnsServiceBuilder() { }
 
-    public ApnsServiceBuilder withCert(String fileName, String password) {
-        this.cert = fileName;
-        this.password = password;
+    public ApnsServiceBuilder withCert(String fileName, String password) throws Exception {
+        return withSocketFactory(
+                Utilities.socketFactory(fileName, password,
+                        KEYSTORE_TYPE, KEY_ALGORITHM));
+    }
+
+    private ApnsServiceBuilder withSocketFactory(SocketFactory socketFactory) {
+        this.socketFactory = socketFactory;
         return this;
     }
 
@@ -41,31 +45,22 @@ public class ApnsServiceBuilder {
         return withDestination("gateway.push.apple.com", 2195);
     }
 
-    public ApnsService build() throws Exception {
-        ApnsConnection conn = new ApnsConnection(socketFactory(), host, port);
-        ApnsServiceImpl service = new ApnsServiceImpl(conn);
-        return service;
+    public ApnsServiceBuilder withThread() {
+        this.isThreaded = true;
+        return this;
     }
 
-    protected SSLSocketFactory socketFactory() throws Exception {
-        KeyStore ks = KeyStore.getInstance("PKCS12");
-        ks.load(new FileInputStream(cert), password.toCharArray());
+    public ApnsService build() throws Exception {
+        ApnsConnection conn = new ApnsConnection(socketFactory, host, port);
+        ApnsService service = new ApnsServiceImpl(conn);
 
-        // Get a KeyManager and initialize it
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance("sunx509");
-        kmf.init(ks, password.toCharArray());
+        if (isThreaded) {
+            service = new ThreadedApnsService(service);
+        }
 
-        // Get a TrustManagerFactory and init with KeyStore
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance("sunx509");
-        tmf.init(ks);
+        service.start();
 
-        // Get the SSLContext to help create SSLSocketFactory
-        SSLContext sslc = SSLContext.getInstance("TLS");
-        sslc.init(kmf.getKeyManagers(), null, null);
-
-        // Get SSLSocketFactory and get a SSLSocket
-        SSLSocketFactory sslsf = sslc.getSocketFactory();
-        return sslsf;
+        return service;
     }
 
 }

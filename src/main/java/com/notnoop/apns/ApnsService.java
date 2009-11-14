@@ -1,8 +1,12 @@
 package com.notnoop.apns;
 
+import com.notnoop.apns.internal.ApnsMessage;
+
 public interface ApnsService {
 
-    boolean push(String deviceToken, String message);
+    void push(String deviceToken, String message);
+
+    void push(ApnsMessage message);
 
     void start();
 

@@ -10,22 +10,21 @@ public class ApnsServiceImpl implements ApnsService {
     }
 
     @Override
-    public boolean push(String deviceToken, String message) {
-        ApnsMessage msg = new ApnsMessage(deviceToken, message);
+    public void push(String deviceToken, String message) {
+        push(new ApnsMessage(deviceToken, message));
+    }
+
+    @Override
+    public void push(ApnsMessage msg) {
         connection.sendMessage(msg);
-        return true;
     }
 
     @Override
     public void start() {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void stop() {
-        // TODO Auto-generated method stub
-
     }
 
 }

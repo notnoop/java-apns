@@ -35,7 +35,7 @@ public class ApnsConnection {
     }
 
     private static final int RETRIES = 3;
-    protected void sendMessage(ApnsMessage m) {
+    protected synchronized void sendMessage(ApnsMessage m) {
         int attempts = 0;
         while (true) {
             try {
