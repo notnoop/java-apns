@@ -5,12 +5,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.notnoop.apns.ApnsService;
 
-public class ThreadedApnsService implements ApnsService {
+public class QueuedApnsService implements ApnsService {
 
     private ApnsService service;
     private BlockingQueue<ApnsMessage> queue;
 
-    public ThreadedApnsService(ApnsService service) {
+    public QueuedApnsService(ApnsService service) {
         this.service = service;
         this.queue = new LinkedBlockingQueue<ApnsMessage>();
     }

@@ -4,7 +4,7 @@ import javax.net.SocketFactory;
 
 import com.notnoop.apns.internal.ApnsConnection;
 import com.notnoop.apns.internal.ApnsServiceImpl;
-import com.notnoop.apns.internal.ThreadedApnsService;
+import com.notnoop.apns.internal.QueuedApnsService;
 import com.notnoop.apns.internal.Utilities;
 
 public class ApnsServiceBuilder {
@@ -16,7 +16,7 @@ public class ApnsServiceBuilder {
     private String host;
     private int port;
 
-    private boolean isThreaded = false;
+    private boolean isQueued = false;
 
     protected ApnsServiceBuilder() { }
 
@@ -45,8 +45,8 @@ public class ApnsServiceBuilder {
         return withDestination("gateway.push.apple.com", 2195);
     }
 
-    public ApnsServiceBuilder withThread() {
-        this.isThreaded = true;
+    public ApnsServiceBuilder asQueued() {
+        this.isQueued = true;
         return this;
     }
 
@@ -54,8 +54,8 @@ public class ApnsServiceBuilder {
         ApnsConnection conn = new ApnsConnection(socketFactory, host, port);
         ApnsService service = new ApnsServiceImpl(conn);
 
-        if (isThreaded) {
-            service = new ThreadedApnsService(service);
+        if (isQueued) {
+            service = new QueuedApnsService(service);
         }
 
         service.start();
