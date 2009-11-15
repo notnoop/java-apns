@@ -35,9 +35,11 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
 
 import com.notnoop.apns.internal.ApnsConnection;
 import com.notnoop.apns.internal.ApnsServiceImpl;
+import com.notnoop.apns.internal.MinaAdaptor;
 import com.notnoop.apns.internal.QueuedApnsService;
 import static com.notnoop.apns.internal.Utilities.*;
 
@@ -45,12 +47,13 @@ public class ApnsServiceBuilder {
     private static final String KEYSTORE_TYPE = "PKCS12";
     private static final String KEY_ALGORITHM = "sunx509";
 
-    private SocketFactory socketFactory;
+    private SSLContext sslContext;
 
     private String host;
     private int port;
 
     private boolean isQueued = false;
+    private boolean isNonBlocking = false;
 
     protected ApnsServiceBuilder() { }
 
@@ -64,16 +67,16 @@ public class ApnsServiceBuilder {
 
     public ApnsServiceBuilder withCert(InputStream stream, String password) {
         try {
-            return withSocketFactory(
-                    newSSLSocketFactory(stream, password,
+            return withSSLContext(
+                    newSSLContext(stream, password,
                             KEYSTORE_TYPE, KEY_ALGORITHM));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    private ApnsServiceBuilder withSocketFactory(SocketFactory socketFactory) {
-        this.socketFactory = socketFactory;
+    private ApnsServiceBuilder withSSLContext(SSLContext sslContext) {
+        this.sslContext = sslContext;
         return this;
     }
 
@@ -96,12 +99,23 @@ public class ApnsServiceBuilder {
         return this;
     }
 
+    public ApnsServiceBuilder asNonBlocking() {
+        this.isNonBlocking = true;
+        return this;
+    }
     public ApnsService build() throws Exception {
-        ApnsConnection conn = new ApnsConnection(socketFactory, host, port);
-        ApnsService service = new ApnsServiceImpl(conn);
+        ApnsService service;
 
-        if (isQueued) {
-            service = new QueuedApnsService(service);
+        if (isNonBlocking) {
+            service = new MinaAdaptor(sslContext, host, port);
+        } else {
+
+            ApnsConnection conn = new ApnsConnection(sslContext.getSocketFactory(), host, port);
+            service = new ApnsServiceImpl(conn);
+
+            if (isQueued) {
+                service = new QueuedApnsService(service);
+            }
         }
 
         service.start();
