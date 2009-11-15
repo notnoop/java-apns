@@ -30,39 +30,34 @@
  */
 package com.notnoop.apns;
 
-import net.sf.json.JSONObject;
+import java.io.UnsupportedEncodingException;
 
-public final class PayloadBuilder {
-    private JSONObject aps;
+import com.notnoop.apns.internal.Utilities;
 
-    PayloadBuilder() {
-        this.aps = new JSONObject();
+public class ApnsMessage {
+
+    private final static byte COMMAND = 0;
+    private final byte[] deviceToken;
+    private final byte[] payload;
+
+    public ApnsMessage(String dtoken, String payload) {
+        this.deviceToken = Utilities.decodeHex(dtoken);
+        try {
+            this.payload = payload.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError("UTF-8 is unsupported!");
+        }
     }
 
-    public PayloadBuilder alert(String alert) {
-        aps.put("alert", alert);
-        return this;
+    public byte[] getDeviceToken() {
+        return this.deviceToken;
     }
 
-    public PayloadBuilder sound(String sound) {
-        aps.put("sound", sound);
-        return this;
+    public byte[] getPayload() {
+        return this.payload;
     }
 
-    public PayloadBuilder badge(int badge) {
-        aps.put("badge", badge);
-        return this;
+    public byte[] marshell() {
+        return Utilities.marshal(COMMAND, deviceToken, payload);
     }
-
-    public String build() {
-        JSONObject root = new JSONObject();
-        root.put("aps", aps);
-        return root.toString();
-    }
-
-    @Override
-    public String toString() {
-        return this.build();
-    }
-
 }
