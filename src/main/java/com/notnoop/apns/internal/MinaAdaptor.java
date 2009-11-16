@@ -56,10 +56,9 @@ public class MinaAdaptor implements ApnsService {
 
     @Override
     public void stop() {
-        connector.getFilterChain().clear();
         cf.cancel();
         cf.awaitUninterruptibly();
-        cf.getSession().getCloseFuture().awaitUninterruptibly();
+        cf.getSession().close(false).awaitUninterruptibly();
         connector.dispose();
     }
 
