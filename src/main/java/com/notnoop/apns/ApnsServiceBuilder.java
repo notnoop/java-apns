@@ -66,7 +66,7 @@ public class ApnsServiceBuilder {
     private SSLContext sslContext;
 
     private String host;
-    private int port;
+    private int port = -1;
 
     private boolean isQueued = false;
     private boolean isNonBlocking = false;
@@ -122,13 +122,14 @@ public class ApnsServiceBuilder {
         this.isNonBlocking = true;
         return this;
     }
+
     public ApnsService build() throws Exception {
+        checkInitialization();
         ApnsService service;
 
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, host, port);
         } else {
-
             ApnsConnection conn = new ApnsConnection(sslContext.getSocketFactory(), host, port);
             service = new ApnsServiceImpl(conn);
 
@@ -142,4 +143,15 @@ public class ApnsServiceBuilder {
         return service;
     }
 
+    private void checkInitialization() {
+        if (sslContext == null)
+            throw new IllegalStateException(
+                    "SSL Certificates and attribute are not initialized\n"
+                    + "Use .withCert() methods.");
+        if (host == null || port == -1)
+            throw new IllegalStateException(
+                    "The Destination APNS server is not stated\n"
+                    + "Use .withDestination(), withSandboxDestination(), "
+                    + "or withProductionDestination().");
+    }
 }
