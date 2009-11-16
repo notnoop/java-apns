@@ -36,7 +36,7 @@ import java.net.UnknownHostException;
 
 import javax.net.SocketFactory;
 
-import com.notnoop.apns.ApnsMessage;
+import com.notnoop.apns.ApnsNotification;
 
 public class ApnsConnection {
 
@@ -67,13 +67,13 @@ public class ApnsConnection {
     }
 
     private static final int RETRIES = 3;
-    protected synchronized void sendMessage(ApnsMessage m) {
+    protected synchronized void sendMessage(ApnsNotification m) {
         int attempts = 0;
         while (true) {
             try {
                 attempts++;
                 Socket socket = socket();
-                socket.getOutputStream().write(m.marshell());
+                socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
                 break;
             } catch (IOException e) {

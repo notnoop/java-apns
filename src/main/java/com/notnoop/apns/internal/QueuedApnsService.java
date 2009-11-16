@@ -33,26 +33,26 @@ package com.notnoop.apns.internal;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.notnoop.apns.ApnsMessage;
+import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 
 public class QueuedApnsService implements ApnsService {
 
     private ApnsService service;
-    private BlockingQueue<ApnsMessage> queue;
+    private BlockingQueue<ApnsNotification> queue;
 
     public QueuedApnsService(ApnsService service) {
         this.service = service;
-        this.queue = new LinkedBlockingQueue<ApnsMessage>();
+        this.queue = new LinkedBlockingQueue<ApnsNotification>();
     }
 
     @Override
     public void push(String deviceToken, String message) {
-        push(new ApnsMessage(deviceToken, message));
+        push(new ApnsNotification(deviceToken, message));
     }
 
     @Override
-    public void push(ApnsMessage msg) {
+    public void push(ApnsNotification msg) {
         queue.add(msg);
     }
 
@@ -69,7 +69,7 @@ public class QueuedApnsService implements ApnsService {
             public void run() {
                 while (shouldContinue) {
                     try {
-                        ApnsMessage msg = queue.take();
+                        ApnsNotification msg = queue.take();
                         service.push(msg);
                     } catch (InterruptedException e) {
                     }

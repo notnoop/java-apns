@@ -30,15 +30,58 @@
  */
 package com.notnoop.apns;
 
-
+/**
+ * Represents the connection and interface to the Apple APNS servers.
+ *
+ * The service is created by {@link ApnsServiceBuilder} like:
+ *
+ * <pre>
+ *   ApnsService = APNS.newService()
+ *                  .withCert("/path/to/certificate.p12", "MyCertPassword")
+ *                  .withSandboxDestination()
+ *                  .build()
+ * </pre>
+ */
 public interface ApnsService {
 
-    void push(String deviceToken, String message);
+    /**
+     * Sends a push notification with the provided {@code payload} to the
+     * iPhone of {@code deviceToken}.
+     *
+     * The payload needs to be a valid JSON object, otherwise it may fail
+     * silently.  It is recommended to use {@link PayloadBuilder} to create
+     * one.
+     *
+     * @param deviceToken   the destination iPhone device token
+     * @param payload       The payload message
+     */
+    void push(String deviceToken, String payload);
 
-    void push(ApnsMessage message);
+    /**
+     * Sends the provided notification {@code message} to the desired
+     * destination.
+     */
+    void push(ApnsNotification message);
 
+    /**
+     * Starts the service.
+     *
+     * The underlying implementation may prepare its connections or
+     * datastructures to be able to send the messages.
+     *
+     * This method is a blocking call, even if the service represents
+     * a Non-blocking push service.  Once the service is returned, it is ready
+     * to accept push requests.
+     */
     void start();
 
+    /**
+     * Stops the service and frees any allocated resources it created for this
+     * service.
+     *
+     * The underlying implementation should close all connections it created,
+     * and possibly stop any threads as well.
+     */
     void stop();
 
 }

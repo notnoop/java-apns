@@ -30,6 +30,13 @@
  */
 package com.notnoop.apns;
 
+/**
+ * The main class to interact with the APNS Service.
+ *
+ * Provides an interface to create the {@link ApnsServiceBuilder} and
+ * {@code ApnsNotification} payload.
+ *
+ */
 public class APNS {
 
     public static PayloadBuilder alert(String alert) {

@@ -34,6 +34,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.util.regex.Pattern;
 
@@ -86,7 +87,15 @@ public class Utilities {
         return bts;
     }
 
-    public static byte[] marshal(byte command, byte[] deviceToken, byte[] payload) {
+    public static byte[] toUTF8Bytes(String s) {
+        try {
+            return s.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static byte[] marshall(byte command, byte[] deviceToken, byte[] payload) {
         ByteArrayOutputStream boas = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(boas);
 

@@ -10,7 +10,7 @@ import org.apache.mina.core.service.IoHandlerAdapter;
 import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
-import com.notnoop.apns.ApnsMessage;
+import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 
 public class MinaAdaptor implements ApnsService {
@@ -37,12 +37,12 @@ public class MinaAdaptor implements ApnsService {
 
     @Override
     public void push(String deviceToken, String message) {
-        this.push(new ApnsMessage(deviceToken, message));
+        this.push(new ApnsNotification(deviceToken, message));
     }
 
     @Override
-    public void push(ApnsMessage message) {
-        byte[] msg = message.marshell();
+    public void push(ApnsNotification message) {
+        byte[] msg = message.marshall();
         IoBuffer buf = IoBuffer.allocate(msg.length);
         System.arraycopy(msg, 0, buf.array(), 0, msg.length);
         cf.getSession().write(buf);

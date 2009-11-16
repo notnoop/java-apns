@@ -34,7 +34,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import javax.net.SocketFactory;
 import javax.net.ssl.SSLContext;
 
 import com.notnoop.apns.internal.ApnsConnection;
@@ -43,6 +42,23 @@ import com.notnoop.apns.internal.MinaAdaptor;
 import com.notnoop.apns.internal.QueuedApnsService;
 import static com.notnoop.apns.internal.Utilities.*;
 
+/**
+ * The class is used to create instances of {@link ApnsService}.
+ *
+ * Note that this class is not synchronized.  If multiple threads access a
+ * {@code ApnsServiceBuilder} instance concurrently, and at least on of the
+ * threads modifies one of the attributes structurally, it must be
+ * synchronized externally.
+ *
+ * Starting a new {@code ApnsService} is easy:
+ *
+ * <pre>
+ *   ApnsService = APNS.newService()
+ *                  .withCert("/path/to/certificate.p12", "MyCertPassword")
+ *                  .withSandboxDestination()
+ *                  .build()
+ * </pre>
+ */
 public class ApnsServiceBuilder {
     private static final String KEYSTORE_TYPE = "PKCS12";
     private static final String KEY_ALGORITHM = "sunx509";
@@ -55,7 +71,10 @@ public class ApnsServiceBuilder {
     private boolean isQueued = false;
     private boolean isNonBlocking = false;
 
-    protected ApnsServiceBuilder() { }
+    /**
+     * Constructs a new instanceof {@code ApnsServiceBuilder}
+     */
+    public ApnsServiceBuilder() { }
 
     public ApnsServiceBuilder withCert(String fileName, String password) {
         try {

@@ -30,7 +30,7 @@
  */
 package com.notnoop.apns.internal;
 
-import com.notnoop.apns.ApnsMessage;
+import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 
 public class ApnsServiceImpl implements ApnsService {
@@ -42,11 +42,11 @@ public class ApnsServiceImpl implements ApnsService {
 
     @Override
     public void push(String deviceToken, String message) {
-        push(new ApnsMessage(deviceToken, message));
+        push(new ApnsNotification(deviceToken, message));
     }
 
     @Override
-    public void push(ApnsMessage msg) {
+    public void push(ApnsNotification msg) {
         connection.sendMessage(msg);
     }
 
