@@ -62,6 +62,7 @@ public class ApnsConnection {
         if (socket == null || socket.isClosed()) {
             try {
                 socket = factory.createSocket(host, port);
+                logger.debug("Made a new connection to APNS");
             } catch (Exception e) {
                 logger.error("Couldnt' connec to APNS server", e);
             }
