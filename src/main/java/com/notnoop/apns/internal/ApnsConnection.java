@@ -32,13 +32,16 @@ package com.notnoop.apns.internal;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import javax.net.SocketFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.notnoop.apns.ApnsNotification;
 
 public class ApnsConnection {
+    private static final Logger logger = LoggerFactory.getLogger(ApnsConnection.class);
 
     private final SocketFactory factory;
     private final String host;
@@ -56,11 +59,11 @@ public class ApnsConnection {
 
     private Socket socket;
     private Socket socket() {
-        if (socket == null || !socket.isConnected()) {
+        if (socket == null || socket.isClosed()) {
             try {
                 socket = factory.createSocket(host, port);
-            } catch (UnknownHostException e) {
-            } catch (IOException e) {
+            } catch (Exception e) {
+                logger.error("Couldnt' connec to APNS server", e);
             }
         }
         return socket;
@@ -80,6 +83,14 @@ public class ApnsConnection {
                 if (attempts >= RETRIES) {
                     throw new RuntimeException(e);
                 }
+                logger.warn("Failed to send message " + m + "... trying again", e);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+                try { socket.close(); } catch (Exception _) {}
+                socket = null;
             }
         }
     }
