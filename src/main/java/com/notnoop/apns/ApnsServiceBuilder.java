@@ -35,8 +35,10 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import com.notnoop.apns.internal.ApnsConnection;
+import com.notnoop.apns.internal.ApnsFeedbackConnection;
 import com.notnoop.apns.internal.ApnsServiceImpl;
 import com.notnoop.apns.internal.MinaAdaptor;
 import com.notnoop.apns.internal.QueuedApnsService;
@@ -65,8 +67,11 @@ public class ApnsServiceBuilder {
 
     private SSLContext sslContext;
 
-    private String host;
-    private int port = -1;
+    private String gatewayHost;
+    private int gatewaPort = -1;
+
+    private String feedbackHost;
+    private int feedbackPort;
 
     private boolean isQueued = false;
     private boolean isNonBlocking = false;
@@ -99,18 +104,26 @@ public class ApnsServiceBuilder {
         return this;
     }
 
-    public ApnsServiceBuilder withDestination(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public ApnsServiceBuilder withGatewayDestination(String host, int port) {
+        this.gatewayHost = host;
+        this.gatewaPort = port;
         return this;
     }
 
+    public ApnsServiceBuilder withFeedbackDestination(String host, int port) {
+    	this.feedbackHost = host;
+    	this.feedbackPort = port;
+    	return this;
+    }
+
     public ApnsServiceBuilder withSandboxDestination() {
-        return withDestination(SANDBOX_GATEWAY_HOST, SANDBOX_GATEWAY_PORT);
+        return withGatewayDestination(SANDBOX_GATEWAY_HOST, SANDBOX_GATEWAY_PORT)
+        	   .withFeedbackDestination(SANDBOX_FEEDBACK_HOST, SANDBOX_FEEDBACK_PORT);
     }
 
     public ApnsServiceBuilder withProductionDestination() {
-        return withDestination(PRODUCTION_GATEWAY_HOST, PRODUCTION_GATEWAY_PORT);
+        return withGatewayDestination(PRODUCTION_GATEWAY_HOST, PRODUCTION_GATEWAY_PORT)
+        		.withFeedbackDestination(PRODUCTION_FEEDBACK_HOST, PRODUCTION_FEEDBACK_PORT);
     }
 
     public ApnsServiceBuilder asQueued() {
@@ -127,11 +140,14 @@ public class ApnsServiceBuilder {
         checkInitialization();
         ApnsService service;
 
+    	SSLSocketFactory sslFactory = sslContext.getSocketFactory();
+        ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort);
+
         if (isNonBlocking) {
-            service = new MinaAdaptor(sslContext, host, port);
+            service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
         } else {
-            ApnsConnection conn = new ApnsConnection(sslContext.getSocketFactory(), host, port);
-            service = new ApnsServiceImpl(conn);
+            ApnsConnection conn = new ApnsConnection(sslFactory, gatewayHost, gatewaPort);
+            service = new ApnsServiceImpl(conn, feedback);
 
             if (isQueued) {
                 service = new QueuedApnsService(service);
@@ -148,7 +164,7 @@ public class ApnsServiceBuilder {
             throw new IllegalStateException(
                     "SSL Certificates and attribute are not initialized\n"
                     + "Use .withCert() methods.");
-        if (host == null || port == -1)
+        if (gatewayHost == null || gatewaPort == -1)
             throw new IllegalStateException(
                     "The Destination APNS server is not stated\n"
                     + "Use .withDestination(), withSandboxDestination(), "

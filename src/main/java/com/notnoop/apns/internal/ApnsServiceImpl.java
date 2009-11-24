@@ -30,14 +30,19 @@
  */
 package com.notnoop.apns.internal;
 
+import java.util.Date;
+import java.util.Map;
+
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 
 public class ApnsServiceImpl implements ApnsService {
     private ApnsConnection connection;
+    private ApnsFeedbackConnection feedback;
 
-    public ApnsServiceImpl(ApnsConnection connection) {
+    public ApnsServiceImpl(ApnsConnection connection, ApnsFeedbackConnection feedback) {
         this.connection = connection;
+        this.feedback = feedback;
     }
 
     @Override
@@ -57,5 +62,10 @@ public class ApnsServiceImpl implements ApnsService {
     @Override
     public void stop() {
     }
+
+	@Override
+	public Map<String, Date> failedDeliveryDevices() {
+		return feedback.failedDeliveryDevices();
+	}
 
 }

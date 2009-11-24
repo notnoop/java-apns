@@ -30,6 +30,9 @@
  */
 package com.notnoop.apns;
 
+import java.util.Date;
+import java.util.Map;
+
 /**
  * Represents the connection and interface to the Apple APNS servers.
  *
@@ -84,4 +87,13 @@ public interface ApnsService {
      */
     void stop();
 
+    /**
+     * Returns the list of devices that reported failed-delivery
+     * attempts to the Apple Feedback services.
+     *
+     * The result is map, mapping the device tokens as Hex Strings
+     * mapped to the timestamp when APNs determined that the
+     * application no longer exists on the device.
+     */
+    Map<String, Date> failedDeliveryDevices();
 }

@@ -1,6 +1,8 @@
 package com.notnoop.apns.internal;
 
 import java.net.InetSocketAddress;
+import java.util.Date;
+import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
@@ -18,14 +20,21 @@ public class MinaAdaptor implements ApnsService {
     ConnectFuture cf;
     private final String host;
     private final int port;
+    private final ApnsFeedbackConnection feedback;
 
     public MinaAdaptor(SSLContext sslContext, String host, int port) {
+    	this(sslContext, host, port, null);
+    }
+
+    public MinaAdaptor(SSLContext sslContext, String host,
+			int port, ApnsFeedbackConnection feedback) {
         this.host = host;
         this.port = port;
         this.connector = createNioSocketConnector(sslContext);
-    }
+        this.feedback = feedback;
+	}
 
-    private NioSocketConnector createNioSocketConnector(SSLContext sslContext) {
+	private NioSocketConnector createNioSocketConnector(SSLContext sslContext) {
         NioSocketConnector connector = new NioSocketConnector();
         connector.setConnectTimeoutMillis(30 * 1000L);
         connector.setHandler(new IoHandlerAdapter());
@@ -61,5 +70,10 @@ public class MinaAdaptor implements ApnsService {
         cf.getSession().close(false).awaitUninterruptibly();
         connector.dispose();
     }
+
+	@Override
+	public Map<String, Date> failedDeliveryDevices() {
+		return feedback.failedDeliveryDevices();
+	}
 
 }

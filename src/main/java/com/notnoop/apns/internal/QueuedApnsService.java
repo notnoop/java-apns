@@ -30,6 +30,8 @@
  */
 package com.notnoop.apns.internal;
 
+import java.util.Date;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -85,5 +87,10 @@ public class QueuedApnsService implements ApnsService {
         thread.interrupt();
         service.stop();
     }
+
+	@Override
+	public Map<String, Date> failedDeliveryDevices() {
+		return service.failedDeliveryDevices();
+	}
 
 }

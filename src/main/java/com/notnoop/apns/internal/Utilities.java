@@ -31,11 +31,16 @@
 package com.notnoop.apns.internal;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -48,8 +53,14 @@ public class Utilities {
     public static final String SANDBOX_GATEWAY_HOST = "gateway.sandbox.push.apple.com";
     public static final int SANDBOX_GATEWAY_PORT = 2195;
 
+    public static final String SANDBOX_FEEDBACK_HOST = "feedback.sandbox.push.apple.com";
+    public static final int SANDBOX_FEEDBACK_PORT = 2196;
+
     public static final String PRODUCTION_GATEWAY_HOST = "gateway.push.apple.com";
     public static final int PRODUCTION_GATEWAY_PORT = 2195;
+
+    public static final String PRODUCTION_FEEDBACK_HOST = "feedback.push.apple.com";
+    public static final int PRODUCTION_FEEDBACK_PORT = 2196;
 
     public static SSLSocketFactory newSSLSocketFactory(InputStream cert, String password,
             String ksType, String ksAlgorithm) throws Exception {
@@ -87,6 +98,20 @@ public class Utilities {
         return bts;
     }
 
+    private static final char base[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+
+    public static String encodeHex(byte[] bytes) {
+    	char[] chars = new char[bytes.length * 2];
+
+    	for (int i = 0; i < bytes.length; ++i) {
+    		byte b = bytes[i];
+    		chars[2 * i] = base[b >>> 4];
+    		chars[2 * i + 1] = base[b & 0xF];
+    	}
+
+    	return new String(chars);
+    }
+
     public static byte[] toUTF8Bytes(String s) {
         try {
             return s.getBytes("UTF-8");
@@ -109,5 +134,44 @@ public class Utilities {
         } catch (IOException e) {
             throw new AssertionError();
         }
+    }
+
+    public static Map<Integer, byte[]> parseFeedbackStreamRaw(InputStream in) {
+    	Map<Integer, byte[]> result = new HashMap<Integer, byte[]>();
+
+    	DataInputStream data = new DataInputStream(in);
+
+    	while (true) {
+    		try {
+    			int time = data.readInt();
+    			int dtLength = data.readUnsignedShort();
+    			byte[] deviceToken = new byte[dtLength];
+    			data.readFully(deviceToken);
+
+    			result.put(time, deviceToken);
+    		} catch (EOFException e) {
+    			break;
+    		} catch (IOException e) {
+    			throw new RuntimeException(e);
+    		}
+    	}
+
+    	return result;
+    }
+
+    public static Map<String, Date> parseFeedbackStream(InputStream in) {
+    	Map<String, Date> result = new HashMap<String, Date>();
+
+    	Map<Integer, byte[]> raw = parseFeedbackStreamRaw(in);
+    	for (Map.Entry<Integer, byte[]> entry : raw.entrySet()) {
+    		int time = entry.getKey();	// in seconds
+    		byte[] dtArray = entry.getValue();
+
+    		Date date = new Date(time * 1000L);	// in ms
+    		String dtString = encodeHex(dtArray);
+    		result.put(dtString, date);
+    	}
+
+    	return result;
     }
 }

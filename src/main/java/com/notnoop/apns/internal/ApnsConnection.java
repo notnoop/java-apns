@@ -79,9 +79,11 @@ public class ApnsConnection {
                 Socket socket = socket();
                 socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
+                logger.debug("Message \"{}\" sent", m);
                 break;
             } catch (IOException e) {
                 if (attempts >= RETRIES) {
+                	logger.error("Couldn't send message " + m, e);
                     throw new RuntimeException(e);
                 }
                 logger.warn("Failed to send message " + m + "... trying again", e);
