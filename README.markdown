@@ -51,11 +51,11 @@ Custom Payloads
 You can send a message payload, but providing custom fields and
 localizable alert:
 
-    PayloadBuilder payload = APNS.newPayload();
-    payload.badge(3);
-    payload.customField("secret", "what do you think?");
-    payload.customAlert()
-		.localizedKey("GAME_PLAY_REQUEST_FORMAT")
-		.localizedArguments(new String[] { "Jenna", "Frank" });
-	
+    String payload = APNS.newPayload()
+                .badge(3)
+                .customField("secret", "what do you think?");
+		        .localizedKey("GAME_PLAY_REQUEST_FORMAT")
+		        .localizedArguments(new String[] { "Jenna", "Frank" })
+		        .actionKey("Play").build();
+
 	service.push(token, payload.toString());
