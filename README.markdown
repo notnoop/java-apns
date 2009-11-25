@@ -54,7 +54,7 @@ localizable alert:
     PayloadBuilder payload = APNS.newPayload();
     payload.badge(3);
     payload.customField("secret", "what do you think?");
-    builder.customAlert()
+    payload.customAlert()
 		.localizedKey("GAME_PLAY_REQUEST_FORMAT")
 		.localizedArguments(new String[] { "Jenna", "Frank" });
 	
