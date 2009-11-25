@@ -46,7 +46,7 @@ public final class PayloadBuilder {
         this.customAlert = new JSONObject();
     }
 
-    public PayloadBuilder alert(String alert) {
+    public PayloadBuilder alertBody(String alert) {
         aps.put("alert", alert);
         return this;
     }

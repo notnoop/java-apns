@@ -20,7 +20,7 @@ public class PayloadBuilderTest {
 	@Test
 	public void testOneAps() {
 		PayloadBuilder builder = new PayloadBuilder();
-		builder.alert("test");
+		builder.alertBody("test");
 
 		String expected = "{\"aps\":{\"alert\":\"test\"}}";
 		String actual = builder.toString();
@@ -30,7 +30,7 @@ public class PayloadBuilderTest {
 	@Test
 	public void testTwoAps() {
 		PayloadBuilder builder = new PayloadBuilder();
-		builder.alert("test");
+		builder.alertBody("test");
 		builder.badge(9);
 
 		String expected = "{\"aps\":{\"alert\":\"test\",\"badge\":9}}";
@@ -66,7 +66,7 @@ public class PayloadBuilderTest {
 	@Test
 	public void customFieldSimple() {
 		PayloadBuilder builder = new PayloadBuilder();
-		builder.alert("test");
+		builder.alertBody("test");
 
 		builder.customField("ache1", "what");
 		builder.customField("ache2", 2);
@@ -79,7 +79,7 @@ public class PayloadBuilderTest {
 	@Test
 	public void customFieldArray() {
 		PayloadBuilder builder = new PayloadBuilder();
-		builder.alert("test");
+		builder.alertBody("test");
 
 		builder.customField("ache1", Arrays.asList("a1", "a2"));
 		builder.customField("ache2", new int[] { 1, 2 } );
@@ -92,7 +92,7 @@ public class PayloadBuilderTest {
 	@Test
 	public void customBody() {
 		PayloadBuilder builder = new PayloadBuilder();
-		builder.alert("what").actionKey("Cancel");
+		builder.alertBody("what").actionKey("Cancel");
 
 		String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":\"Cancel\",\"body\":\"what\"}}}";
 		String actual = builder.toString();
@@ -102,7 +102,7 @@ public class PayloadBuilderTest {
 	@Test
 	public void customBodyReverseOrder() {
 		PayloadBuilder builder = new PayloadBuilder();
-		builder.actionKey("Cancel").alert("what");
+		builder.actionKey("Cancel").alertBody("what");
 
 		String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":\"Cancel\",\"body\":\"what\"}}}";
 		String actual = builder.toString();
@@ -112,7 +112,7 @@ public class PayloadBuilderTest {
 	@Test
 	public void alertNoView() {
 		PayloadBuilder builder = new PayloadBuilder();
-		builder.actionKey(null).alert("what");
+		builder.actionKey(null).alertBody("what");
 
 		String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":null,\"body\":\"what\"}}}";
 		String actual = builder.toString();
