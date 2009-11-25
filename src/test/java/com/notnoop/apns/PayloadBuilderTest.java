@@ -39,10 +39,22 @@ public class PayloadBuilderTest {
 	}
 
 	@Test
-	public void localizedOne() {
+	public void localizedOneWithArray() {
 		PayloadBuilder builder = new PayloadBuilder()
 			.localizedKey("GAME_PLAY_REQUEST_FORMAT")
 			.localizedArguments(new String[] { "Jenna", "Frank" });
+		builder.sound("chime");
+
+		String expected = "{\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
+		String actual = builder.toString();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void localizedOneWithVarargs() {
+		PayloadBuilder builder = new PayloadBuilder()
+			.localizedKey("GAME_PLAY_REQUEST_FORMAT")
+			.localizedArguments("Jenna", "Frank");
 		builder.sound("chime");
 
 		String expected = "{\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";

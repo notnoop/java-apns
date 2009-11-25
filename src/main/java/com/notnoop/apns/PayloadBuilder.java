@@ -78,7 +78,7 @@ public final class PayloadBuilder {
 		return this;
 	}
 
-	public PayloadBuilder localizedArguments(String[] arguments) {
+	public PayloadBuilder localizedArguments(String... arguments) {
 		return localizedArguments(Arrays.asList(arguments));
 	}
 

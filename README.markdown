@@ -55,7 +55,7 @@ localizable alert:
                 .badge(3)
                 .customField("secret", "what do you think?");
 		        .localizedKey("GAME_PLAY_REQUEST_FORMAT")
-		        .localizedArguments(new String[] { "Jenna", "Frank" })
+		        .localizedArguments("Jenna", "Frank")
 		        .actionKey("Play").build();
 
 	service.push(token, payload.toString());
