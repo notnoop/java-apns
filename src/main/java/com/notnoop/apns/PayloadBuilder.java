@@ -94,6 +94,13 @@ public final class PayloadBuilder {
     		return this;
     	}
 
+    	public CustomAlertBuilder actionKey(String actionKey) {
+    		if (actionKey == null)
+    			actionKey = "null";
+    		aps.put("action-loc-key", actionKey);
+    		return this;
+    	}
+
     	public CustomAlertBuilder localizedKey(String key) {
     		aps.put("loc-key", key);
     		return this;
