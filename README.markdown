@@ -9,6 +9,7 @@ connections or JSON library if necessary.
 Features:
 --------------
   *  Easy to use, high performance APNS Service API
+  *  Supports Apple Feedback service
   *  Easy to use with Apple's certificates
   *  Easy to extend and reuse
   *  Easy to integrate with dependency injection frameworks
@@ -32,5 +33,13 @@ To send a notification, you can do it in two steps:
         String payload = APNS.alert("Can't be simpler that this!").build();
         String token = "fedfbcfb....";
         service.push(token, payload);
+
+3. To query the feedback service for inactive devices:
+
+        Map<String, Date> inactiveDevices = service.getInactiveDevices();
+        for (String deviceToken : inactiveDevices.keySet()) {
+            Date inactiveAsOf = inactiveDevices.get(deviceToken);
+            ...
+        }
 
 That's it!
