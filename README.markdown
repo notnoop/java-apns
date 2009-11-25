@@ -31,7 +31,7 @@ To send a notification, you can do it in two steps:
 
 2. Create and send the message
 
-        String payload = APNS.alert("Can't be simpler than this!").build();
+        String payload = APNS.newPayload().alert("Can't be simpler than this!").build();
         String token = "fedfbcfb....";
         service.push(token, payload);
 
