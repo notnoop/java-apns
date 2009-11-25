@@ -30,12 +30,18 @@
  */
 package com.notnoop.apns;
 
+import java.util.Arrays;
+import java.util.Collection;
+
 import net.sf.json.JSONObject;
 
 public final class PayloadBuilder {
+	private JSONObject root;
     private JSONObject aps;
+    private CustomAlertBuilder customAlert;
 
     PayloadBuilder() {
+        this.root = new JSONObject();
         this.aps = new JSONObject();
     }
 
@@ -54,9 +60,20 @@ public final class PayloadBuilder {
         return this;
     }
 
+    public CustomAlertBuilder customAlert() {
+    	customAlert = new CustomAlertBuilder();
+    	return customAlert;
+    }
+
+    public PayloadBuilder customField(String key, Object value) {
+    	root.put(key, value);
+    	return this;
+    }
+
     public String build() {
-        JSONObject root = new JSONObject();
-        root.put("aps", aps);
+    	if (customAlert != null)
+    		aps.put("alert", customAlert.build());
+    	root.put("aps", aps);
         return root.toString();
     }
 
@@ -65,4 +82,38 @@ public final class PayloadBuilder {
         return this.build();
     }
 
+    public static class CustomAlertBuilder {
+    	private JSONObject aps;
+
+    	public CustomAlertBuilder() {
+    		this.aps = new JSONObject();
+    	}
+
+    	public CustomAlertBuilder body(String body) {
+    		aps.put("body", body);
+    		return this;
+    	}
+
+    	public CustomAlertBuilder localizedKey(String key) {
+    		aps.put("loc-key", key);
+    		return this;
+    	}
+
+    	public CustomAlertBuilder localizedArguments(Collection<String> arguments) {
+    		aps.put("loc-args", arguments);
+    		return this;
+    	}
+
+    	public CustomAlertBuilder localizedArguments(String[] arguments) {
+    		return localizedArguments(Arrays.asList(arguments));
+    	}
+
+    	public String build() {
+    		return aps.toString();
+    	}
+
+    	public String toString() {
+    		return build();
+    	}
+    }
 }

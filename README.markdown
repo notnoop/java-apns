@@ -13,6 +13,7 @@ Features:
   *  Easy to use with Apple's certificates
   *  Easy to extend and reuse
   *  Easy to integrate with dependency injection frameworks
+  *  Easy to setup custom notification payloads
 
 
 Sample Code
@@ -43,3 +44,18 @@ To send a notification, you can do it in two steps:
         }
 
 That's it!
+
+Custom Payloads
+----------------
+
+You can send a message payload, but providing custom fields and
+localizable alert:
+
+    PayloadBuilder payload = APNS.newPayload();
+    payload.badge(3);
+    payload.customField("secret", "what do you think?");
+    builder.customAlert()
+		.localizedKey("GAME_PLAY_REQUEST_FORMAT")
+		.localizedArguments(new String[] { "Jenna", "Frank" });
+	
+	service.push(token, payload.toString());
