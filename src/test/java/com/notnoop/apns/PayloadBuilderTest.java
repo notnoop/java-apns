@@ -132,6 +132,16 @@ public class PayloadBuilderTest {
 	}
 
 	@Test
+	public void alertNoViewSimpler() {
+		PayloadBuilder builder = new PayloadBuilder();
+		builder.noActionButton().alertBody("what");
+
+		String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":null,\"body\":\"what\"}}}";
+		String actual = builder.toString();
+		assertEquals(expected, actual);
+	}
+
+	@Test
 	public void emptyApsWithFields() {
 		PayloadBuilder builder = new PayloadBuilder();
 		builder.customField("achme2", new int[] { 5, 8 } );

@@ -68,6 +68,10 @@ public final class PayloadBuilder {
 		return this;
 	}
 
+	public PayloadBuilder noActionButton() {
+		return actionKey(null);
+	}
+
 	public PayloadBuilder localizedKey(String key) {
 		customAlert.put("loc-key", key);
 		return this;
