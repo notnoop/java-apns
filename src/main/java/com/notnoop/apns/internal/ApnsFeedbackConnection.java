@@ -24,7 +24,7 @@ public class ApnsFeedbackConnection {
     	this.port = port;
     }
 
-    public Map<String, Date> failedDeliveryDevices() {
+    public Map<String, Date> getInactiveDevices() {
     	Socket socket = null;
     	try {
 			socket = factory.createSocket(host, port);

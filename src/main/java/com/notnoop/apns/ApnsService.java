@@ -95,5 +95,5 @@ public interface ApnsService {
      * mapped to the timestamp when APNs determined that the
      * application no longer exists on the device.
      */
-    Map<String, Date> failedDeliveryDevices();
+    Map<String, Date> getInactiveDevices();
 }

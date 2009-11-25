@@ -89,8 +89,8 @@ public class QueuedApnsService implements ApnsService {
     }
 
 	@Override
-	public Map<String, Date> failedDeliveryDevices() {
-		return service.failedDeliveryDevices();
+	public Map<String, Date> getInactiveDevices() {
+		return service.getInactiveDevices();
 	}
 
 }

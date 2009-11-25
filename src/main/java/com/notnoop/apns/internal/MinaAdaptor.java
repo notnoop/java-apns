@@ -72,8 +72,8 @@ public class MinaAdaptor implements ApnsService {
     }
 
 	@Override
-	public Map<String, Date> failedDeliveryDevices() {
-		return feedback.failedDeliveryDevices();
+	public Map<String, Date> getInactiveDevices() {
+		return feedback.getInactiveDevices();
 	}
 
 }
