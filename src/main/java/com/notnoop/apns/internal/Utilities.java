@@ -104,7 +104,7 @@ public class Utilities {
     	char[] chars = new char[bytes.length * 2];
 
     	for (int i = 0; i < bytes.length; ++i) {
-    		byte b = bytes[i];
+    		int b = ((int)bytes[i]) & 0xFF;
     		chars[2 * i] = base[b >>> 4];
     		chars[2 * i + 1] = base[b & 0xF];
     	}
