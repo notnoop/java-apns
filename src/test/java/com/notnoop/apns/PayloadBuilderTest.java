@@ -40,8 +40,7 @@ public class PayloadBuilderTest {
 
 	@Test
 	public void localizedOne() {
-		PayloadBuilder builder = new PayloadBuilder();
-		builder.customAlert()
+		PayloadBuilder builder = new PayloadBuilder()
 			.localizedKey("GAME_PLAY_REQUEST_FORMAT")
 			.localizedArguments(new String[] { "Jenna", "Frank" });
 		builder.sound("chime");
@@ -53,11 +52,11 @@ public class PayloadBuilderTest {
 
 	@Test
 	public void localizedTwo() {
-		PayloadBuilder builder = new PayloadBuilder();
-		builder.sound("chime");
-		builder.customAlert()
-			.localizedKey("GAME_PLAY_REQUEST_FORMAT")
-			.localizedArguments(new String[] { "Jenna", "Frank" });
+		PayloadBuilder builder =
+			new PayloadBuilder()
+				.sound("chime")
+				.localizedKey("GAME_PLAY_REQUEST_FORMAT")
+				.localizedArguments(new String[] { "Jenna", "Frank" });
 
 		String expected = "{\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
 		String actual = builder.toString();
@@ -91,6 +90,36 @@ public class PayloadBuilderTest {
 	}
 
 	@Test
+	public void customBody() {
+		PayloadBuilder builder = new PayloadBuilder();
+		builder.alert("what").actionKey("Cancel");
+
+		String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":\"Cancel\",\"body\":\"what\"}}}";
+		String actual = builder.toString();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void customBodyReverseOrder() {
+		PayloadBuilder builder = new PayloadBuilder();
+		builder.actionKey("Cancel").alert("what");
+
+		String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":\"Cancel\",\"body\":\"what\"}}}";
+		String actual = builder.toString();
+		assertEquals(expected, actual);
+	}
+
+	@Test
+	public void alertNoView() {
+		PayloadBuilder builder = new PayloadBuilder();
+		builder.actionKey(null).alert("what");
+
+		String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":null,\"body\":\"what\"}}}";
+		String actual = builder.toString();
+		assertEquals(expected, actual);
+	}
+
+	@Test
 	public void emptyApsWithFields() {
 		PayloadBuilder builder = new PayloadBuilder();
 		builder.customField("achme2", new int[] { 5, 8 } );
@@ -105,7 +134,7 @@ public class PayloadBuilderTest {
 		PayloadBuilder builder = new PayloadBuilder();
 		builder.customField("achme", "foo");
 		builder.sound("chime");
-		builder.customAlert().localizedKey("GAME_PLAY_REQUEST_FORMAT")
+		builder.localizedKey("GAME_PLAY_REQUEST_FORMAT")
 			.localizedArguments(new String[] { "Jenna", "Frank"});
 
 		String expected = "{\"achme\":\"foo\",\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";

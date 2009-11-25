@@ -38,11 +38,12 @@ import net.sf.json.JSONObject;
 public final class PayloadBuilder {
 	private JSONObject root;
     private JSONObject aps;
-    private CustomAlertBuilder customAlert;
+    private JSONObject customAlert;
 
     PayloadBuilder() {
         this.root = new JSONObject();
         this.aps = new JSONObject();
+        this.customAlert = new JSONObject();
     }
 
     public PayloadBuilder alert(String alert) {
@@ -60,10 +61,26 @@ public final class PayloadBuilder {
         return this;
     }
 
-    public CustomAlertBuilder customAlert() {
-    	customAlert = new CustomAlertBuilder();
-    	return customAlert;
-    }
+	public PayloadBuilder actionKey(String actionKey) {
+		if (actionKey == null)
+			actionKey = "null";
+		customAlert.put("action-loc-key", actionKey);
+		return this;
+	}
+
+	public PayloadBuilder localizedKey(String key) {
+		customAlert.put("loc-key", key);
+		return this;
+	}
+
+	public PayloadBuilder localizedArguments(Collection<String> arguments) {
+		customAlert.put("loc-args", arguments);
+		return this;
+	}
+
+	public PayloadBuilder localizedArguments(String[] arguments) {
+		return localizedArguments(Arrays.asList(arguments));
+	}
 
     public PayloadBuilder customField(String key, Object value) {
     	root.put(key, value);
@@ -71,8 +88,13 @@ public final class PayloadBuilder {
     }
 
     public String build() {
-    	if (customAlert != null)
-    		aps.put("alert", customAlert.build());
+    	if (!customAlert.isEmpty()) {
+    		if (aps.containsKey("alert")) {
+    			String alertBody = aps.getString("alert");
+    			customAlert.put("body", alertBody);
+    		}
+    		aps.put("alert", customAlert);
+    	}
     	root.put("aps", aps);
         return root.toString();
     }
@@ -80,47 +102,5 @@ public final class PayloadBuilder {
     @Override
     public String toString() {
         return this.build();
-    }
-
-    public static class CustomAlertBuilder {
-    	private JSONObject alert;
-
-    	public CustomAlertBuilder() {
-    		this.alert = new JSONObject();
-    	}
-
-    	public CustomAlertBuilder body(String body) {
-    		alert.put("body", body);
-    		return this;
-    	}
-
-    	public CustomAlertBuilder actionKey(String actionKey) {
-    		if (actionKey == null)
-    			actionKey = "null";
-    		alert.put("action-loc-key", actionKey);
-    		return this;
-    	}
-
-    	public CustomAlertBuilder localizedKey(String key) {
-    		alert.put("loc-key", key);
-    		return this;
-    	}
-
-    	public CustomAlertBuilder localizedArguments(Collection<String> arguments) {
-    		alert.put("loc-args", arguments);
-    		return this;
-    	}
-
-    	public CustomAlertBuilder localizedArguments(String[] arguments) {
-    		return localizedArguments(Arrays.asList(arguments));
-    	}
-
-    	public String build() {
-    		return alert.toString();
-    	}
-
-    	public String toString() {
-    		return build();
-    	}
     }
 }
