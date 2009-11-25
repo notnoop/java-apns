@@ -80,6 +80,7 @@ public class ApnsConnection {
                 socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
                 logger.debug("Message \"{}\" sent", m);
+                attempts = 0;
                 break;
             } catch (IOException e) {
                 if (attempts >= RETRIES) {
