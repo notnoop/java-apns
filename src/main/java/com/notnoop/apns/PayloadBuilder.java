@@ -83,31 +83,31 @@ public final class PayloadBuilder {
     }
 
     public static class CustomAlertBuilder {
-    	private JSONObject aps;
+    	private JSONObject alert;
 
     	public CustomAlertBuilder() {
-    		this.aps = new JSONObject();
+    		this.alert = new JSONObject();
     	}
 
     	public CustomAlertBuilder body(String body) {
-    		aps.put("body", body);
+    		alert.put("body", body);
     		return this;
     	}
 
     	public CustomAlertBuilder actionKey(String actionKey) {
     		if (actionKey == null)
     			actionKey = "null";
-    		aps.put("action-loc-key", actionKey);
+    		alert.put("action-loc-key", actionKey);
     		return this;
     	}
 
     	public CustomAlertBuilder localizedKey(String key) {
-    		aps.put("loc-key", key);
+    		alert.put("loc-key", key);
     		return this;
     	}
 
     	public CustomAlertBuilder localizedArguments(Collection<String> arguments) {
-    		aps.put("loc-args", arguments);
+    		alert.put("loc-args", arguments);
     		return this;
     	}
 
@@ -116,7 +116,7 @@ public final class PayloadBuilder {
     	}
 
     	public String build() {
-    		return aps.toString();
+    		return alert.toString();
     	}
 
     	public String toString() {
