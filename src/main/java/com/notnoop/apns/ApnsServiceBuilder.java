@@ -56,9 +56,9 @@ import static com.notnoop.apns.internal.Utilities.*;
  *
  * <pre>
  *   ApnsService = APNS.newService()
- *                  .withCert("/path/to/certificate.p12", "MyCertPassword")
- *                  .withSandboxDestination()
- *                  .build()
+ *    .withCert("/path/to/certificate.p12", "MyCertPassword")
+ *    .withSandboxDestination()
+ *    .build()
  * </pre>
  */
 public class ApnsServiceBuilder {
@@ -91,9 +91,9 @@ public class ApnsServiceBuilder {
      * needs to be encrypted using the SunX509 algorithm.  Both
      * of these settings are the default.
      *
-     * @param fileName	the path to the certificate
-     * @param password	the password of the keystore
-     * @return	this
+     * @param fileName  the path to the certificate
+     * @param password  the password of the keystore
+     * @return  this
      */
     public ApnsServiceBuilder withCert(String fileName, String password) {
         try {
@@ -112,9 +112,9 @@ public class ApnsServiceBuilder {
      * needs to be encrypted using the SunX509 algorithm.  Both
      * of these settings are the default.
      *
-     * @param stream	the keystore represented as input stream
-     * @param password	the password of the keystore
-     * @return	this
+     * @param stream    the keystore represented as input stream
+     * @param password  the password of the keystore
+     * @return  this
      */
     public ApnsServiceBuilder withCert(InputStream stream, String password) {
         try {
@@ -135,8 +135,8 @@ public class ApnsServiceBuilder {
      * clients may need to represent the Keystore in a different
      * format than supported.
      *
-     * @param sslContext	Context to be used to create secure connections
-     * @return	this
+     * @param sslContext    Context to be used to create secure connections
+     * @return  this
      */
     private ApnsServiceBuilder withSSLContext(SSLContext sslContext) {
         this.sslContext = sslContext;
@@ -151,9 +151,9 @@ public class ApnsServiceBuilder {
      * or {@link #withProductionDestination()}.  Clients may use
      * this method to connect to mocking tests and such.
      *
-     * @param host	hostname the notification gateway of Apple
-     * @param port	port of the notification gateway of Apple
-     * @return	this
+     * @param host  hostname the notification gateway of Apple
+     * @param port  port of the notification gateway of Apple
+     * @return  this
      */
     public ApnsServiceBuilder withGatewayDestination(String host, int port) {
         this.gatewayHost = host;
@@ -169,14 +169,14 @@ public class ApnsServiceBuilder {
      * or {@link #withProductionDestination()}.  Clients may use
      * this method to connect to mocking tests and such.
      *
-     * @param host	hostname of the feedback server of Apple
-     * @param port	port of the feedback server of Apple
-     * @return
+     * @param host  hostname of the feedback server of Apple
+     * @param port  port of the feedback server of Apple
+     * @return this
      */
     public ApnsServiceBuilder withFeedbackDestination(String host, int port) {
-    	this.feedbackHost = host;
-    	this.feedbackPort = port;
-    	return this;
+        this.feedbackHost = host;
+        this.feedbackPort = port;
+        return this;
     }
 
     /**
@@ -186,11 +186,11 @@ public class ApnsServiceBuilder {
      * This is desired when in testing and pushing notifications
      * with a development provision.
      *
-     * @return	this
+     * @return  this
      */
     public ApnsServiceBuilder withSandboxDestination() {
         return withGatewayDestination(SANDBOX_GATEWAY_HOST, SANDBOX_GATEWAY_PORT)
-        	   .withFeedbackDestination(SANDBOX_FEEDBACK_HOST, SANDBOX_FEEDBACK_PORT);
+        .withFeedbackDestination(SANDBOX_FEEDBACK_HOST, SANDBOX_FEEDBACK_PORT);
     }
 
     /**
@@ -201,18 +201,18 @@ public class ApnsServiceBuilder {
      * a production provision (whether through App Store or Ad hoc
      * distribution).
      *
-     * @return this
+     * @return  this
      */
     public ApnsServiceBuilder withProductionDestination() {
         return withGatewayDestination(PRODUCTION_GATEWAY_HOST, PRODUCTION_GATEWAY_PORT)
-        		.withFeedbackDestination(PRODUCTION_FEEDBACK_HOST, PRODUCTION_FEEDBACK_PORT);
+        .withFeedbackDestination(PRODUCTION_FEEDBACK_HOST, PRODUCTION_FEEDBACK_PORT);
     }
 
     /**
      * Constructs a new thread with a processing queue to process
      * notification requests.
      *
-     * @return	this
+     * @return  this
      */
     public ApnsServiceBuilder asQueued() {
         this.isQueued = true;
@@ -223,7 +223,7 @@ public class ApnsServiceBuilder {
      * Constructs non-blocking queues and sockets connections
      * to send the iPhone notifications.
      *
-     * @return	this
+     * @return  this
      */
     public ApnsServiceBuilder asNonBlocking() {
         this.isNonBlocking = true;
@@ -234,13 +234,13 @@ public class ApnsServiceBuilder {
      * Returns a fully initialized instance of {@link ApnsService},
      * according to the requested settings.
      *
-     * @return	a new instance of ApnsService
+     * @return  a new instance of ApnsService
      */
     public ApnsService build() {
         checkInitialization();
         ApnsService service;
 
-    	SSLSocketFactory sslFactory = sslContext.getSocketFactory();
+        SSLSocketFactory sslFactory = sslContext.getSocketFactory();
         ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort);
 
         if (isNonBlocking) {

@@ -85,7 +85,7 @@ public class ApnsConnection {
                 break;
             } catch (Exception e) {
                 if (attempts >= RETRIES) {
-                	logger.error("Couldn't send message " + m, e);
+                    logger.error("Couldn't send message " + m, e);
                     throw new RuntimeException(e);
                 }
                 logger.warn("Failed to send message " + m + "... trying again", e);
@@ -96,7 +96,7 @@ public class ApnsConnection {
                 }
                 try { socket.close(); } catch (Exception _) {}
                 socket = null;
-			}
+            }
         }
     }
 

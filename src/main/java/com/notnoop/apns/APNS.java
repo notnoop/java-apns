@@ -39,11 +39,11 @@ package com.notnoop.apns;
  */
 public class APNS {
 
-	/**
-	 * Returns a new Payload builder
-	 */
+    /**
+     * Returns a new Payload builder
+     */
     public static PayloadBuilder newPayload() {
-    	return new PayloadBuilder();
+        return new PayloadBuilder();
     }
 
     /**

@@ -35,13 +35,13 @@ import org.junit.Test;
 
 public class UtilitiesTest {
 
-	@Test
-	public void testEncodeAndDecode() {
-		String encodedHex = "a1b2d4";
+    @Test
+    public void testEncodeAndDecode() {
+        String encodedHex = "a1b2d4";
 
-		byte[] decoded = Utilities.decodeHex(encodedHex);
-		String encoded = Utilities.encodeHex(decoded);
+        byte[] decoded = Utilities.decodeHex(encodedHex);
+        String encoded = Utilities.encodeHex(decoded);
 
-		Assert.assertEquals(encodedHex.toLowerCase(), encoded.toLowerCase());
-	}
+        Assert.assertEquals(encodedHex.toLowerCase(), encoded.toLowerCase());
+    }
 }

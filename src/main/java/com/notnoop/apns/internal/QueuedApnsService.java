@@ -88,9 +88,9 @@ public class QueuedApnsService implements ApnsService {
         service.stop();
     }
 
-	@Override
-	public Map<String, Date> getInactiveDevices() {
-		return service.getInactiveDevices();
-	}
+    @Override
+    public Map<String, Date> getInactiveDevices() {
+        return service.getInactiveDevices();
+    }
 
 }

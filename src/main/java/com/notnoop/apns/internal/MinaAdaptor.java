@@ -23,18 +23,18 @@ public class MinaAdaptor implements ApnsService {
     private final ApnsFeedbackConnection feedback;
 
     public MinaAdaptor(SSLContext sslContext, String host, int port) {
-    	this(sslContext, host, port, null);
+        this(sslContext, host, port, null);
     }
 
     public MinaAdaptor(SSLContext sslContext, String host,
-			int port, ApnsFeedbackConnection feedback) {
+            int port, ApnsFeedbackConnection feedback) {
         this.host = host;
         this.port = port;
         this.connector = createNioSocketConnector(sslContext);
         this.feedback = feedback;
-	}
+    }
 
-	private NioSocketConnector createNioSocketConnector(SSLContext sslContext) {
+    private NioSocketConnector createNioSocketConnector(SSLContext sslContext) {
         NioSocketConnector connector = new NioSocketConnector();
         connector.setConnectTimeoutMillis(30 * 1000L);
         connector.setHandler(new IoHandlerAdapter());
@@ -71,9 +71,9 @@ public class MinaAdaptor implements ApnsService {
         connector.dispose();
     }
 
-	@Override
-	public Map<String, Date> getInactiveDevices() {
-		return feedback.getInactiveDevices();
-	}
+    @Override
+    public Map<String, Date> getInactiveDevices() {
+        return feedback.getInactiveDevices();
+    }
 
 }
