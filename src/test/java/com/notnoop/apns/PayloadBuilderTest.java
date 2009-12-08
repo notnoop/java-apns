@@ -163,4 +163,5 @@ public class PayloadBuilderTest {
 		String actual = builder.toString();
 		assertEquals(expected, actual);
 	}
+
 }
