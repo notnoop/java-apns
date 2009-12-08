@@ -33,11 +33,11 @@ public class MockingUtils {
         }
     }
 
-    static SocketFactory mockClosedThenOpenSocket(OutputStream stream, boolean isClosed, int tries) {
+    static SocketFactory mockClosedThenOpenSocket(OutputStream stream, boolean isClosed, int failedTries) {
         try {
-            List<Socket> socketMocks = new ArrayList<Socket>(tries + 1);
+            List<Socket> socketMocks = new ArrayList<Socket>(failedTries + 1);
 
-            for (int i = 1; i < tries; ++i) {
+            for (int i = 0; i < failedTries; ++i) {
                 Socket socket = mock(Socket.class);
                 if (isClosed) {
                     when(socket.isClosed()).thenReturn(true);

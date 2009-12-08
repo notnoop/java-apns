@@ -70,6 +70,8 @@ public class ApnsConnection {
         return socket;
     }
 
+    int DELAY_IN_MS = 1000;
+
     private static final int RETRIES = 3;
     protected synchronized void sendMessage(ApnsNotification m) {
         int attempts = 0;
@@ -90,7 +92,7 @@ public class ApnsConnection {
                 }
                 logger.warn("Failed to send message " + m + "... trying again", e);
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(DELAY_IN_MS);
                 } catch (InterruptedException e1) {
                     e1.printStackTrace();
                 }
