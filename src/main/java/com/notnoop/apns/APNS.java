@@ -39,10 +39,16 @@ package com.notnoop.apns;
  */
 public class APNS {
 
+    /**
+     * Returns a new Payload builder
+     */
     public static PayloadBuilder newPayload() {
-    	return new PayloadBuilder();
+        return new PayloadBuilder();
     }
 
+    /**
+     * Returns a new APNS Service for sending iPhone notifications
+     */
     public static ApnsServiceBuilder newService() {
         return new ApnsServiceBuilder();
     }

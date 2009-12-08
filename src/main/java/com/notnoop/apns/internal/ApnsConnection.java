@@ -59,7 +59,7 @@ public class ApnsConnection {
 
     private Socket socket;
     private Socket socket() {
-        if (socket == null || socket.isClosed()) {
+        while (socket == null || socket.isClosed()) {
             try {
                 socket = factory.createSocket(host, port);
                 logger.debug("Made a new connection to APNS");
@@ -80,11 +80,12 @@ public class ApnsConnection {
                 socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
                 logger.debug("Message \"{}\" sent", m);
+
                 attempts = 0;
                 break;
-            } catch (IOException e) {
+            } catch (Exception e) {
                 if (attempts >= RETRIES) {
-                	logger.error("Couldn't send message " + m, e);
+                    logger.error("Couldn't send message " + m, e);
                     throw new RuntimeException(e);
                 }
                 logger.warn("Failed to send message " + m + "... trying again", e);

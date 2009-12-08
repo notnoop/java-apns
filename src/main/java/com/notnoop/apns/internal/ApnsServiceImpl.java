@@ -63,9 +63,9 @@ public class ApnsServiceImpl implements ApnsService {
     public void stop() {
     }
 
-	@Override
-	public Map<String, Date> getInactiveDevices() {
-		return feedback.getInactiveDevices();
-	}
+    @Override
+    public Map<String, Date> getInactiveDevices() {
+        return feedback.getInactiveDevices();
+    }
 
 }

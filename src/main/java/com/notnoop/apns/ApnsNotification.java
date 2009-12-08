@@ -87,6 +87,7 @@ public class ApnsNotification {
         return this.payload;
     }
 
+    private byte[] marshall = null;
     /**
      * Returns the binary representation of the message as expected by the
      * APNS server.
@@ -95,7 +96,9 @@ public class ApnsNotification {
      * (on the wire/socket) without any modification.
      */
     public byte[] marshall() {
-        return Utilities.marshall(COMMAND, deviceToken, payload);
+        if (marshall == null)
+            marshall = Utilities.marshall(COMMAND, deviceToken, payload);
+        return marshall;
     }
 
     /**
