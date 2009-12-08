@@ -77,10 +77,24 @@ public class ApnsServiceBuilder {
     private boolean isNonBlocking = false;
 
     /**
-     * Constructs a new instanceof {@code ApnsServiceBuilder}
+     * Constructs a new instance of {@code ApnsServiceBuilder}
      */
     public ApnsServiceBuilder() { }
 
+    /**
+     * Specify the certificate used to connect to Apple APNS
+     * servers.  This relies on the path (absolute or relative to
+     * working path) to the keystore (*.p12) containing the
+     * certificate, along with the given password.
+     *
+     * The keystore needs to be of PKCS12 and the keystore
+     * needs to be encrypted using the SunX509 algorithm.  Both
+     * of these settings are the default.
+     *
+     * @param fileName	the path to the certificate
+     * @param password	the password of the keystore
+     * @return	this
+     */
     public ApnsServiceBuilder withCert(String fileName, String password) {
         try {
             return withCert(new FileInputStream(fileName), password);
@@ -89,6 +103,19 @@ public class ApnsServiceBuilder {
         }
     }
 
+    /**
+     * Specify the certificate used to connect to Apple APNS
+     * servers.  This relies on the stream of keystore (*.p12)
+     * containing the certificate, along with the given password.
+     *
+     * The keystore needs to be of PKCS12 and the keystore
+     * needs to be encrypted using the SunX509 algorithm.  Both
+     * of these settings are the default.
+     *
+     * @param stream	the keystore represented as input stream
+     * @param password	the password of the keystore
+     * @return	this
+     */
     public ApnsServiceBuilder withCert(InputStream stream, String password) {
         try {
             return withSSLContext(
@@ -99,44 +126,117 @@ public class ApnsServiceBuilder {
         }
     }
 
+    /**
+     * Specify the SSLContext that should be used to initiate the
+     * connection to Apple Server.
+     *
+     * Most clients would use {@link #withCert(InputStream, String)}
+     * or {@link #withCert(String, String)} instead.  But some
+     * clients may need to represent the Keystore in a different
+     * format than supported.
+     *
+     * @param sslContext	Context to be used to create secure connections
+     * @return	this
+     */
     private ApnsServiceBuilder withSSLContext(SSLContext sslContext) {
         this.sslContext = sslContext;
         return this;
     }
 
+    /**
+     * Specify the gateway server for sending Apple iPhone
+     * notifications.
+     *
+     * Most clients should use {@link #withSandboxDestination()}
+     * or {@link #withProductionDestination()}.  Clients may use
+     * this method to connect to mocking tests and such.
+     *
+     * @param host	hostname the notification gateway of Apple
+     * @param port	port of the notification gateway of Apple
+     * @return	this
+     */
     public ApnsServiceBuilder withGatewayDestination(String host, int port) {
         this.gatewayHost = host;
         this.gatewaPort = port;
         return this;
     }
 
+    /**
+     * Specify the Feedback for getting failed devices from
+     * Apple iPhone Push servers.
+     *
+     * Most clients should use {@link #withSandboxDestination()}
+     * or {@link #withProductionDestination()}.  Clients may use
+     * this method to connect to mocking tests and such.
+     *
+     * @param host	hostname of the feedback server of Apple
+     * @param port	port of the feedback server of Apple
+     * @return
+     */
     public ApnsServiceBuilder withFeedbackDestination(String host, int port) {
     	this.feedbackHost = host;
     	this.feedbackPort = port;
     	return this;
     }
 
+    /**
+     * Specify to use the Apple sandbox servers as iPhone gateway
+     * and feedback servers.
+     *
+     * This is desired when in testing and pushing notifications
+     * with a development provision.
+     *
+     * @return	this
+     */
     public ApnsServiceBuilder withSandboxDestination() {
         return withGatewayDestination(SANDBOX_GATEWAY_HOST, SANDBOX_GATEWAY_PORT)
         	   .withFeedbackDestination(SANDBOX_FEEDBACK_HOST, SANDBOX_FEEDBACK_PORT);
     }
 
+    /**
+     * Specify to use the Apple Production servers as iPhone gateway
+     * and feedback servers.
+     *
+     * This is desired when sending notifications to devices with
+     * a production provision (whether through App Store or Ad hoc
+     * distribution).
+     *
+     * @return this
+     */
     public ApnsServiceBuilder withProductionDestination() {
         return withGatewayDestination(PRODUCTION_GATEWAY_HOST, PRODUCTION_GATEWAY_PORT)
         		.withFeedbackDestination(PRODUCTION_FEEDBACK_HOST, PRODUCTION_FEEDBACK_PORT);
     }
 
+    /**
+     * Constructs a new thread with a processing queue to process
+     * notification requests.
+     *
+     * @return	this
+     */
     public ApnsServiceBuilder asQueued() {
         this.isQueued = true;
         return this;
     }
 
+    /**
+     * Constructs non-blocking queues and sockets connections
+     * to send the iPhone notifications.
+     *
+     * @return	this
+     */
     public ApnsServiceBuilder asNonBlocking() {
         this.isNonBlocking = true;
         return this;
     }
 
-    public ApnsService build() throws Exception {
+    /**
+     * Returns a fully initialized instance of {@link ApnsService},
+     * according to the requested settings.
+     *
+     * @return	a new instance of ApnsService
+     */
+    public ApnsService build() {
         checkInitialization();
         ApnsService service;
 

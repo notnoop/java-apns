@@ -80,6 +80,9 @@ public class ApnsConnection {
                 socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
                 logger.debug("Message \"{}\" sent", m);
+                Thread.sleep(1000);
+                logger.warn("socket is {}", socket.isConnected());
+
                 attempts = 0;
                 break;
             } catch (IOException e) {
@@ -95,7 +98,10 @@ public class ApnsConnection {
                 }
                 try { socket.close(); } catch (Exception _) {}
                 socket = null;
-            }
+            } catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
     }
 
