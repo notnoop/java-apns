@@ -33,6 +33,8 @@ package com.notnoop.apns;
 import java.util.Arrays;
 import java.util.Collection;
 
+import com.notnoop.apns.internal.Utilities;
+
 import net.sf.json.JSONObject;
 
 /**
@@ -40,9 +42,9 @@ import net.sf.json.JSONObject;
  * specified by Apple Push Notification Programming Guide.
  */
 public final class PayloadBuilder {
-    private JSONObject root;
-    private JSONObject aps;
-    private JSONObject customAlert;
+    private final JSONObject root;
+    private final JSONObject aps;
+    private final JSONObject customAlert;
 
     /**
      * Constructs a new instance of {@code PayloadBuilder}
@@ -192,6 +194,39 @@ public final class PayloadBuilder {
         return this;
     }
 
+    private static final int PACKET_LENGTH = 255;
+
+    public int length() {
+        int length = 1 + 2 + 32 + 2;
+        String str = this.copy().toString();
+        int payloadLength = Utilities.toUTF8Bytes(str).length;
+        return length + payloadLength;
+    }
+
+    public boolean isTooLong() {
+        return this.length() > PACKET_LENGTH;
+    }
+
+    public PayloadBuilder resizeAlertBody(int packetLength) {
+        int currLength = length();
+        if (currLength < packetLength)
+            return this;
+
+        int d = packetLength - currLength;
+        String body = aps.getString("alert");
+
+        if (body.length() < d)
+            aps.remove("alert");
+        else
+            aps.put("alert", body.subSequence(0, d));
+
+        return this;
+    }
+
+    public PayloadBuilder shrinkBody() {
+        return resizeAlertBody(PACKET_LENGTH);
+    }
+
     /**
      * Returns the JSON String representation of the payload
      * according to Apple APNS specification
@@ -213,5 +248,15 @@ public final class PayloadBuilder {
     @Override
     public String toString() {
         return this.build();
+    }
+
+    private PayloadBuilder(JSONObject root, JSONObject aps, JSONObject customAlert) {
+        this.root = Utilities.clone(root);
+        this.aps = Utilities.clone(aps);
+        this.customAlert = Utilities.clone(customAlert);
+    }
+
+    public PayloadBuilder copy() {
+        return new PayloadBuilder(this.root, this.aps, this.customAlert);
     }
 }
