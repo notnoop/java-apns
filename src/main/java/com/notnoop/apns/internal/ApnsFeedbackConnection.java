@@ -38,7 +38,11 @@ import java.util.Map;
 
 import javax.net.SocketFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ApnsFeedbackConnection {
+    private static final Logger logger = LoggerFactory.getLogger(ApnsFeedbackConnection.class);
 
     private final SocketFactory factory;
     private final String host;
@@ -50,7 +54,32 @@ public class ApnsFeedbackConnection {
         this.port = port;
     }
 
+    int DELAY_IN_MS = 1000;
+    private static final int RETRIES = 3;
+
     public Map<String, Date> getInactiveDevices() {
+        int attempts = 0;
+        while (true) {
+            attempts++;
+            try {
+                Map<String, Date> result = getInactiveDevicesImpl();
+                attempts = 0;
+                return result;
+            } catch (Exception e) {
+                if (attempts >= RETRIES) {
+                    logger.error("Couldn't get feedback connection", e);
+                    throw new RuntimeException(e);
+                }
+                try {
+                    Thread.sleep(DELAY_IN_MS);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public Map<String, Date> getInactiveDevicesImpl() {
         Socket socket = null;
         try {
             socket = factory.createSocket(host, port);
