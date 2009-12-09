@@ -42,6 +42,7 @@ public class QueuedApnsService implements ApnsService {
 
     private ApnsService service;
     private BlockingQueue<ApnsNotification> queue;
+    private volatile boolean started = false;
 
     public QueuedApnsService(ApnsService service) {
         this.service = service;
@@ -55,6 +56,8 @@ public class QueuedApnsService implements ApnsService {
 
     @Override
     public void push(ApnsNotification msg) {
+        if (!started)
+            throw new IllegalStateException("service hasn't be started or was closed");
         queue.add(msg);
     }
 
@@ -63,6 +66,7 @@ public class QueuedApnsService implements ApnsService {
 
     @Override
     public void start() {
+        started = true;
         service.start();
         if (thread != null)
             stop();
@@ -83,6 +87,7 @@ public class QueuedApnsService implements ApnsService {
 
     @Override
     public void stop() {
+        started = false;
         shouldContinue = false;
         thread.interrupt();
         service.stop();
