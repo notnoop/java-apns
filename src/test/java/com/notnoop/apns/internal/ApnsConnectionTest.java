@@ -1,31 +1,58 @@
 package com.notnoop.apns.internal;
 
+import static com.notnoop.apns.internal.MockingUtils.*;
+
 import java.io.ByteArrayOutputStream;
 
 import javax.net.SocketFactory;
 
 import org.junit.Assert;
-import org.junit.experimental.theories.DataPoint;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
+import org.junit.Test;
 
 import com.notnoop.apns.ApnsNotification;
 
-@RunWith(Theories.class)
 public class ApnsConnectionTest {
     ApnsNotification msg = new ApnsNotification ("a87d8878d878a79", "{\"aps\":{}}");
 
-    static ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    @Test
+    public void simpleSocket() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SocketFactory factory = mockSocketFactory(baos);
+        packetSentRegardless(factory, baos);
+    }
 
-    @DataPoint public static SocketFactory SIMPLE = MockingUtils.mockSocketFactory(baos);
-    @DataPoint public static SocketFactory CLOSED_RETRY = MockingUtils.mockClosedThenOpenSocket(baos, true, 1);
-    @DataPoint public static SocketFactory ERROR_RETRY = MockingUtils.mockClosedThenOpenSocket(baos, false, 1);
-    @DataPoint public static SocketFactory TWICE_ERROR_RETRY = MockingUtils.mockClosedThenOpenSocket(baos, false, 2);
+    @Test
+    public void closedSocket() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SocketFactory factory = mockClosedThenOpenSocket(baos, true, 1);
+        packetSentRegardless(factory, baos);
+    }
 
-    @Theory
-    public void packetSentRegardlesss(SocketFactory sf) {
-        baos.reset();
+    @Test
+    public void errorOnce() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SocketFactory factory = mockClosedThenOpenSocket(baos, false, 1);
+        packetSentRegardless(factory, baos);
+    }
+
+    @Test
+    public void errorTwice() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SocketFactory factory = mockClosedThenOpenSocket(baos, false, 2);
+        packetSentRegardless(factory, baos);
+    }
+
+    /**
+     * Connection fails after three retries
+     */
+    @Test(expected = Exception.class)
+    public void errorThrice() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SocketFactory factory = mockClosedThenOpenSocket(baos, false, 3);
+        packetSentRegardless(factory, baos);
+    }
+
+    private void packetSentRegardless(SocketFactory sf, ByteArrayOutputStream baos) {
         ApnsConnection connection = new ApnsConnection(sf, "localhost", 80);
         connection.DELAY_IN_MS = 0;
         connection.sendMessage(msg);
