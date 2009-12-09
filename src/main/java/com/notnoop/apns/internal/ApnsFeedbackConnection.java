@@ -38,11 +38,7 @@ import java.util.Map;
 
 import javax.net.SocketFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ApnsFeedbackConnection {
-    private static final Logger logger = LoggerFactory.getLogger(ApnsFeedbackConnection.class);
 
     private final SocketFactory factory;
     private final String host;
