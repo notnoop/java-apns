@@ -39,6 +39,17 @@ public class PayloadBuilderTest {
     }
 
     @Test
+    public void testTwoApsMultipleBuilds() {
+        PayloadBuilder builder = new PayloadBuilder();
+        builder.alertBody("test");
+        builder.badge(9);
+
+        String expected = "{\"aps\":{\"alert\":\"test\",\"badge\":9}}";
+        assertEquals(expected, builder.build());
+        assertEquals(expected, builder.build());
+    }
+
+    @Test
     public void localizedOneWithArray() {
         PayloadBuilder builder = new PayloadBuilder()
         .localizedKey("GAME_PLAY_REQUEST_FORMAT")
@@ -112,6 +123,16 @@ public class PayloadBuilderTest {
     }
 
     @Test
+    public void multipleBuildCallsWithCustomBody() {
+        PayloadBuilder builder = new PayloadBuilder();
+        builder.alertBody("what").actionKey("Cancel");
+
+        String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":\"Cancel\",\"body\":\"what\"}}}";
+        assertEquals(expected, builder.build());
+        assertEquals(expected, builder.build());
+    }
+
+    @Test
     public void customBodyReverseOrder() {
         PayloadBuilder builder = new PayloadBuilder();
         builder.actionKey("Cancel").alertBody("what");
@@ -163,4 +184,18 @@ public class PayloadBuilderTest {
         String actual = builder.toString();
         assertEquals(expected, actual);
     }
+
+    @Test
+    public void multipleBuildAbitComplicated() {
+        PayloadBuilder builder = new PayloadBuilder();
+        builder.customField("achme", "foo");
+        builder.sound("chime");
+        builder.localizedKey("GAME_PLAY_REQUEST_FORMAT")
+        .localizedArguments(new String[] { "Jenna", "Frank"});
+
+        String expected = "{\"achme\":\"foo\",\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
+        assertEquals(expected, builder.build());
+        assertEquals(expected, builder.build());
+    }
+
 }

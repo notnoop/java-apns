@@ -234,7 +234,8 @@ public final class PayloadBuilder {
      * @return  the String representation as expected by Apple
      */
     public String build() {
-        if (!customAlert.isEmpty()) {
+        if (!(customAlert.isEmpty()
+                || customAlert.equals(aps.get("alert")))) {
             if (aps.containsKey("alert")) {
                 String alertBody = aps.getString("alert");
                 customAlert.put("body", alertBody);
