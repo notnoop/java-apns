@@ -4,20 +4,31 @@ import static org.junit.Assert.*;
 
 import java.util.concurrent.Semaphore;
 
-import javax.net.SocketFactory;
-
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 
-public class QueuedApnsServiceTest extends ApnsServiceImplTest{
+public class QueuedApnsServiceTest {
 
     @Test(expected=IllegalStateException.class)
     public void sendWithoutStarting() {
         QueuedApnsService service = new QueuedApnsService(null);
         service.push(notification);
+    }
+
+    ApnsNotification notification = new ApnsNotification("2342", "{}");
+
+    @Test
+    public void pushEvantually() {
+        ConnectionStub connection = spy(new ConnectionStub(0, 1));
+        ApnsService service = newService(connection, null);
+
+        service.push(notification);
+        connection.semaphor.acquireUninterruptibly();
+
+        verify(connection, times(1)).sendMessage(notification);
     }
 
     @Test
@@ -61,7 +72,7 @@ public class QueuedApnsServiceTest extends ApnsServiceImplTest{
 
         protected synchronized void sendMessage(ApnsNotification m) {
             long time = System.currentTimeMillis();
-            while (!stop && (System.currentTimeMillis() < time));
+            while (!stop && (System.currentTimeMillis() < time + delay));
             semaphor.release();
         }
 
