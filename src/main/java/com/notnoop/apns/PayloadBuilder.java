@@ -259,4 +259,11 @@ public final class PayloadBuilder {
     public PayloadBuilder copy() {
         return new PayloadBuilder(this.root, this.aps, this.customAlert);
     }
+
+    /**
+     * @return a new instance of Payload Builder
+     */
+    public static PayloadBuilder newPayload() {
+        return new PayloadBuilder();
+    }
 }
