@@ -11,7 +11,7 @@ public class QueuedApnsServiceTest extends ApnsServiceImplTest{
         QueuedApnsService service = new QueuedApnsService(null);
         service.push(notification);
     }
-    
+
     protected ApnsService newService(ApnsConnection connection, ApnsFeedbackConnection feedback) {
         ApnsService service = new ApnsServiceImpl(connection, null);
         ApnsService queued = new QueuedApnsService(service);
