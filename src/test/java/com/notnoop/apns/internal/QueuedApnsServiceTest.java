@@ -1,6 +1,11 @@
 package com.notnoop.apns.internal;
 
 import static org.junit.Assert.*;
+
+import java.util.concurrent.Semaphore;
+
+import javax.net.SocketFactory;
+
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
@@ -18,15 +23,7 @@ public class QueuedApnsServiceTest extends ApnsServiceImplTest{
     @Test
     public void dontBlock() {
         final int delay = 10000;
-        ApnsConnection connection = new ApnsConnection(null, null, 0) {
-            protected synchronized void sendMessage(ApnsNotification m) {
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException e) {
-                }
-            }
-        };
-
+        ConnectionStub connection = spy(new ConnectionStub(delay, 2));
         QueuedApnsService queued =
             new QueuedApnsService(new ApnsServiceImpl(connection, null));
         queued.start();
@@ -34,7 +31,11 @@ public class QueuedApnsServiceTest extends ApnsServiceImplTest{
         queued.push(notification);
         queued.push(notification);
         long time2 = System.currentTimeMillis();
-        assertTrue("Queued blocks unexpectedly", (time2- time1) < delay);
+        assertTrue("queued.push() blocks", (time2 - time1) < delay);
+
+        connection.interrupt();
+        connection.semaphor.acquireUninterruptibly();
+        verify(connection, times(2)).sendMessage(notification);
 
         queued.stop();
     }
@@ -44,5 +45,29 @@ public class QueuedApnsServiceTest extends ApnsServiceImplTest{
         ApnsService queued = new QueuedApnsService(service);
         queued.start();
         return queued;
+    }
+
+    static class ConnectionStub extends ApnsConnection {
+        Semaphore semaphor;
+        int delay;
+
+        public ConnectionStub(int delay, int expectedCalls) {
+            super(null, null, 80);
+            this.semaphor = new Semaphore(1-expectedCalls);
+            this.delay = delay;
+        }
+
+        volatile boolean stop;
+
+        protected synchronized void sendMessage(ApnsNotification m) {
+            long time = System.currentTimeMillis();
+            while (!stop && (System.currentTimeMillis() < time));
+            semaphor.release();
+        }
+
+        protected void interrupt() {
+            stop = true;
+        }
+
     }
 }
