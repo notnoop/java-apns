@@ -58,8 +58,8 @@ public class MockingUtils {
 
             SocketFactory factory = mock(SocketFactory.class);
             OngoingStubbing<Socket> stubbing = when(factory.createSocket(anyString(), anyInt()));
-            Socket first = socketMocks.remove(0);
-            stubbing.thenReturn(first, socketMocks.toArray(new Socket[0]));
+            for (Socket t : socketMocks)
+                stubbing = stubbing.thenReturn(t);
 
             return factory;
         } catch (Exception e) {
