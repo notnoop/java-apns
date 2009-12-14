@@ -5,7 +5,6 @@ import java.io.InputStream;
 
 import javax.net.SocketFactory;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.notnoop.apns.internal.ApnsFeedbackParsingUtils.*;
