@@ -39,6 +39,8 @@ package com.notnoop.apns;
  */
 public class APNS {
 
+    private APNS() { throw new AssertionError("Uninstantiable class"); }
+
     /**
      * Returns a new Payload builder
      */

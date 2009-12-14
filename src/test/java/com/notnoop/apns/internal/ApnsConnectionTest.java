@@ -17,28 +17,28 @@ public class ApnsConnectionTest {
     @Test
     public void simpleSocket() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        SocketFactory factory = mockSocketFactory(baos);
+        SocketFactory factory = mockSocketFactory(baos, null);
         packetSentRegardless(factory, baos);
     }
 
     @Test
     public void closedSocket() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        SocketFactory factory = mockClosedThenOpenSocket(baos, true, 1);
+        SocketFactory factory = mockClosedThenOpenSocket(baos, null, true, 1);
         packetSentRegardless(factory, baos);
     }
 
     @Test
     public void errorOnce() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        SocketFactory factory = mockClosedThenOpenSocket(baos, false, 1);
+        SocketFactory factory = mockClosedThenOpenSocket(baos, null, false, 1);
         packetSentRegardless(factory, baos);
     }
 
     @Test
     public void errorTwice() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        SocketFactory factory = mockClosedThenOpenSocket(baos, false, 2);
+        SocketFactory factory = mockClosedThenOpenSocket(baos, null, false, 2);
         packetSentRegardless(factory, baos);
     }
 
@@ -48,7 +48,7 @@ public class ApnsConnectionTest {
     @Test(expected = Exception.class)
     public void errorThrice() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        SocketFactory factory = mockClosedThenOpenSocket(baos, false, 3);
+        SocketFactory factory = mockClosedThenOpenSocket(baos, null, false, 3);
         packetSentRegardless(factory, baos);
     }
 

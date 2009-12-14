@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -17,10 +18,11 @@ import org.mockito.stubbing.OngoingStubbing;
 
 public class MockingUtils {
 
-    static SocketFactory mockSocketFactory(OutputStream stream) {
+    static SocketFactory mockSocketFactory(OutputStream out, InputStream in) {
         try {
             Socket socket = mock(Socket.class);
-            when(socket.getOutputStream()).thenReturn(stream);
+            when(socket.getOutputStream()).thenReturn(out);
+            when(socket.getInputStream()).thenReturn(in);
 
             SocketFactory factory = mock(SocketFactory.class);
             when(factory.createSocket()).thenReturn(socket);
@@ -33,7 +35,7 @@ public class MockingUtils {
         }
     }
 
-    static SocketFactory mockClosedThenOpenSocket(OutputStream stream, boolean isClosed, int failedTries) {
+    static SocketFactory mockClosedThenOpenSocket(OutputStream out, InputStream in, boolean isClosed, int failedTries) {
         try {
             List<Socket> socketMocks = new ArrayList<Socket>(failedTries + 1);
 
@@ -52,7 +54,8 @@ public class MockingUtils {
             }
 
             Socket socket = mock(Socket.class);
-            when(socket.getOutputStream()).thenReturn(stream);
+            when(socket.getOutputStream()).thenReturn(out);
+            when(socket.getInputStream()).thenReturn(in);
             when(socket.isConnected()).thenReturn(true);
             socketMocks.add(socket);
 

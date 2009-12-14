@@ -3,8 +3,11 @@ package com.notnoop.apns;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.Random;
 
 import org.junit.Test;
+
+import com.notnoop.apns.internal.Utilities;
 
 public class PayloadBuilderTest {
 
@@ -206,6 +209,51 @@ public class PayloadBuilderTest {
         String expected = "{\"achme\":\"foo\",\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
         assertEquals(expected, builder.build());
         assertEquals(expected, builder.build());
+    }
+
+    @Test
+    public void copyReturnsNewInstance() {
+        PayloadBuilder builder = new PayloadBuilder();
+        builder.sound("chime");
+        PayloadBuilder copy = builder.copy();
+        copy.badge(5);
+
+        assertNotSame(builder, copy);
+
+        String expected = "{\"aps\":{\"sound\":\"chime\"}}";
+        assertEquals(expected, builder.build());
+
+        String copyExpected = "{\"aps\":{\"sound\":\"chime\",\"badge\":5}}";
+        assertEquals(copyExpected, copy.build());
+    }
+
+    @Test
+    public void simpleEnglishLength() {
+        PayloadBuilder builder = new PayloadBuilder().alertBody("test");
+        String expected = "{\"aps\":{\"alert\":\"test\"}}";
+        assertEquals(expected, builder.build());
+        int actualLength = 1 + 2 + 32 + 2 + /* payload length = */ Utilities.toUTF8Bytes(expected).length;
+        assertEquals(actualLength, builder.length());
+        assertFalse(builder.isTooLong());
+    }
+
+    @Test
+    public void simpleEnglishLenght() {
+        byte[] dtBytes = new byte[32];
+        new Random().nextBytes(dtBytes);
+        
+        String deviceToken = Utilities.encodeHex(dtBytes);
+        PayloadBuilder builder = new PayloadBuilder().alertBody("test");
+
+        ApnsNotification fromString = new ApnsNotification(deviceToken, builder.build());
+        ApnsNotification fromBytes = new ApnsNotification(dtBytes, Utilities.toUTF8Bytes(builder.build()));
+
+        String expected = "{\"aps\":{\"alert\":\"test\"}}";
+        int actualLength = 1 + 2 + dtBytes.length + 2 + /* payload length = */ Utilities.toUTF8Bytes(expected).length;
+        assertEquals(actualLength, fromString.length());
+        assertEquals(actualLength, fromBytes.length());
+        assertArrayEquals(fromString.marshall(), fromBytes.marshall());
+        assertFalse(builder.isTooLong());
     }
 
 }
