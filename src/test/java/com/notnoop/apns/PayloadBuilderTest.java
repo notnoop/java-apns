@@ -50,6 +50,16 @@ public class PayloadBuilderTest {
     }
 
     @Test
+    public void testIncludeBadge() {
+        String badge0 = APNS.newPayload().badge(0).toString();
+        String badgeNo = APNS.newPayload().clearBadge().toString();
+
+        String expected = "{\"aps\":{\"badge\":0}}";
+        assertEquals(expected, badge0);
+        assertEquals(expected, badgeNo);
+    }
+
+    @Test
     public void localizedOneWithArray() {
         PayloadBuilder builder = new PayloadBuilder()
         .localizedKey("GAME_PLAY_REQUEST_FORMAT")
