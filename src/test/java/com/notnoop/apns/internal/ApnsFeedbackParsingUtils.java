@@ -71,20 +71,40 @@ public class ApnsFeedbackParsingUtils {
             /* device token */ thirdDevice
     );
 
-    protected static void checkRawSimple(Map<Integer, byte[]> simpleParsed) {
+    protected static void checkRawSimple(Map<byte[], Integer> simpleParsed) {
         assertEquals(1, simpleParsed.size());
-        assertThat(simpleParsed.keySet(), hasItem(simpleDate));
-        assertArrayEquals(simpleDevice, simpleParsed.get(simpleDate));
+        assertThat(simpleParsed.keySet(), hasItem(simpleDevice));
+
+        for (Map.Entry<byte[], Integer> e : simpleParsed.entrySet()) {
+            byte[] device = e.getKey();
+            Integer date = e.getValue();
+            if (Arrays.equals(simpleDevice, device)) {
+                assertEquals(simpleDate, (int)date);
+            } else {
+                fail("Unexpected value in collection");
+            }
+        }
     }
 
-    protected static void checkRawThree(Map<Integer, byte[]> threeParsed) {
+    protected static void checkRawThree(Map<byte[], Integer> threeParsed) {
         assertEquals(3, threeParsed.size());
-        Collection<Integer> times = threeParsed.keySet();
-        assertThat(times, hasItems(firstDate, secondDate, thirdDate));
+        Collection<byte[]> devices = threeParsed.keySet();
+        assertThat(devices, hasItems(firstDevice, secondDevice, thirdDevice));
 
-        assertArrayEquals(firstDevice, threeParsed.get(firstDate));
-        assertArrayEquals(secondDevice, threeParsed.get(secondDate));
-        assertArrayEquals(thirdDevice, threeParsed.get(firstDate));
+        for (Map.Entry<byte[], Integer> e : threeParsed.entrySet()) {
+            byte[] device = e.getKey();
+            Integer date = e.getValue();
+            if (Arrays.equals(firstDevice, device)) {
+                assertEquals(firstDate, (int)date);
+            } else if (Arrays.equals(secondDevice, device)) {
+                assertEquals(secondDate, (int)date);
+            } else if (Arrays.equals(thirdDevice, device)) {
+                assertEquals(thirdDate, (int)date);
+            } else {
+                fail("Unexpected value in collection");
+            }
+        }
+
     }
 
     protected static void checkParsedSimple(Map<String, Date> simpleParsed) {

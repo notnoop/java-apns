@@ -18,7 +18,6 @@ public class ApnsFeedbackConnectionTest {
     }
 
     @Test
-    @Ignore
     public void threeParseTwoDevices() {
         checkRawThree(Utilities.parseFeedbackStreamRaw(new ByteArrayInputStream(three)));
     }
@@ -43,7 +42,6 @@ public class ApnsFeedbackConnectionTest {
     }
 
     @Test
-    @Ignore
     public void connectionParsedThree() {
         SocketFactory sf = MockingUtils.mockSocketFactory(null, new ByteArrayInputStream(three));
         ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, "localhost", 80);

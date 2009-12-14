@@ -138,8 +138,8 @@ public class Utilities {
      }
     }
 
-    public static Map<Integer, byte[]> parseFeedbackStreamRaw(InputStream in) {
-     Map<Integer, byte[]> result = new HashMap<Integer, byte[]>();
+    public static Map<byte[], Integer> parseFeedbackStreamRaw(InputStream in) {
+     Map<byte[], Integer> result = new HashMap<byte[], Integer>();
 
      DataInputStream data = new DataInputStream(in);
 
@@ -150,7 +150,7 @@ public class Utilities {
           byte[] deviceToken = new byte[dtLength];
           data.readFully(deviceToken);
 
-          result.put(time, deviceToken);
+          result.put(deviceToken, time);
          } catch (EOFException e) {
           break;
          } catch (IOException e) {
@@ -164,10 +164,10 @@ public class Utilities {
     public static Map<String, Date> parseFeedbackStream(InputStream in) {
      Map<String, Date> result = new HashMap<String, Date>();
 
-     Map<Integer, byte[]> raw = parseFeedbackStreamRaw(in);
-     for (Map.Entry<Integer, byte[]> entry : raw.entrySet()) {
-         int time = entry.getKey(); // in seconds
-         byte[] dtArray = entry.getValue();
+     Map<byte[], Integer> raw = parseFeedbackStreamRaw(in);
+     for (Map.Entry<byte[], Integer> entry : raw.entrySet()) {
+         byte[] dtArray = entry.getKey();
+         int time = entry.getValue(); // in seconds
 
          Date date = new Date(time * 1000L);    // in ms
          String dtString = encodeHex(dtArray);
