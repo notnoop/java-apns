@@ -194,25 +194,22 @@ public final class PayloadBuilder {
         return this;
     }
 
-    private static final int PACKET_LENGTH = 255;
-
     public int length() {
-        int length = 1 + 2 + 32 + 2;
         String str = this.copy().toString();
         int payloadLength = Utilities.toUTF8Bytes(str).length;
-        return length + payloadLength;
+        return payloadLength;
     }
 
     public boolean isTooLong() {
-        return this.length() > PACKET_LENGTH;
+        return this.length() > Utilities.MAX_PAYLOAD_LENGTH;
     }
 
-    public PayloadBuilder resizeAlertBody(int packetLength) {
+    public PayloadBuilder resizeAlertBody(int payloadLength) {
         int currLength = length();
-        if (currLength < packetLength)
+        if (currLength < payloadLength)
             return this;
 
-        int d = packetLength - currLength;
+        int d = payloadLength - currLength;
         String body = aps.getString("alert");
 
         if (body.length() < d)
@@ -220,11 +217,12 @@ public final class PayloadBuilder {
         else
             aps.put("alert", body.subSequence(0, d));
 
+        assert this.length() <= payloadLength;
         return this;
     }
 
     public PayloadBuilder shrinkBody() {
-        return resizeAlertBody(PACKET_LENGTH);
+        return resizeAlertBody(Utilities.MAX_PAYLOAD_LENGTH);
     }
 
     /**

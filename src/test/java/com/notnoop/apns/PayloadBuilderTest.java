@@ -232,16 +232,16 @@ public class PayloadBuilderTest {
         PayloadBuilder builder = new PayloadBuilder().alertBody("test");
         String expected = "{\"aps\":{\"alert\":\"test\"}}";
         assertEquals(expected, builder.build());
-        int actualLength = 1 + 2 + 32 + 2 + /* payload length = */ Utilities.toUTF8Bytes(expected).length;
+        int actualLength = Utilities.toUTF8Bytes(expected).length;
         assertEquals(actualLength, builder.length());
         assertFalse(builder.isTooLong());
     }
 
     @Test
-    public void simpleEnglishLenght() {
+    public void abitComplicatedEnglishLength() {
         byte[] dtBytes = new byte[32];
         new Random().nextBytes(dtBytes);
-        
+
         String deviceToken = Utilities.encodeHex(dtBytes);
         PayloadBuilder builder = new PayloadBuilder().alertBody("test");
 
@@ -249,11 +249,49 @@ public class PayloadBuilderTest {
         ApnsNotification fromBytes = new ApnsNotification(dtBytes, Utilities.toUTF8Bytes(builder.build()));
 
         String expected = "{\"aps\":{\"alert\":\"test\"}}";
-        int actualLength = 1 + 2 + dtBytes.length + 2 + /* payload length = */ Utilities.toUTF8Bytes(expected).length;
-        assertEquals(actualLength, fromString.length());
-        assertEquals(actualLength, fromBytes.length());
+        int actualPacketLength = 1 + 2 + dtBytes.length + 2 + /* payload length = */ Utilities.toUTF8Bytes(expected).length;
+        assertEquals(actualPacketLength, fromString.length());
+        assertEquals(actualPacketLength, fromBytes.length());
+        assertEquals(expected.length(), fromString.getPayload().length);
         assertArrayEquals(fromString.marshall(), fromBytes.marshall());
         assertFalse(builder.isTooLong());
     }
 
+    private PayloadBuilder messageOfLength(int l) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < l; ++i) {
+            sb.append('c');
+        }
+        String alert = sb.toString();
+        return APNS.newPayload().alertBody(alert);
+    }
+
+    @Test
+    public void detectingLongMessages() {
+        String basic = "{\"aps\":{\"alert\":\"\"}}";
+        int wrapperOverhead = basic.length();
+        int cutoffForAlert = 256 - wrapperOverhead;
+
+        PayloadBuilder wayShort = messageOfLength(1);
+        assertFalse(wayShort.isTooLong());
+        assertTrue(wayShort.length() == wrapperOverhead + 1);
+
+        PayloadBuilder bitShort = messageOfLength(cutoffForAlert - 1);
+        assertFalse(bitShort.isTooLong());
+        assertTrue(bitShort.length() == wrapperOverhead + cutoffForAlert - 1);
+
+        PayloadBuilder border = messageOfLength(cutoffForAlert);
+        assertFalse(border.isTooLong());
+        assertTrue(border.length() == wrapperOverhead + cutoffForAlert);
+        assertTrue(border.length() == 256);
+
+        PayloadBuilder abitLong = messageOfLength(cutoffForAlert + 1);
+        assertTrue(abitLong.isTooLong());
+        assertTrue(abitLong.length() == wrapperOverhead + cutoffForAlert + 1);
+
+        PayloadBuilder tooLong = messageOfLength(cutoffForAlert + 1000);
+        assertTrue(tooLong.isTooLong());
+        assertTrue(tooLong.length() == wrapperOverhead + cutoffForAlert + 1000);
+
+    }
 }
