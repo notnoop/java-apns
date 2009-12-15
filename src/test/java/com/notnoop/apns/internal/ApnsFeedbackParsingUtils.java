@@ -43,7 +43,7 @@ public class ApnsFeedbackParsingUtils {
     }
 
     static int simpleDate = 0;
-    static byte[] simple = pack(
+    public static byte[] simple = pack(
             /* time_t */  new byte[] {0, 0, 0, 0},
             /* length */  new byte[] { 0, 32 },
             /* device token */ simpleDevice
@@ -52,7 +52,7 @@ public class ApnsFeedbackParsingUtils {
     static int firstDate = 10;
     static int secondDate = 1 << 8;
     static int thirdDate = secondDate;
-    static byte[] three = pack(
+    public static byte[] three = pack(
             /* first message */
             /* time_t */  new byte[] {0, 0, 0, 10},
             /* length */  new byte[] { 0, 32 },
@@ -105,7 +105,7 @@ public class ApnsFeedbackParsingUtils {
 
     }
 
-    protected static void checkParsedSimple(Map<String, Date> simpleParsed) {
+    public static void checkParsedSimple(Map<String, Date> simpleParsed) {
         Date sd = new Date(simpleDate * 1000L);
         String deviceToken = Utilities.encodeHex(simpleDevice);
 
@@ -114,7 +114,7 @@ public class ApnsFeedbackParsingUtils {
         assertEquals(sd, simpleParsed.get(deviceToken));
     }
 
-    protected static void checkParsedThree(Map<String, Date> threeParsed) {
+    public static void checkParsedThree(Map<String, Date> threeParsed) {
         Date d1 = new Date(firstDate * 1000L);
         String dt1 = Utilities.encodeHex(firstDevice);
 

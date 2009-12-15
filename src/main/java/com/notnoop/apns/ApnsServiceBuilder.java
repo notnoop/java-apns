@@ -138,7 +138,7 @@ public class ApnsServiceBuilder {
      * @param sslContext    Context to be used to create secure connections
      * @return  this
      */
-    private ApnsServiceBuilder withSSLContext(SSLContext sslContext) {
+    public ApnsServiceBuilder withSSLContext(SSLContext sslContext) {
         this.sslContext = sslContext;
         return this;
     }
