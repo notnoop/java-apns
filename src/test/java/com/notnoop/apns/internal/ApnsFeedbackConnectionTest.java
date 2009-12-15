@@ -56,6 +56,7 @@ public class ApnsFeedbackConnectionTest {
     public void feedbackWithclosedSocket() {
         SocketFactory sf = mockClosedThenOpenSocket(null, simpleStream, true, 1);
         ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, "localhost", 80);
+        connection.DELAY_IN_MS = 0;
         checkParsedSimple(connection.getInactiveDevices());
     }
 
