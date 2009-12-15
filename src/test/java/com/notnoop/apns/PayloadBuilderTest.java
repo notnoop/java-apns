@@ -5,7 +5,9 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.Random;
 
+import static org.hamcrest.CoreMatchers.*;
 import org.junit.Test;
+import static org.junit.matchers.JUnitMatchers.*;
 
 import com.notnoop.apns.internal.Utilities;
 
@@ -257,13 +259,17 @@ public class PayloadBuilderTest {
         assertFalse(builder.isTooLong());
     }
 
-    private PayloadBuilder messageOfLength(int l) {
+    private String strOfLen(int l) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < l; ++i) {
             sb.append('c');
         }
         String alert = sb.toString();
-        return APNS.newPayload().alertBody(alert);
+        return alert;
+    }
+
+    private PayloadBuilder payloadOf(int l) {
+        return APNS.newPayload().alertBody(strOfLen(l));
     }
 
     @Test
@@ -272,24 +278,24 @@ public class PayloadBuilderTest {
         int wrapperOverhead = basic.length();
         int cutoffForAlert = 256 - wrapperOverhead;
 
-        PayloadBuilder wayShort = messageOfLength(1);
+        PayloadBuilder wayShort = payloadOf(1);
         assertFalse(wayShort.isTooLong());
         assertTrue(wayShort.length() == wrapperOverhead + 1);
 
-        PayloadBuilder bitShort = messageOfLength(cutoffForAlert - 1);
+        PayloadBuilder bitShort = payloadOf(cutoffForAlert - 1);
         assertFalse(bitShort.isTooLong());
         assertTrue(bitShort.length() == wrapperOverhead + cutoffForAlert - 1);
 
-        PayloadBuilder border = messageOfLength(cutoffForAlert);
+        PayloadBuilder border = payloadOf(cutoffForAlert);
         assertFalse(border.isTooLong());
         assertTrue(border.length() == wrapperOverhead + cutoffForAlert);
         assertTrue(border.length() == 256);
 
-        PayloadBuilder abitLong = messageOfLength(cutoffForAlert + 1);
+        PayloadBuilder abitLong = payloadOf(cutoffForAlert + 1);
         assertTrue(abitLong.isTooLong());
         assertTrue(abitLong.length() == wrapperOverhead + cutoffForAlert + 1);
 
-        PayloadBuilder tooLong = messageOfLength(cutoffForAlert + 1000);
+        PayloadBuilder tooLong = payloadOf(cutoffForAlert + 1000);
         assertTrue(tooLong.isTooLong());
         assertTrue(tooLong.length() == wrapperOverhead + cutoffForAlert + 1000);
     }
@@ -301,26 +307,26 @@ public class PayloadBuilderTest {
         int cutoffForAlert = 256 - wrapperOverhead;
         int max_length = 256;
 
-        PayloadBuilder wayShort = messageOfLength(1);
+        PayloadBuilder wayShort = payloadOf(1);
         wayShort.shrinkBody();  // NOOP
         assertFalse(wayShort.isTooLong());
         assertTrue(wayShort.length() == wrapperOverhead + 1);
 
-        PayloadBuilder bitShort = messageOfLength(cutoffForAlert - 1);
+        PayloadBuilder bitShort = payloadOf(cutoffForAlert - 1);
         bitShort.shrinkBody();  // NOOP
         assertFalse(bitShort.isTooLong());
         assertTrue(bitShort.length() == wrapperOverhead + cutoffForAlert - 1);
 
-        PayloadBuilder border = messageOfLength(cutoffForAlert);
+        PayloadBuilder border = payloadOf(cutoffForAlert);
         assertFalse(border.isTooLong());    // NOOP
         assertTrue(border.length() == max_length);
 
-        PayloadBuilder abitLong = messageOfLength(cutoffForAlert + 1);
+        PayloadBuilder abitLong = payloadOf(cutoffForAlert + 1);
         abitLong.shrinkBody();
         assertFalse(abitLong.isTooLong());
         assertTrue(abitLong.length() == max_length);
 
-        PayloadBuilder tooLong = messageOfLength(cutoffForAlert + 1000);
+        PayloadBuilder tooLong = payloadOf(cutoffForAlert + 1000);
         tooLong.shrinkBody();
         assertFalse(tooLong.isTooLong());
         assertTrue(tooLong.length() == max_length);
@@ -333,29 +339,40 @@ public class PayloadBuilderTest {
         int cutoffForAlert = 256 - wrapperOverhead;
         int max_length = 256;
 
-        PayloadBuilder wayShort = messageOfLength(1).sound("default");
+        PayloadBuilder wayShort = payloadOf(1).sound("default");
         assertFalse(wayShort.isTooLong());
         assertTrue(wayShort.length() <= max_length);
 
-        PayloadBuilder bitShort = messageOfLength(cutoffForAlert - 1).sound("default");
+        PayloadBuilder bitShort = payloadOf(cutoffForAlert - 1).sound("default");
         bitShort.shrinkBody();  // NOOP
         assertFalse(bitShort.isTooLong());
         assertTrue(bitShort.length() <= max_length);
 
-        PayloadBuilder border = messageOfLength(cutoffForAlert).sound("default");
+        PayloadBuilder border = payloadOf(cutoffForAlert).sound("default");
         border.shrinkBody();
         assertFalse(border.isTooLong());    // NOOP
         assertTrue(border.length() == max_length);
 
-        PayloadBuilder abitLong = messageOfLength(cutoffForAlert + 1).sound("default");
+        PayloadBuilder abitLong = payloadOf(cutoffForAlert + 1).sound("default");
         abitLong.shrinkBody();
         assertFalse(abitLong.isTooLong());
         assertTrue(abitLong.length() == max_length);
 
-        PayloadBuilder tooLong = messageOfLength(cutoffForAlert + 1000).sound("default");
+        PayloadBuilder tooLong = payloadOf(cutoffForAlert + 1000).sound("default");
         tooLong.shrinkBody();
         assertFalse(tooLong.isTooLong());
         assertTrue(tooLong.length() == max_length);
     }
 
+    @Test
+    public void removeAlertIfSooLong() {
+        PayloadBuilder tooLong =
+            APNS.newPayload()
+            .customField("test", strOfLen(256))
+            .alertBody("what");
+        tooLong.shrinkBody();
+        String payload = tooLong.build();
+        assertThat(payload, not(containsString("alert")));
+        
+    }
 }
