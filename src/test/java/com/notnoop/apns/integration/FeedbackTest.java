@@ -1,7 +1,6 @@
 package com.notnoop.apns.integration;
 
 import static com.notnoop.apns.utils.FixedCertificates.*;
-import static org.junit.Assert.assertArrayEquals;
 
 import java.io.IOException;
 

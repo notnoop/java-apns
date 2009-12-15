@@ -1,7 +1,5 @@
 package com.notnoop.apns.integration;
 
-import javax.net.ssl.SSLContext;
-
 import org.junit.*;
 import static org.junit.Assert.*;
 
