@@ -13,7 +13,6 @@ import static com.notnoop.apns.utils.FixedCertificates.*;
 
 public class ApnsConnectionTest {
     ApnsServerStub server;
-    SSLContext clientContext = clientContext();
 
     static ApnsNotification msg1 = new ApnsNotification ("a87d8878d878a79", "{\"aps\":{}}");
     static ApnsNotification msg2 = new ApnsNotification ("a87d8878d878a88", "{\"aps\":{}}");
@@ -32,7 +31,7 @@ public class ApnsConnectionTest {
     @Test
     public void sendOneSimple() throws InterruptedException {
         ApnsService service =
-            APNS.newService().withSSLContext(clientContext)
+            APNS.newService().withSSLContext(clientContext())
             .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
             .build();
         server.stopAt(msg1.length());
@@ -45,7 +44,7 @@ public class ApnsConnectionTest {
     @Test
     public void sendOneQueued() throws InterruptedException {
         ApnsService service =
-            APNS.newService().withSSLContext(clientContext)
+            APNS.newService().withSSLContext(clientContext())
             .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
             .asQueued()
             .build();
@@ -60,7 +59,7 @@ public class ApnsConnectionTest {
     @Ignore
     public void sendOneMina() throws InterruptedException {
         ApnsService service =
-            APNS.newService().withSSLContext(clientContext)
+            APNS.newService().withCert(clientCertPath(), CLIENT_PASSWD)
             .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
             .asNonBlocking()
             .build();

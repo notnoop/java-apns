@@ -26,7 +26,6 @@ public class FixedCertificates {
             System.setProperty("javax.net.ssl.trustStore", ClassLoader.getSystemResource(CLIENT_STORE).getPath());
             InputStream stream = ClassLoader.getSystemResourceAsStream(SERVER_STORE);
             SSLContext context = Utilities.newSSLContext(stream, SERVER_PASSWD, "PKCS12", "sunx509");
-//            context.init(null, new TrustManager[] { new X509TrustManagerTrustAll() }, new SecureRandom());
 
             return context;
         } catch (Exception e) {
@@ -36,13 +35,17 @@ public class FixedCertificates {
 
     public static SSLContext clientContext() {
         try {
-            InputStream stream = ClassLoader.getSystemResourceAsStream(SERVER_STORE);
+            InputStream stream = ClassLoader.getSystemResourceAsStream(CLIENT_STORE);
             SSLContext context = Utilities.newSSLContext(stream, CLIENT_PASSWD, "PKCS12", "sunx509");
             context.init(null, new TrustManager[] { new X509TrustManagerTrustAll() }, new SecureRandom());
             return context;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static String clientCertPath() {
+        return ClassLoader.getSystemResource(CLIENT_STORE).getPath();
     }
 
     static class X509TrustManagerTrustAll implements X509TrustManager {

@@ -70,23 +70,28 @@ public class ApnsServerStub {
                 throw new RuntimeException(e);
             }
 
+            InputStream in = null;
+            OutputStream out = null;
             try {
                 // Listen for connections
                 Socket socket = gatewaySocket.accept();
 
                 // Create streams to securely send and receive data to the client
-                InputStream in = socket.getInputStream();
-                OutputStream out = socket.getOutputStream();
+                in = socket.getInputStream();
+                out = socket.getOutputStream();
 
                 // Read from in and write to out...
                 byte[] read = readFully(in);
                 received.write(read);
                 semaphore.release();
 
+                
                 // Close the socket
                 in.close();
                 out.close();
-            } catch(IOException e) {
+            } catch(Throwable e) {
+                try { in.close(); } catch (Exception _) {}
+                try { out.close(); } catch (Exception _) {}
                 semaphore.release();
             }
         }
@@ -114,13 +119,13 @@ public class ApnsServerStub {
 
                 // Read from in and write to out...
                 toSend.writeTo(out);
-                semaphore.release();
 
                 // Close the socket
                 in.close();
                 out.close();
             } catch(IOException e) {
             }
+            semaphore.release();
         }
     }
 
@@ -139,7 +144,6 @@ public class ApnsServerStub {
                 stream.write(read);
             }
         } catch (IOException e) {
-            e.printStackTrace();
             throw new RuntimeException(e);
         }
 
