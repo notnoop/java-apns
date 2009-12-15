@@ -20,6 +20,16 @@ public class ApnsServiceImplTest {
         verify(connection, times(1)).sendMessage(notification);
     }
 
+    @Test
+    public void pushEvantuallySample() {
+        ApnsConnection connection = mock(ApnsConnection.class);
+        ApnsService service = newService(connection, null);
+
+        service.push("2342", "{}");
+
+        verify(connection, times(1)).sendMessage(notification);
+    }
+
     protected ApnsService newService(ApnsConnection connection, ApnsFeedbackConnection feedback) {
         return new ApnsServiceImpl(connection, null);
     }

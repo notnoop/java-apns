@@ -113,4 +113,20 @@ public class ApnsNotification {
         assert marshall().length == length;
         return length;
     }
+
+    @Override
+    public int hashCode() {
+        return 21
+               + 31 * Arrays.hashCode(deviceToken)
+               + 31 * Arrays.hashCode(payload);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ApnsNotification))
+            return false;
+        ApnsNotification o = (ApnsNotification)obj;
+        return Arrays.equals(this.deviceToken, o.deviceToken)
+                && Arrays.equals(this.payload, o.payload);
+    }
 }

@@ -32,6 +32,17 @@ public class QueuedApnsServiceTest {
     }
 
     @Test
+    public void pushEvantuallySample() {
+        ConnectionStub connection = spy(new ConnectionStub(0, 1));
+        ApnsService service = newService(connection, null);
+
+        service.push("2342", "{}");
+        connection.semaphor.acquireUninterruptibly();
+
+        verify(connection, times(1)).sendMessage(notification);
+    }
+
+    @Test
     public void dontBlock() {
         final int delay = 10000;
         ConnectionStub connection = spy(new ConnectionStub(delay, 2));
