@@ -60,14 +60,15 @@ public class MinaAdaptor implements ApnsService {
     @Override
     public void start() {
         cf = connector.connect(new InetSocketAddress(host, port));
-        cf.awaitUninterruptibly();
+        ConnectFuture f = cf.awaitUninterruptibly();
     }
 
     @Override
     public void stop() {
-        cf.cancel();
-        cf.awaitUninterruptibly();
-        cf.getSession().close(false).awaitUninterruptibly();
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e)  { }
+        cf.getSession().close(false).awaitUninterruptibly(100000);
         connector.dispose();
     }
 

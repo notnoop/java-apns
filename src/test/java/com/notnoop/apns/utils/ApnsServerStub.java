@@ -21,7 +21,8 @@ public class ApnsServerStub {
 
     public final ByteArrayOutputStream received;
     public final ByteArrayOutputStream toSend;
-    public final Semaphore semaphore = new Semaphore(0);
+    public final Semaphore messages = new Semaphore(0);
+    private final Semaphore startUp = new Semaphore(0);
 
     private final ServerSocketFactory sslFactory;
     private final int gatewayPort, feedbackPort;
@@ -44,6 +45,7 @@ public class ApnsServerStub {
         feedbackThread = new Thread(new FeedbackRunner());
         gatewayThread.start();
         feedbackThread.start();
+        startUp.acquireUninterruptibly(2);
     }
 
     @SuppressWarnings("deprecation")
@@ -66,7 +68,7 @@ public class ApnsServerStub {
             try {
                 gatewaySocket = sslFactory.createServerSocket(gatewayPort);
             } catch (IOException e) {
-                semaphore.release();
+                messages.release();
                 throw new RuntimeException(e);
             }
 
@@ -74,6 +76,7 @@ public class ApnsServerStub {
             OutputStream out = null;
             try {
                 // Listen for connections
+                startUp.release();
                 Socket socket = gatewaySocket.accept();
 
                 // Create streams to securely send and receive data to the client
@@ -83,16 +86,17 @@ public class ApnsServerStub {
                 // Read from in and write to out...
                 byte[] read = readFully(in);
                 received.write(read);
-                semaphore.release();
+                messages.release();
 
                 
                 // Close the socket
                 in.close();
                 out.close();
             } catch(Throwable e) {
+                e.printStackTrace();
                 try { in.close(); } catch (Exception _) {}
                 try { out.close(); } catch (Exception _) {}
-                semaphore.release();
+                messages.release();
             }
         }
     }
@@ -105,12 +109,13 @@ public class ApnsServerStub {
                 feedbackSocket = sslFactory.createServerSocket(feedbackPort);
             } catch (IOException e) {
                 e.printStackTrace();
-                semaphore.release();
+                messages.release();
                 throw new RuntimeException(e);
             }
 
             try {
                 // Listen for connections
+                startUp.release();
                 Socket socket = feedbackSocket.accept();
 
                 // Create streams to securely send and receive data to the client
@@ -125,7 +130,7 @@ public class ApnsServerStub {
                 out.close();
             } catch(IOException e) {
             }
-            semaphore.release();
+            messages.release();
         }
     }
 
@@ -141,6 +146,7 @@ public class ApnsServerStub {
         int read;
         try {
             while (readLen.getAndDecrement() > 0 && (read = st.read()) != -1) {
+                System.out.println(read);
                 stream.write(read);
             }
         } catch (IOException e) {

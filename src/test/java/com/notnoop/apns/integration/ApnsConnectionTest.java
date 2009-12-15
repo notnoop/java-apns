@@ -20,7 +20,7 @@ public class ApnsConnectionTest {
         server = ApnsServerStub.prepareAndStartServer(TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
     }
 
-    @After 
+    @After
     public void tearDown() {
         server.stop();
         server = null;
@@ -34,7 +34,7 @@ public class ApnsConnectionTest {
             .build();
         server.stopAt(msg1.length());
         service.push(msg1);
-        server.semaphore.acquire();
+        server.messages.acquire();
 
         assertArrayEquals(msg1.marshall(), server.received.toByteArray());
     }
@@ -48,23 +48,23 @@ public class ApnsConnectionTest {
             .build();
         server.stopAt(msg1.length());
         service.push(msg1);
-        server.semaphore.acquire();
+        server.messages.acquire();
 
         assertArrayEquals(msg1.marshall(), server.received.toByteArray());
     }
 
     @Test
-    @Ignore
     public void sendOneMina() throws InterruptedException {
+        server.stopAt(msg1.length());
+
         ApnsService service =
             APNS.newService().withCert(clientCertPath(), CLIENT_PASSWD)
             .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
             .asNonBlocking()
             .build();
 
-        server.stopAt(msg1.length());
         service.push(msg1);
-        server.semaphore.acquire();
+        server.messages.acquire();
 
         assertArrayEquals(msg1.marshall(), server.received.toByteArray());
     }
