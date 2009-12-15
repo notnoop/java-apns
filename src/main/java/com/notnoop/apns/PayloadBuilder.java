@@ -209,13 +209,13 @@ public final class PayloadBuilder {
         if (currLength < payloadLength)
             return this;
 
-        int d = payloadLength - currLength;
+        int d = currLength - payloadLength;
         String body = aps.getString("alert");
 
         if (body.length() < d)
             aps.remove("alert");
         else
-            aps.put("alert", body.subSequence(0, d));
+            aps.put("alert", body.subSequence(0, body.length() - d));
 
         assert this.length() <= payloadLength;
         return this;
