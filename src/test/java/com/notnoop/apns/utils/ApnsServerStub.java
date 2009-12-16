@@ -57,8 +57,8 @@ public class ApnsServerStub {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        gatewayThread.stop();
-        feedbackThread.stop();
+        try { gatewayThread.stop(); } catch (Exception e) { }
+        try { feedbackThread.stop(); } catch (Exception e) { }
     }
 
     private class GatewayRunner implements Runnable {
@@ -93,7 +93,6 @@ public class ApnsServerStub {
                 in.close();
                 out.close();
             } catch(Throwable e) {
-                e.printStackTrace();
                 try { in.close(); } catch (Exception _) {}
                 try { out.close(); } catch (Exception _) {}
                 messages.release();
