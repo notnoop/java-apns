@@ -26,7 +26,7 @@ public class ApnsConnectionTest {
         server = null;
     }
 
-    @Test
+    @Test(timeout = 2000)
     public void sendOneSimple() throws InterruptedException {
         ApnsService service =
             APNS.newService().withSSLContext(clientContext())
@@ -39,7 +39,7 @@ public class ApnsConnectionTest {
         assertArrayEquals(msg1.marshall(), server.received.toByteArray());
     }
 
-    @Test
+    @Test(timeout = 2000)
     public void sendOneQueued() throws InterruptedException {
         ApnsService service =
             APNS.newService().withSSLContext(clientContext())
@@ -53,7 +53,8 @@ public class ApnsConnectionTest {
         assertArrayEquals(msg1.marshall(), server.received.toByteArray());
     }
 
-    @Test
+    @Test(timeout = 2000)
+    @Ignore
     public void sendOneMina() throws InterruptedException {
         server.stopAt(msg1.length());
 

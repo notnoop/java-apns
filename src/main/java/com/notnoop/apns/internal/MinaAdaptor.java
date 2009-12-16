@@ -60,7 +60,7 @@ public class MinaAdaptor implements ApnsService {
     @Override
     public void start() {
         cf = connector.connect(new InetSocketAddress(host, port));
-        ConnectFuture f = cf.awaitUninterruptibly();
+        cf.awaitUninterruptibly();
     }
 
     @Override

@@ -146,7 +146,6 @@ public class ApnsServerStub {
         int read;
         try {
             while (readLen.getAndDecrement() > 0 && (read = st.read()) != -1) {
-                System.out.println(read);
                 stream.write(read);
             }
         } catch (IOException e) {
