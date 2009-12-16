@@ -217,7 +217,6 @@ public final class PayloadBuilder {
         else
             aps.put("alert", body.subSequence(0, body.length() - d));
 
-        assert this.length() <= payloadLength;
         return this;
     }
 
