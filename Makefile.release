@@ -47,7 +47,7 @@ repo-prepare:
 repo-clone:
 	git clone -b ${BRANCH} ${REPO_GIT} ${REPO_DIR}
 
-site-gen:
+repo-gen:
 	mvn release:prepare
 	mvn release:perform
 
