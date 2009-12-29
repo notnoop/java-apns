@@ -1,23 +1,30 @@
 .PHONY: all site site-prepare site-clone site-gen site-push
 
-all: site
+all: prepare site repo
 
-REPO="git@github.com:notnoop/java-apns.git"
+CODE_GIT="git@github.com:notnoop/java-apns.git"
 BRANCH=gh-pages
 
 WORK_DIR=target/deploy
 SITE_DIR=${WORK_DIR}/site
+
+REPO_GIT="git@github.com:notnoop/m2-repo.git"
+REPO_DIR=${WORK_DIR}/repo
+
+prepare:
+	rm -rf ${WORK_DIR}
+	mkdir -p ${WORK_DIR}
 
 ################### Site #######################
 
 site: site-prepare site-clone site-gen site-push
 
 site-prepare:
-	rm -rf ${WORK_DIR}
+	rm -rf ${SITE_DIR}
 	mkdir -p ${WORK_DIR}
 
 site-clone:
-	git clone -b ${BRANCH} ${REPO} ${SITE_DIR}
+	git clone -b ${BRANCH} ${CODE_GIT} ${SITE_DIR}
 
 site-gen:
 	rm -rf ${SITE_DIR}/*
@@ -27,3 +34,23 @@ site-gen:
 site-push:
 	cd ${SITE_DIR}; git add .; git commit -a -m "Updating site..."
 	cd ${SITE_DIR}; git push -f
+
+
+################### Repo #######################
+
+repo: repo-prepare repo-clone repo-gen repo-push
+
+repo-prepare:
+	rm -rf ${REPO_DIR}
+	mkdir -p ${WORK_DIR}
+
+repo-clone:
+	git clone -b ${BRANCH} ${REPO_GIT} ${REPO_DIR}
+
+site-gen:
+	mvn release:prepare
+	mvn release:perform
+
+repo-push:
+	cd ${REPO_DIR}; git add .; git commit -a -m "Updating release repo"
+	cd ${REPO_DIR}; git push -f

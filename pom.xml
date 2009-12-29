@@ -49,7 +49,7 @@
         </site>
         <repository>
             <id>notnoop-m2-repository</id>
-            <url>file:${project.basedir}/repo</url>
+            <url>file:${project.basedir}/target/deploy/repo</url>
         </repository>
     </distributionManagement>
 
