@@ -30,68 +30,38 @@
  */
 package com.notnoop.apns.internal;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 
-public class QueuedApnsService extends AbstractApnsService implements ApnsService {
+abstract class AbstractApnsService implements ApnsService {
+    private ApnsFeedbackConnection feedback;
 
-    private ApnsService service;
-    private BlockingQueue<ApnsNotification> queue;
-    private volatile boolean started = false;
-
-    public QueuedApnsService(ApnsService service) {
-        super(null);
-        this.service = service;
-        this.queue = new LinkedBlockingQueue<ApnsNotification>();
+    public AbstractApnsService(ApnsFeedbackConnection feedback) {
+        this.feedback = feedback;
     }
 
     @Override
-    public void push(ApnsNotification msg) {
-        if (!started)
-            throw new IllegalStateException("service hasn't be started or was closed");
-        queue.add(msg);
-    }
-
-    private Thread thread;
-    private volatile boolean shouldContinue;
-
-    @Override
-    public void start() {
-        started = true;
-        service.start();
-        if (thread != null)
-            stop();
-        shouldContinue = true;
-        thread = new Thread() {
-            public void run() {
-                while (shouldContinue) {
-                    try {
-                        ApnsNotification msg = queue.take();
-                        service.push(msg);
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-        };
-        thread.start();
+    public void push(String deviceToken, String payload) {
+        push(new ApnsNotification(deviceToken, payload));
     }
 
     @Override
-    public void stop() {
-        started = false;
-        shouldContinue = false;
-        thread.interrupt();
-        service.stop();
+    public void push(Collection<String> deviceTokens, String payload) {
+        for (String deviceToken : deviceTokens) {
+            push(deviceToken, payload);
+        }
     }
+
+    @Override
+    public abstract void push(ApnsNotification message);
 
     @Override
     public Map<String, Date> getInactiveDevices() {
-        return service.getInactiveDevices();
+        return feedback.getInactiveDevices();
     }
 
 }

@@ -1,8 +1,6 @@
 package com.notnoop.apns.internal;
 
 import java.net.InetSocketAddress;
-import java.util.Date;
-import java.util.Map;
 
 import javax.net.ssl.SSLContext;
 
@@ -15,12 +13,11 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 
-public class MinaAdaptor implements ApnsService {
+public class MinaAdaptor extends AbstractApnsService implements ApnsService {
     NioSocketConnector connector;
     ConnectFuture cf;
     private final String host;
     private final int port;
-    private final ApnsFeedbackConnection feedback;
 
     public MinaAdaptor(SSLContext sslContext, String host, int port) {
         this(sslContext, host, port, null);
@@ -28,10 +25,10 @@ public class MinaAdaptor implements ApnsService {
 
     public MinaAdaptor(SSLContext sslContext, String host,
             int port, ApnsFeedbackConnection feedback) {
+        super(feedback);
         this.host = host;
         this.port = port;
         this.connector = createNioSocketConnector(sslContext);
-        this.feedback = feedback;
     }
 
     private NioSocketConnector createNioSocketConnector(SSLContext sslContext) {
@@ -42,11 +39,6 @@ public class MinaAdaptor implements ApnsService {
         sslFilter.setUseClientMode(true);
         connector.getFilterChain().addLast("SSL", sslFilter);
         return connector;
-    }
-
-    @Override
-    public void push(String deviceToken, String message) {
-        this.push(new ApnsNotification(deviceToken, message));
     }
 
     @Override
@@ -71,10 +63,4 @@ public class MinaAdaptor implements ApnsService {
         cf.getSession().close(false).awaitUninterruptibly(100000);
         connector.dispose();
     }
-
-    @Override
-    public Map<String, Date> getInactiveDevices() {
-        return feedback.getInactiveDevices();
-    }
-
 }
