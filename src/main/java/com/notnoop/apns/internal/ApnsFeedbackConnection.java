@@ -86,10 +86,7 @@ public class ApnsFeedbackConnection {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
-            try {
-                if (socket != null)
-                    socket.close();
-            } catch (Exception e) {}
+            Utilities.close(socket);
         }
     }
 

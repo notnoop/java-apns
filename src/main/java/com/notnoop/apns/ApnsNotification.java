@@ -63,28 +63,24 @@ public class ApnsNotification {
      * @param payload   The binary representation of the payload to be sent
      */
     public ApnsNotification(byte[] dtoken, byte[] payload) {
-        this.deviceToken = Arrays.copyOf(dtoken, dtoken.length);
-        this.payload = Arrays.copyOf(payload, payload.length);
+        this.deviceToken = Utilities.copyOf(dtoken);
+        this.payload = Utilities.copyOf(payload);
     }
 
     /**
      * Returns the binary representation of the device token.
      *
-     * Note this message returns the underlying byte array, and clients should
-     * not modify the returns array.
      */
     public byte[] getDeviceToken() {
-        return this.deviceToken;
+        return Utilities.copyOf(deviceToken);
     }
 
     /**
      * Returns the binary representation of the payload.
      *
-     * Note: this message returns the underlying byte array, and clients should
-     * not modify the returned array.
      */
     public byte[] getPayload() {
-        return this.payload;
+        return Utilities.copyOf(payload);
     }
 
     private byte[] marshall = null;

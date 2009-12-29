@@ -38,7 +38,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 
-public class QueuedApnsService extends AbstractApnsService implements ApnsService {
+public class QueuedApnsService extends AbstractApnsService {
 
     private ApnsService service;
     private BlockingQueue<ApnsNotification> queue;
@@ -48,6 +48,7 @@ public class QueuedApnsService extends AbstractApnsService implements ApnsServic
         super(null);
         this.service = service;
         this.queue = new LinkedBlockingQueue<ApnsNotification>();
+        this.thread = null;
     }
 
     @Override
@@ -60,7 +61,6 @@ public class QueuedApnsService extends AbstractApnsService implements ApnsServic
     private Thread thread;
     private volatile boolean shouldContinue;
 
-    @Override
     public void start() {
         started = true;
         service.start();
@@ -81,7 +81,6 @@ public class QueuedApnsService extends AbstractApnsService implements ApnsServic
         thread.start();
     }
 
-    @Override
     public void stop() {
         started = false;
         shouldContinue = false;

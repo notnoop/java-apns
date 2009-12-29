@@ -2,13 +2,13 @@ package com.notnoop.apns;
 
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
-
 import org.junit.experimental.theories.*;
 import org.junit.runner.RunWith;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.PayloadBuilder;
+import com.notnoop.apns.internal.Utilities;
+
 import static com.notnoop.apns.PayloadBuilder.*;
 import static com.notnoop.apns.internal.Utilities.*;
 
@@ -52,7 +52,7 @@ public class ApnsNotificationTest {
         assertEquals(dt.length, /* found length */ (bytes[1] << 8) + bytes[2]);
 
         // verify the device token part
-        assertArrayEquals(dt, Arrays.copyOfRange(bytes, 3, 3 + dt.length));
+        assertArrayEquals(dt, Utilities.copyOfRange(bytes, 3, 3 + dt.length));
     }
 
     @Theory
@@ -67,7 +67,7 @@ public class ApnsNotificationTest {
         int plBegin = bytes.length - pl.length;
 
         /// verify the payload part
-        assertArrayEquals(pl, Arrays.copyOfRange(bytes, plBegin, bytes.length));
+        assertArrayEquals(pl, Utilities.copyOfRange(bytes, plBegin, bytes.length));
         assertEquals(pl.length, (bytes[plBegin - 2] << 8) + bytes[plBegin - 1]);
     }
 

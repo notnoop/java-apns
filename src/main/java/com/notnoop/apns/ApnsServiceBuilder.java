@@ -42,6 +42,8 @@ import com.notnoop.apns.internal.ApnsFeedbackConnection;
 import com.notnoop.apns.internal.ApnsServiceImpl;
 import com.notnoop.apns.internal.MinaAdaptor;
 import com.notnoop.apns.internal.QueuedApnsService;
+import com.notnoop.apns.internal.Utilities;
+
 import static com.notnoop.apns.internal.Utilities.*;
 
 /**
@@ -79,7 +81,7 @@ public class ApnsServiceBuilder {
     /**
      * Constructs a new instance of {@code ApnsServiceBuilder}
      */
-    public ApnsServiceBuilder() { }
+    public ApnsServiceBuilder() { sslContext = null; }
 
     /**
      * Specify the certificate used to connect to Apple APNS
@@ -96,10 +98,14 @@ public class ApnsServiceBuilder {
      * @return  this
      */
     public ApnsServiceBuilder withCert(String fileName, String password) {
+        FileInputStream stream = null;
         try {
-            return withCert(new FileInputStream(fileName), password);
+            stream = new FileInputStream(fileName);
+            return withCert(stream, password);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
+        } finally {
+            Utilities.close(stream);
         }
     }
 

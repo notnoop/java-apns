@@ -44,22 +44,18 @@ abstract class AbstractApnsService implements ApnsService {
         this.feedback = feedback;
     }
 
-    @Override
     public void push(String deviceToken, String payload) {
         push(new ApnsNotification(deviceToken, payload));
     }
 
-    @Override
     public void push(Collection<String> deviceTokens, String payload) {
         for (String deviceToken : deviceTokens) {
             push(deviceToken, payload);
         }
     }
 
-    @Override
     public abstract void push(ApnsNotification message);
 
-    @Override
     public Map<String, Date> getInactiveDevices() {
         return feedback.getInactiveDevices();
     }

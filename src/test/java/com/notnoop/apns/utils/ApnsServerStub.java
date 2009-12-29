@@ -63,7 +63,6 @@ public class ApnsServerStub {
 
     private class GatewayRunner implements Runnable {
 
-        @Override
         public void run() {
             try {
                 gatewaySocket = sslFactory.createServerSocket(gatewayPort);
@@ -102,7 +101,6 @@ public class ApnsServerStub {
 
     private class FeedbackRunner implements Runnable {
 
-        @Override
         public void run() {
             try {
                 feedbackSocket = sslFactory.createServerSocket(feedbackPort);

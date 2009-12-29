@@ -11,9 +11,8 @@ import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
 import com.notnoop.apns.ApnsNotification;
-import com.notnoop.apns.ApnsService;
 
-public class MinaAdaptor extends AbstractApnsService implements ApnsService {
+public class MinaAdaptor extends AbstractApnsService {
     NioSocketConnector connector;
     ConnectFuture cf;
     private final String host;
@@ -49,17 +48,13 @@ public class MinaAdaptor extends AbstractApnsService implements ApnsService {
         cf.getSession().write(buf);
     }
 
-    @Override
     public void start() {
         cf = connector.connect(new InetSocketAddress(host, port));
         cf.awaitUninterruptibly();
     }
 
-    @Override
     public void stop() {
-        try {
-            Thread.sleep(1000);
-        } catch (Exception e)  { }
+        Utilities.sleep(1000);
         cf.getSession().close(false).awaitUninterruptibly(100000);
         connector.dispose();
     }

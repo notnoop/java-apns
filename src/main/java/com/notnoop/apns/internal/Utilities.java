@@ -31,12 +31,14 @@
 package com.notnoop.apns.internal;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.Socket;
 import java.security.KeyStore;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,7 +50,11 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class Utilities {
+    private static Logger logger = LoggerFactory.getLogger(Utilities.class);
 
     public static final String SANDBOX_GATEWAY_HOST = "gateway.sandbox.push.apple.com";
     public static final int SANDBOX_GATEWAY_PORT = 2195;
@@ -176,6 +182,48 @@ public class Utilities {
      }
 
      return result;
+    }
+
+    public static void close(Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (IOException e) {
+            logger.debug("error while closing resource", e);
+        }
+    }
+
+    public static void close(Socket closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (IOException e) {
+            logger.debug("error while closing socket", e);
+        }
+    }
+
+    public static void sleep(int delay) {
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e1) {}
+    }
+
+    public static byte[] copyOf(byte[] bytes) {
+        byte[] copy = new byte[bytes.length];
+        System.arraycopy(bytes, 0, copy, 0, bytes.length);
+        return copy;
+    }
+
+    public static byte[] copyOfRange(byte[] original, int from, int to) {
+        int newLength = to - from;
+        if (newLength < 0)
+            throw new IllegalArgumentException(from + " > " + to);
+        byte[] copy = new byte[newLength];
+        System.arraycopy(original, from, copy, 0,
+                         Math.min(original.length - from, newLength));
+        return copy;
     }
 
 }

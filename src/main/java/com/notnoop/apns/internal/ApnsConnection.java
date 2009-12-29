@@ -91,10 +91,8 @@ public class ApnsConnection {
                     throw new RuntimeException(e);
                 }
                 logger.warn("Failed to send message " + m + "... trying again", e);
-                try {
-                    Thread.sleep(DELAY_IN_MS);
-                } catch (InterruptedException e1) {}
-                try { socket.close(); } catch (Exception _) {}
+                Utilities.sleep(DELAY_IN_MS);
+                Utilities.close(socket);
                 socket = null;
             }
         }
