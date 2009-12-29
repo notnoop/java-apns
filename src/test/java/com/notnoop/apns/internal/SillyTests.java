@@ -19,7 +19,7 @@ public class SillyTests {
 
         ApnsServiceImpl service = new ApnsServiceImpl(null, feed);
         assertEquals(map, service.getInactiveDevices());
-        
+
         // The feedback should be called once at most
         // Otherwise, we need to verify that the results of both
         // calls are accounted for

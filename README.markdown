@@ -54,8 +54,8 @@ localizable alert:
     String payload = APNS.newPayload()
                 .badge(3)
                 .customField("secret", "what do you think?");
-		        .localizedKey("GAME_PLAY_REQUEST_FORMAT")
-		        .localizedArguments("Jenna", "Frank")
-		        .actionKey("Play").build();
+                .localizedKey("GAME_PLAY_REQUEST_FORMAT")
+                .localizedArguments("Jenna", "Frank")
+                .actionKey("Play").build();
 
-	service.push(token, payload.toString());
+    service.push(token, payload.toString());

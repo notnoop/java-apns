@@ -87,7 +87,7 @@ public class ApnsServerStub {
                 received.write(read);
                 messages.release();
 
-                
+
                 // Close the socket
                 in.close();
                 out.close();
