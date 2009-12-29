@@ -90,4 +90,52 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+
+    <!-- Site Generation -->
+    <url>http://notnoop.github.com/java-apns</url>
+    <description>
+        Library to send Apple Push Notification.
+    </description>
+
+    <reporting>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.6.1</version>
+          <configuration>
+              <excludePackageNames>com.notnoop.apns.internal</excludePackageNames>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>jxr-maven-plugin</artifactId>
+        </plugin>      
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clover-plugin</artifactId>
+        </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>findbugs-maven-plugin</artifactId>
+            <version>2.0.1</version>
+          </plugin>
+
+      </plugins>
+    </reporting>
+
+    <issueManagement>
+        <system>Github</system>
+        <url>http://github.com/notnoop/java-apns/issues</url>
+    </issueManagement>
+
+    <developers>
+        <developer>
+            <id>notnoop</id>
+            <name>Mahmood Ali</name>
+        </developer>
+    </developers>
 </project>
