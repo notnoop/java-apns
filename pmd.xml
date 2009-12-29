@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd version="4.2.2" timestamp="2009-12-29T15:36:18.631">
+<file name="/Users/mahmood/Projects/Syphir/APNS/src/main/java/com/notnoop/apns/internal/ApnsConnection.java">
+<violation beginline="73" endline="73" begincolumn="5" endcolumn="27" rule="DefaultPackage" ruleset="Controversial Rules" package="com.notnoop.apns.internal" class="ApnsConnection" externalInfoUrl="http://pmd.sourceforge.net/rules/controversial.html#DefaultPackage" priority="3">
+Use explicit scoping instead of the default package private level
+</violation>
+<violation beginline="77" endline="80" begincolumn="17" endcolumn="26" rule="DataflowAnomalyAnalysis" ruleset="Controversial Rules" package="com.notnoop.apns.internal" class="ApnsConnection" method="sendMessage" variable="attempts" externalInfoUrl="http://pmd.sourceforge.net/rules/controversial.html#DataflowAnomalyAnalysis" priority="5">
+Found 'DD'-anomaly for variable 'attempts' (lines '77'-'80').
+</violation>
+<violation beginline="77" endline="101" begincolumn="13" endcolumn="24" rule="DataflowAnomalyAnalysis" ruleset="Controversial Rules" package="com.notnoop.apns.internal" class="ApnsConnection" method="sendMessage" variable="attempts" externalInfoUrl="http://pmd.sourceforge.net/rules/controversial.html#DataflowAnomalyAnalysis" priority="5">
+Found 'DU'-anomaly for variable 'attempts' (lines '77'-'101').
+</violation>
+<violation beginline="80" endline="86" begincolumn="17" endcolumn="28" rule="DataflowAnomalyAnalysis" ruleset="Controversial Rules" package="com.notnoop.apns.internal" class="ApnsConnection" method="sendMessage" variable="attempts" externalInfoUrl="http://pmd.sourceforge.net/rules/controversial.html#DataflowAnomalyAnalysis" priority="5">
+Found 'DD'-anomaly for variable 'attempts' (lines '80'-'86').
+</violation>
+<violation beginline="86" endline="101" begincolumn="17" endcolumn="28" rule="DataflowAnomalyAnalysis" ruleset="Controversial Rules" package="com.notnoop.apns.internal" class="ApnsConnection" method="sendMessage" variable="attempts" externalInfoUrl="http://pmd.sourceforge.net/rules/controversial.html#DataflowAnomalyAnalysis" priority="5">
+Found 'DU'-anomaly for variable 'attempts' (lines '86'-'101').
+</violation>
+<violation beginline="97" endline="97" begincolumn="41" endcolumn="62" rule="EmptyCatchBlock" ruleset="Basic Rules" package="com.notnoop.apns.internal" class="ApnsConnection" method="sendMessage" externalInfoUrl="http://pmd.sourceforge.net/rules/basic.html#EmptyCatchBlock" priority="3">
+Avoid empty catch blocks
+</violation>
+<violation beginline="98" endline="98" begincolumn="26" endcolumn="29" rule="NullAssignment" ruleset="Controversial Rules" package="com.notnoop.apns.internal" class="ApnsConnection" method="sendMessage" externalInfoUrl="http://pmd.sourceforge.net/rules/controversial.html#NullAssignment" priority="3">
+Assigning an Object to null is a code smell.  Consider refactoring.
+</violation>
+</file>
+</pmd>
