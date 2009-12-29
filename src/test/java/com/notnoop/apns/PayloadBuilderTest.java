@@ -2,15 +2,12 @@ package com.notnoop.apns;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 
 import static org.hamcrest.CoreMatchers.*;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import static org.junit.matchers.JUnitMatchers.*;
@@ -390,7 +387,7 @@ public class PayloadBuilderTest {
                  acNode = mapper.readValue(actual, Map.class);
             assertEquals(exNode, acNode);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
     }
 }

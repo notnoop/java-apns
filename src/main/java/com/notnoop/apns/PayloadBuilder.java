@@ -30,7 +30,6 @@
  */
 package com.notnoop.apns;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -38,8 +37,6 @@ import java.util.Map;
 
 import com.notnoop.apns.internal.Utilities;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
