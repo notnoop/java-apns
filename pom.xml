@@ -3,6 +3,7 @@
 	<groupId>com.notnoop.apns</groupId>
 	<artifactId>apns</artifactId>
 	<version>0.1</version>
+	<name>java-apns</name>
 
     <scm>
         <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
@@ -46,10 +47,13 @@
             <id>gh-pages</id>
             <url>file:${project.basedir}/site</url>
         </site>
+        <repository>
+            <id>notnoop-m2-repository</id>
+            <url>file:${project.basedir}/repo</url>
+        </repository>
     </distributionManagement>
 
 	<dependencies>
-
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
