@@ -30,8 +30,6 @@
  */
 package com.notnoop.apns.internal;
 
-import net.sf.json.JSONObject;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -45,33 +43,5 @@ public class UtilitiesTest {
         String encoded = Utilities.encodeHex(decoded);
 
         Assert.assertEquals(encodedHex.toLowerCase(), encoded.toLowerCase());
-    }
-
-    @Test
-    public void simpleClone() {
-        JSONObject json = new JSONObject();
-        json.put("test", 1);
-        json.put("James", "Adams");
-        json.put("nullKey", new JSONObject(true));
-
-        JSONObject copy = Utilities.clone(json);
-        Assert.assertNotSame(json, copy);
-        Assert.assertEquals(json, copy);
-    }
-
-    @Test
-    public void deepCloning() {
-        JSONObject root = new JSONObject();
-        root.put("test", 1);
-
-        JSONObject nu = new JSONObject();
-        nu.put("mark", "what");
-        root.put("nu", nu);
-
-        JSONObject rootClone = Utilities.clone(root);
-        JSONObject nuClone = rootClone.getJSONObject("nu");
-
-        Assert.assertNotSame(nu, nuClone);
-        Assert.assertEquals(nu, nuClone);
     }
 }

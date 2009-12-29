@@ -2,10 +2,16 @@ package com.notnoop.apns;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Random;
 
 import static org.hamcrest.CoreMatchers.*;
+
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import static org.junit.matchers.JUnitMatchers.*;
 
@@ -19,7 +25,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -29,7 +35,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{\"alert\":\"test\"}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -40,7 +46,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{\"alert\":\"test\",\"badge\":9}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -50,8 +56,8 @@ public class PayloadBuilderTest {
         builder.badge(9);
 
         String expected = "{\"aps\":{\"alert\":\"test\",\"badge\":9}}";
-        assertEquals(expected, builder.build());
-        assertEquals(expected, builder.build());
+        assertEqualsJson(expected, builder.build());
+        assertEqualsJson(expected, builder.build());
     }
 
     @Test
@@ -60,8 +66,8 @@ public class PayloadBuilderTest {
         String badgeNo = APNS.newPayload().clearBadge().toString();
 
         String expected = "{\"aps\":{\"badge\":0}}";
-        assertEquals(expected, badge0);
-        assertEquals(expected, badgeNo);
+        assertEqualsJson(expected, badge0);
+        assertEqualsJson(expected, badgeNo);
     }
 
     @Test
@@ -73,7 +79,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -85,7 +91,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -98,7 +104,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -111,7 +117,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"ache1\":\"what\",\"ache2\":2,\"aps\":{\"alert\":\"test\"}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -124,7 +130,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"ache1\":[\"a1\",\"a2\"],\"ache2\":[1,2],\"aps\":{\"alert\":\"test\"}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -134,7 +140,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":\"Cancel\",\"body\":\"what\"}}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -143,8 +149,8 @@ public class PayloadBuilderTest {
         builder.alertBody("what").actionKey("Cancel");
 
         String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":\"Cancel\",\"body\":\"what\"}}}";
-        assertEquals(expected, builder.build());
-        assertEquals(expected, builder.build());
+        assertEqualsJson(expected, builder.build());
+        assertEqualsJson(expected, builder.build());
     }
 
     @Test
@@ -154,7 +160,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":\"Cancel\",\"body\":\"what\"}}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -164,7 +170,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":null,\"body\":\"what\"}}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -174,7 +180,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"aps\":{\"alert\":{\"action-loc-key\":null,\"body\":\"what\"}}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -184,7 +190,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"achme2\":[5,8],\"aps\":{}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -197,7 +203,7 @@ public class PayloadBuilderTest {
 
         String expected = "{\"achme\":\"foo\",\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
         String actual = builder.toString();
-        assertEquals(expected, actual);
+        assertEqualsJson(expected, actual);
     }
 
     @Test
@@ -209,8 +215,8 @@ public class PayloadBuilderTest {
         .localizedArguments(new String[] { "Jenna", "Frank"});
 
         String expected = "{\"achme\":\"foo\",\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
-        assertEquals(expected, builder.build());
-        assertEquals(expected, builder.build());
+        assertEqualsJson(expected, builder.build());
+        assertEqualsJson(expected, builder.build());
     }
 
     @Test
@@ -223,17 +229,17 @@ public class PayloadBuilderTest {
         assertNotSame(builder, copy);
 
         String expected = "{\"aps\":{\"sound\":\"chime\"}}";
-        assertEquals(expected, builder.build());
+        assertEqualsJson(expected, builder.build());
 
         String copyExpected = "{\"aps\":{\"sound\":\"chime\",\"badge\":5}}";
-        assertEquals(copyExpected, copy.build());
+        assertEqualsJson(copyExpected, copy.build());
     }
 
     @Test
     public void simpleEnglishLength() {
         PayloadBuilder builder = new PayloadBuilder().alertBody("test");
         String expected = "{\"aps\":{\"alert\":\"test\"}}";
-        assertEquals(expected, builder.build());
+        assertEqualsJson(expected, builder.build());
         int actualLength = Utilities.toUTF8Bytes(expected).length;
         assertEquals(actualLength, builder.length());
         assertFalse(builder.isTooLong());
@@ -373,6 +379,18 @@ public class PayloadBuilderTest {
         tooLong.shrinkBody();
         String payload = tooLong.build();
         assertThat(payload, not(containsString("alert")));
-        
+
+    }
+
+    private void assertEqualsJson(String expected, String actual) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> exNode = mapper.readValue(expected, Map.class),
+                 acNode = mapper.readValue(actual, Map.class);
+            assertEquals(exNode, acNode);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

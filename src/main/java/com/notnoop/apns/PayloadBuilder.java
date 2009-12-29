@@ -30,29 +30,36 @@
  */
 package com.notnoop.apns;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.notnoop.apns.internal.Utilities;
 
-import net.sf.json.JSONObject;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Represents a builder for constructing Payload requests, as
  * specified by Apple Push Notification Programming Guide.
  */
 public final class PayloadBuilder {
-    private final JSONObject root;
-    private final JSONObject aps;
-    private final JSONObject customAlert;
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    private final Map<String, Object> root;
+    private final Map<String, Object> aps;
+    private final Map<String, Object> customAlert;
 
     /**
      * Constructs a new instance of {@code PayloadBuilder}
      */
     PayloadBuilder() {
-        this.root = new JSONObject();
-        this.aps = new JSONObject();
-        this.customAlert = new JSONObject();
+        this.root = new HashMap<String, Object>();
+        this.aps = new HashMap<String, Object>();
+        this.customAlert = new HashMap<String, Object>();
     }
 
     /**
@@ -122,8 +129,6 @@ public final class PayloadBuilder {
      * @return  this
      */
     public PayloadBuilder actionKey(String actionKey) {
-        if (actionKey == null)
-            actionKey = "null";
         customAlert.put("action-loc-key", actionKey);
         return this;
     }
@@ -210,7 +215,7 @@ public final class PayloadBuilder {
             return this;
 
         int d = currLength - payloadLength;
-        String body = aps.getString("alert");
+        String body = (String)aps.get("alert");
 
         if (body.length() < d)
             aps.remove("alert");
@@ -234,13 +239,17 @@ public final class PayloadBuilder {
         if (!(customAlert.isEmpty()
                 || customAlert.equals(aps.get("alert")))) {
             if (aps.containsKey("alert")) {
-                String alertBody = aps.getString("alert");
+                String alertBody = (String)aps.get("alert");
                 customAlert.put("body", alertBody);
             }
             aps.put("alert", customAlert);
         }
         root.put("aps", aps);
-        return root.toString();
+        try {
+            return mapper.writeValueAsString(root);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -248,10 +257,10 @@ public final class PayloadBuilder {
         return this.build();
     }
 
-    private PayloadBuilder(JSONObject root, JSONObject aps, JSONObject customAlert) {
-        this.root = Utilities.clone(root);
-        this.aps = Utilities.clone(aps);
-        this.customAlert = Utilities.clone(customAlert);
+    private PayloadBuilder(Map<String, Object> root, Map<String, Object> aps, Map<String, Object> customAlert) {
+        this.root = new HashMap<String, Object>(root);
+        this.aps = new HashMap<String, Object>(aps);
+        this.customAlert = new HashMap<String, Object>(customAlert);
     }
 
     public PayloadBuilder copy() {

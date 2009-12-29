@@ -48,8 +48,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import net.sf.json.JSONObject;
-
 public class Utilities {
 
     public static final String SANDBOX_GATEWAY_HOST = "gateway.sandbox.push.apple.com";
@@ -178,10 +176,6 @@ public class Utilities {
      }
 
      return result;
-    }
-
-    public static JSONObject clone(JSONObject json) {
-        return JSONObject.fromObject(json);
     }
 
 }
