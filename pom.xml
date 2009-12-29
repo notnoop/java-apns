@@ -3,7 +3,7 @@
     <groupId>com.notnoop.apns</groupId>
     <artifactId>apns</artifactId>
     <version>0.2-SNAPSHOT</version>
-    <name>java-apns</name>
+    <name>Java Apple Push Notification Service Library</name>
 
     <scm>
         <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
@@ -96,6 +96,14 @@
     <description>
         Library to send Apple Push Notification.
     </description>
+
+    <licenses>
+        <license>
+            <name>New BSD License</name>
+            <url>${basedir}/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <reporting>
       <plugins>
