@@ -5,8 +5,8 @@
 	<version>0.1-SNAPSHOT</version>
 
     <scm>
-        <connection>scm:git:git://github.com/notnoop/maven-repository.git</connection>
-        <developerConnection>scm:git:git@github.com:notnoop/maven-repository.git</developerConnection>
+        <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
+        <developerConnection>scm:git:git@github.com:notnoop/java-apns.git</developerConnection>
         <url>http://github.com/notnoop/java-apns</url>
     </scm>
 
@@ -40,6 +40,13 @@
             </plugin>
 		</plugins>
 	</build>
+
+    <distributionManagement>
+        <site>
+            <id>gh-pages</id>
+            <url>file:${project.basedir}/site</url>
+        </site>
+    </distributionManagement>
 
 	<dependencies>
 
