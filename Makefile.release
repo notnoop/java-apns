@@ -38,7 +38,11 @@ site-push:
 
 ################### Repo #######################
 
-repo: repo-prepare repo-clone repo-gen repo-push
+repo: repo-gen repo-prepare repo-clone repo-copy repo-push
+
+repo-gen:
+	mvn release:prepare
+	mvn release:perform
 
 repo-prepare:
 	rm -rf ${REPO_DIR}
@@ -47,9 +51,8 @@ repo-prepare:
 repo-clone:
 	git clone -b ${BRANCH} ${REPO_GIT} ${REPO_DIR}
 
-repo-gen:
-	mvn release:prepare
-	mvn release:perform
+repo-copy:
+	cp -r target/checkout/${REPO_DIR}/ ${REPO_DIR}
 
 repo-push:
 	cd ${REPO_DIR}; git add .; git commit -a -m "Updating release repo"
