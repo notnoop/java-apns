@@ -6,6 +6,9 @@ The interface aims to require very minimal code to achieve the most common
 cases, but have it be reconfigurable so you can even use your own networking
 connections or JSON library if necessary.
 
+Links: [Installation](http://wiki.github.com/notnoop/java-apns/installation)
+- [Javadocs](http://notnoop.github.com/java-apns/apidocs/index.html)
+
 Features:
 --------------
   *  Easy to use, high performance APNS Service API
