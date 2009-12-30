@@ -49,8 +49,10 @@ abstract class AbstractApnsService implements ApnsService {
     }
 
     public void push(Collection<String> deviceTokens, String payload) {
+        byte[] messageBytes = Utilities.toUTF8Bytes(payload);
         for (String deviceToken : deviceTokens) {
-            push(deviceToken, payload);
+            byte[] dtbytes = Utilities.decodeHex(deviceToken);
+            push(new ApnsNotification(dtbytes, messageBytes));
         }
     }
 
