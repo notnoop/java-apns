@@ -102,9 +102,20 @@ public class Utilities {
 
      byte[] bts = new byte[hex.length() / 2];
      for (int i = 0; i < bts.length; i++) {
-         bts[i] = (byte) Integer.parseInt(hex.substring(2*i, 2*i+2), 16);
+         bts[i] = (byte) (charval(hex.charAt(2*i)) * 16 + charval(hex.charAt(2*i + 1)));
      }
      return bts;
+    }
+
+    private static int charval(char a) {
+        if ('0' <= a && a <= '9')
+            return (a - '0');
+        else if ('a' <= a && a <= 'f')
+            return (a - 'a') + 10;
+        else if ('A' <= a && a <= 'F')
+            return (a - 'A') + 10;
+        else
+            throw new RuntimeException("Invalid hex character: " + a);
     }
 
     private static final char base[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
