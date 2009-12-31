@@ -50,7 +50,7 @@ public class QueuedApnsServiceTCTest {
         queued.stop();
     }
 
-    protected ApnsService newService(IApnsConnection connection, ApnsFeedbackConnection feedback) {
+    protected ApnsService newService(ApnsConnection connection, ApnsFeedbackConnection feedback) {
         ApnsService service = new ApnsServiceImpl(connection, null);
         ApnsService queued = new QueuedApnsService(service);
         queued.start();

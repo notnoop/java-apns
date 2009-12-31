@@ -53,7 +53,7 @@ public class ApnsConnectionTest {
     }
 
     private void packetSentRegardless(SocketFactory sf, ByteArrayOutputStream baos) {
-        ApnsConnection connection = new ApnsConnection(sf, "localhost", 80);
+        ApnsConnectionImpl connection = new ApnsConnectionImpl(sf, "localhost", 80);
         connection.DELAY_IN_MS = 0;
         connection.sendMessage(msg);
         Assert.assertArrayEquals(msg.marshall(), baos.toByteArray());

@@ -63,14 +63,14 @@ public class QueuedApnsServiceTest {
         queued.stop();
     }
 
-    protected ApnsService newService(IApnsConnection connection, ApnsFeedbackConnection feedback) {
+    protected ApnsService newService(ApnsConnection connection, ApnsFeedbackConnection feedback) {
         ApnsService service = new ApnsServiceImpl(connection, null);
         ApnsService queued = new QueuedApnsService(service);
         queued.start();
         return queued;
     }
 
-    static class ConnectionStub implements IApnsConnection {
+    static class ConnectionStub implements ApnsConnection {
         Semaphore semaphor;
         int delay;
 
@@ -91,7 +91,7 @@ public class QueuedApnsServiceTest {
             stop = true;
         }
 
-        public IApnsConnection copy() {
+        public ApnsConnection copy() {
             throw new RuntimeException("Not implemented");
         }
 

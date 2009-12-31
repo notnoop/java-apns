@@ -10,27 +10,27 @@ import org.slf4j.Logger;
 
 import com.notnoop.apns.ApnsNotification;
 
-public class ApnsPooledConnection implements IApnsConnection {
+public class ApnsPooledConnection implements ApnsConnection {
     private static final Logger logger = LoggerFactory.getLogger(ApnsPooledConnection.class);
 
-    private final IApnsConnection prototype;
+    private final ApnsConnection prototype;
     private final int max;
 
     private final ExecutorService executors;
-    private final ConcurrentLinkedQueue<IApnsConnection> prototypes;
+    private final ConcurrentLinkedQueue<ApnsConnection> prototypes;
 
-    public ApnsPooledConnection(IApnsConnection prototype, int max) {
+    public ApnsPooledConnection(ApnsConnection prototype, int max) {
         this.prototype = prototype;
         this.max = max;
 
         executors = Executors.newFixedThreadPool(max);
-        this.prototypes = new ConcurrentLinkedQueue<IApnsConnection>();
+        this.prototypes = new ConcurrentLinkedQueue<ApnsConnection>();
     }
 
-    private final ThreadLocal<IApnsConnection> uniquePrototype =
-        new ThreadLocal<IApnsConnection>() {
-        protected IApnsConnection initialValue() {
-            IApnsConnection newCopy = prototype.copy();
+    private final ThreadLocal<ApnsConnection> uniquePrototype =
+        new ThreadLocal<ApnsConnection>() {
+        protected ApnsConnection initialValue() {
+            ApnsConnection newCopy = prototype.copy();
             prototypes.add(newCopy);
             return newCopy;
         }
@@ -44,7 +44,7 @@ public class ApnsPooledConnection implements IApnsConnection {
         });
     }
 
-    public IApnsConnection copy() {
+    public ApnsConnection copy() {
         return new ApnsPooledConnection(prototype, max);
     }
 
@@ -55,7 +55,7 @@ public class ApnsPooledConnection implements IApnsConnection {
         } catch (InterruptedException e) {
             logger.warn("pool termination interrupted", e);
         }
-        for (IApnsConnection conn : prototypes) {
+        for (ApnsConnection conn : prototypes) {
             Utilities.close(conn);
         }
         Utilities.close(prototype);

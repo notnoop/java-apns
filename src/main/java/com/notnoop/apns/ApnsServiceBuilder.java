@@ -282,7 +282,7 @@ public class ApnsServiceBuilder {
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
         } else {
-            IApnsConnection conn = new ApnsConnection(sslFactory, gatewayHost, gatewaPort, forceReconnect);
+            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, forceReconnect);
             if (pooledMax != 1) {
                 conn = new ApnsPooledConnection(conn, pooledMax);
             }
