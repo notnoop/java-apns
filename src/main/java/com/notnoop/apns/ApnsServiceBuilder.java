@@ -37,12 +37,7 @@ import java.io.InputStream;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
-import com.notnoop.apns.internal.ApnsConnection;
-import com.notnoop.apns.internal.ApnsFeedbackConnection;
-import com.notnoop.apns.internal.ApnsServiceImpl;
-import com.notnoop.apns.internal.MinaAdaptor;
-import com.notnoop.apns.internal.QueuedApnsService;
-import com.notnoop.apns.internal.Utilities;
+import com.notnoop.apns.internal.*;
 
 import static com.notnoop.apns.internal.Utilities.*;
 
@@ -75,6 +70,7 @@ public class ApnsServiceBuilder {
     private String feedbackHost;
     private int feedbackPort;
 
+    private boolean forceReconnect = false;
     private boolean isQueued = false;
     private boolean isNonBlocking = false;
 
@@ -215,6 +211,21 @@ public class ApnsServiceBuilder {
     }
 
     /**
+     * Specify that a new connection is established for every
+     * message.  This is helpful in debugging mode.
+     *
+     * This is helpful in debugging mode, to ensure that a corrupted
+     * message doesn't affect the subsequent messages delivery.
+     *
+     * Note: This option has no effect when using non-blocking
+     * queues.
+     */
+    public ApnsServiceBuilder withForceReconnect() {
+        this.forceReconnect = true;
+        return this;
+    }
+
+    /**
      * Constructs a new thread with a processing queue to process
      * notification requests.
      *
@@ -252,7 +263,7 @@ public class ApnsServiceBuilder {
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
         } else {
-            ApnsConnection conn = new ApnsConnection(sslFactory, gatewayHost, gatewaPort);
+            ApnsConnection conn = new ApnsConnection(sslFactory, gatewayHost, gatewaPort, forceReconnect);
             service = new ApnsServiceImpl(conn, feedback);
 
             if (isQueued) {

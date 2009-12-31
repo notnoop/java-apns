@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,11 +47,17 @@ public class ApnsConnection {
     private final SocketFactory factory;
     private final String host;
     private final int port;
+    private final boolean forceReconnect;
 
     public ApnsConnection(SocketFactory factory, String host, int port) {
+        this(factory, host, port, false);
+    }
+
+    public ApnsConnection(SocketFactory factory, String host, int port, boolean forceReconnect) {
         this.factory = factory;
         this.host = host;
         this.port = port;
+        this.forceReconnect = forceReconnect;
     }
 
     protected void close() throws IOException {
@@ -59,6 +66,11 @@ public class ApnsConnection {
 
     private Socket socket;
     private Socket socket() {
+        if (forceReconnect) {
+            Utilities.close(socket);
+            socket = null;
+        }
+
         while (socket == null || socket.isClosed()) {
             try {
                 socket = factory.createSocket(host, port);
