@@ -33,9 +33,9 @@ package com.notnoop.apns.internal;
 import com.notnoop.apns.ApnsNotification;
 
 public class ApnsServiceImpl extends AbstractApnsService {
-    private ApnsConnection connection;
+    private IApnsConnection connection;
 
-    public ApnsServiceImpl(ApnsConnection connection, ApnsFeedbackConnection feedback) {
+    public ApnsServiceImpl(IApnsConnection connection, ApnsFeedbackConnection feedback) {
         super(feedback);
         this.connection = connection;
     }
@@ -49,5 +49,6 @@ public class ApnsServiceImpl extends AbstractApnsService {
     }
 
     public void stop() {
+        Utilities.close(connection);
     }
 }

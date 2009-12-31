@@ -69,6 +69,7 @@ public class ApnsServiceBuilder {
 
     private String feedbackHost;
     private int feedbackPort;
+    private int pooledMax = 1;
 
     private boolean forceReconnect = false;
     private boolean isQueued = false;
@@ -217,11 +218,29 @@ public class ApnsServiceBuilder {
      * This is helpful in debugging mode, to ensure that a corrupted
      * message doesn't affect the subsequent messages delivery.
      *
+     * Apple may ban your provider, if you send a lot of messages
+     * with this enabled as they may mistakenly assume you are
+     * performing a DoS attack.
+     *
      * Note: This option has no effect when using non-blocking
-     * queues.
+     * connections.
      */
     public ApnsServiceBuilder withForceReconnect() {
         this.forceReconnect = true;
+        return this;
+    }
+
+    /**
+     * Constructs a pool of connections to the notification servers.
+     *
+     * Apple servers recommend using a pooled connection up to
+     * 15 concurrent persistent connections to the gateways.
+     *
+     * Note: This option has no effect when using non-blocking
+     * connections.
+     */
+    public ApnsServiceBuilder asPool(int maxConnections) {
+        this.pooledMax = maxConnections;
         return this;
     }
 
@@ -263,7 +282,11 @@ public class ApnsServiceBuilder {
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
         } else {
-            ApnsConnection conn = new ApnsConnection(sslFactory, gatewayHost, gatewaPort, forceReconnect);
+            IApnsConnection conn = new ApnsConnection(sslFactory, gatewayHost, gatewaPort, forceReconnect);
+            if (pooledMax != 1) {
+                conn = new ApnsPooledConnection(conn, pooledMax);
+            }
+
             service = new ApnsServiceImpl(conn, feedback);
 
             if (isQueued) {

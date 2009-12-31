@@ -34,14 +34,13 @@ import java.io.IOException;
 import java.net.Socket;
 
 import javax.net.SocketFactory;
-import javax.net.ssl.SSLSocketFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.notnoop.apns.ApnsNotification;
 
-public class ApnsConnection {
+public class ApnsConnection implements IApnsConnection {
     private static final Logger logger = LoggerFactory.getLogger(ApnsConnection.class);
 
     private final SocketFactory factory;
@@ -60,12 +59,17 @@ public class ApnsConnection {
         this.forceReconnect = forceReconnect;
     }
 
-    protected void close() throws IOException {
-        this.socket.close();
+    public synchronized void close() {
+        try {
+            if (socket != null)
+                this.socket.close();
+        } catch (IOException e) {
+            logger.debug("Error while closing socket connection", e);
+        }
     }
 
     private Socket socket;
-    private Socket socket() {
+    private synchronized Socket socket() {
         if (forceReconnect) {
             Utilities.close(socket);
             socket = null;
@@ -85,7 +89,7 @@ public class ApnsConnection {
     int DELAY_IN_MS = 1000;
 
     private static final int RETRIES = 3;
-    protected synchronized void sendMessage(ApnsNotification m) {
+    public synchronized void sendMessage(ApnsNotification m) {
         int attempts = 0;
         while (true) {
             try {
@@ -110,4 +114,8 @@ public class ApnsConnection {
         }
     }
 
+    public ApnsConnection copy() {
+        logger.debug("New Copy!");
+        return new ApnsConnection(factory, host, port, forceReconnect);
+    }
 }

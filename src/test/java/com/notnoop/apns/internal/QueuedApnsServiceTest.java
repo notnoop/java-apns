@@ -2,6 +2,7 @@ package com.notnoop.apns.internal;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.util.concurrent.Semaphore;
 
 import org.junit.Test;
@@ -62,26 +63,25 @@ public class QueuedApnsServiceTest {
         queued.stop();
     }
 
-    protected ApnsService newService(ApnsConnection connection, ApnsFeedbackConnection feedback) {
+    protected ApnsService newService(IApnsConnection connection, ApnsFeedbackConnection feedback) {
         ApnsService service = new ApnsServiceImpl(connection, null);
         ApnsService queued = new QueuedApnsService(service);
         queued.start();
         return queued;
     }
 
-    static class ConnectionStub extends ApnsConnection {
+    static class ConnectionStub implements IApnsConnection {
         Semaphore semaphor;
         int delay;
 
         public ConnectionStub(int delay, int expectedCalls) {
-            super(null, null, 80);
             this.semaphor = new Semaphore(1-expectedCalls);
             this.delay = delay;
         }
 
         volatile boolean stop;
 
-        protected synchronized void sendMessage(ApnsNotification m) {
+        public synchronized void sendMessage(ApnsNotification m) {
             long time = System.currentTimeMillis();
             while (!stop && (System.currentTimeMillis() < time + delay));
             semaphor.release();
@@ -90,6 +90,12 @@ public class QueuedApnsServiceTest {
         protected void interrupt() {
             stop = true;
         }
+
+        public IApnsConnection copy() {
+            throw new RuntimeException("Not implemented");
+        }
+
+        public void close() throws IOException {}
 
     }
 }
