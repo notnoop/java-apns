@@ -17,6 +17,7 @@ Features:
   *  Easy to extend and reuse
   *  Easy to integrate with dependency injection frameworks
   *  Easy to setup custom notification payloads
+  *  Supports connection pooling
 
 
 Sample Code
