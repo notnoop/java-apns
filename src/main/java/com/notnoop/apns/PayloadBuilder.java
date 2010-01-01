@@ -196,16 +196,37 @@ public final class PayloadBuilder {
         return this;
     }
 
+    /**
+     * Returns the length of payload bytes once marshaled to bytes
+     *
+     * @return the length of the payload
+     */
     public int length() {
-        String str = this.copy().toString();
-        int payloadLength = Utilities.toUTF8Bytes(str).length;
-        return payloadLength;
+        return this.copy().buildBytes().length;
     }
 
+    /**
+     * Returns true if the payload built so far is larger than
+     * the size permitted by Apple (which is 256 bytes).
+     *
+     * @return true if the result payload is too long
+     */
     public boolean isTooLong() {
         return this.length() > Utilities.MAX_PAYLOAD_LENGTH;
     }
 
+    /**
+     * Shrinks the alert message body so that the resulting payload
+     * message fits within the passed expected payload length.
+     *
+     * This method performs best-effort approach, and its behavior
+     * is unspecified when handling alerts where the payload
+     * without body is already longer than the permitted size, or
+     * if the break occurs within word.
+     *
+     * @param payloadLength the expected max size of the payload
+     * @return  this
+     */
     public PayloadBuilder resizeAlertBody(int payloadLength) {
         int currLength = length();
         if (currLength < payloadLength)
@@ -222,6 +243,18 @@ public final class PayloadBuilder {
         return this;
     }
 
+    /**
+     * Shrinks the alert message body so that the resulting payload
+     * message fits within require Apple specification (256 bytes).
+     *
+     * This method performs best-effort approach, and its behavior
+     * is unspecified when handling alerts where the payload
+     * without body is already longer than the permitted size, or
+     * if the break occurs within word.
+     *
+     * @param payloadLength the expected max size of the payload
+     * @return  this
+     */
     public PayloadBuilder shrinkBody() {
         return resizeAlertBody(Utilities.MAX_PAYLOAD_LENGTH);
     }
@@ -249,17 +282,34 @@ public final class PayloadBuilder {
         }
     }
 
+    /**
+     * Returns the bytes representation of the payload according to
+     * Apple APNS specification
+     *
+     * @return the bytes as expected by Apple
+     */
+    public byte[] buildBytes() {
+        return Utilities.toUTF8Bytes(build());
+    }
+
     @Override
     public String toString() {
         return this.build();
     }
 
-    private PayloadBuilder(Map<String, Object> root, Map<String, Object> aps, Map<String, Object> customAlert) {
+    private PayloadBuilder(Map<String, Object> root,
+            Map<String, Object> aps,
+            Map<String, Object> customAlert) {
         this.root = new HashMap<String, Object>(root);
         this.aps = new HashMap<String, Object>(aps);
         this.customAlert = new HashMap<String, Object>(customAlert);
     }
 
+    /**
+     * Returns a copy of this builder
+     *
+     * @return a copy of this builder
+     */
     public PayloadBuilder copy() {
         return new PayloadBuilder(this.root, this.aps, this.customAlert);
     }

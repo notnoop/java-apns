@@ -62,6 +62,19 @@ public interface ApnsService {
     void push(String deviceToken, String payload);
 
     /**
+     * Sends a push notification with the provided {@code payload} to the
+     * iPhone of {@code deviceToken}.
+     *
+     * The payload needs to be a valid JSON object, otherwise it may fail
+     * silently.  It is recommended to use {@link PayloadBuilder} to create
+     * one.
+     *
+     * @param deviceToken   the destination iPhone device token
+     * @param payload       The payload message
+     */
+    void push(byte[] deviceToken, byte[] payload);
+
+    /**
      * Sends a bulk push notification with the provided
      * {@code payload} to iPhone of {@code deviceToken}s set.
      *
@@ -73,6 +86,19 @@ public interface ApnsService {
      * @param payload       The payload message
      */
     void push(Collection<String> deviceTokens, String payload);
+
+    /**
+     * Sends a bulk push notification with the provided
+     * {@code payload} to iPhone of {@code deviceToken}s set.
+     *
+     * The payload needs to be a valid JSON object, otherwise it may fail
+     * silently.  It is recommended to use {@link PayloadBuilder} to create
+     * one.
+     *
+     * @param deviceTokens   the destination iPhone device tokens
+     * @param payload       The payload message
+     */
+    void push(Collection<byte[]> deviceTokens, byte[] payload);
 
     /**
      * Sends the provided notification {@code message} to the desired
