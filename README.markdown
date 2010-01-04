@@ -1,4 +1,4 @@
-java-apns is a Java client for Apple's Push Notification Service (APNS).
+java-apns is a Java client for Apple Push Notification service (APNs).
 The library aims to provide a highly scalable interface to the Apple
 server, while still being simple and modular.
 
@@ -13,7 +13,7 @@ Features:
 --------------
   *  Easy to use, high performance APNS Service API
   *  Supports Apple Feedback service
-  *  Easy to use with Apple's certificates
+  *  Easy to use with Apple certificates
   *  Easy to extend and reuse
   *  Easy to integrate with dependency injection frameworks
   *  Easy to setup custom notification payloads
