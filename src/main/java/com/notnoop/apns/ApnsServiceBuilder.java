@@ -71,7 +71,7 @@ public class ApnsServiceBuilder {
     private int feedbackPort;
     private int pooledMax = 1;
 
-    private boolean forceReconnect = false;
+    private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
     private boolean isQueued = false;
     private boolean isNonBlocking = false;
 
@@ -212,21 +212,24 @@ public class ApnsServiceBuilder {
     }
 
     /**
-     * Specify that a new connection is established for every
-     * message.  This is helpful in debugging mode.
-     *
-     * This is helpful in debugging mode, to ensure that a corrupted
-     * message doesn't affect the subsequent messages delivery.
-     *
-     * Apple may ban your provider, if you send a lot of messages
-     * with this enabled as they may mistakenly assume you are
-     * performing a DoS attack.
+     * Specify the reconnection policy for the socket connection.
      *
      * Note: This option has no effect when using non-blocking
      * connections.
      */
-    public ApnsServiceBuilder withForceReconnect() {
-        this.forceReconnect = true;
+    public ApnsServiceBuilder withReconnectPolicy(ReconnectPolicy rp) {
+        this.reconnectPolicy = rp;
+        return this;
+    }
+
+    /**
+     * Specify the reconnection policy for the socket connection.
+     *
+     * Note: This option has no effect when using non-blocking
+     * connections.
+     */
+    public ApnsServiceBuilder withReconnectPolicy(ReconnectPolicy.Provided rp) {
+        this.reconnectPolicy = rp.newObject();
         return this;
     }
 
@@ -282,7 +285,7 @@ public class ApnsServiceBuilder {
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
         } else {
-            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, forceReconnect);
+            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, reconnectPolicy);
             if (pooledMax != 1) {
                 conn = new ApnsPooledConnection(conn, pooledMax);
             }

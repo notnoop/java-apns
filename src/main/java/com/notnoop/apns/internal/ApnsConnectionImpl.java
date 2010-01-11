@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.notnoop.apns.ApnsNotification;
+import com.notnoop.apns.ReconnectPolicy;
 
 public class ApnsConnectionImpl implements ApnsConnection {
     private static final Logger logger = LoggerFactory.getLogger(ApnsConnectionImpl.class);
@@ -46,17 +47,17 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final SocketFactory factory;
     private final String host;
     private final int port;
-    private final boolean forceReconnect;
+    private final ReconnectPolicy reconnectPolicy;
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port) {
-        this(factory, host, port, false);
+        this(factory, host, port, new ReconnectPolicies.Never());
     }
 
-    public ApnsConnectionImpl(SocketFactory factory, String host, int port, boolean forceReconnect) {
+    public ApnsConnectionImpl(SocketFactory factory, String host, int port, ReconnectPolicy reconnectPolicy) {
         this.factory = factory;
         this.host = host;
         this.port = port;
-        this.forceReconnect = forceReconnect;
+        this.reconnectPolicy = reconnectPolicy;
     }
 
     public synchronized void close() {
@@ -70,7 +71,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     private Socket socket;
     private synchronized Socket socket() {
-        if (forceReconnect) {
+        if (reconnectPolicy.shouldReconnect()) {
             Utilities.close(socket);
             socket = null;
         }
@@ -78,9 +79,10 @@ public class ApnsConnectionImpl implements ApnsConnection {
         while (socket == null || socket.isClosed()) {
             try {
                 socket = factory.createSocket(host, port);
+                reconnectPolicy.reconnected();
                 logger.debug("Made a new connection to APNS");
             } catch (Exception e) {
-                logger.error("Couldnt' connec to APNS server", e);
+                logger.error("Couldn't connec to APNS server", e);
             }
         }
         return socket;
@@ -97,6 +99,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 Socket socket = socket();
                 socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
+
                 logger.debug("Message \"{}\" sent", m);
 
                 attempts = 0;
@@ -115,7 +118,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
     }
 
     public ApnsConnectionImpl copy() {
-        logger.debug("New Copy!");
-        return new ApnsConnectionImpl(factory, host, port, forceReconnect);
+        return new ApnsConnectionImpl(factory, host, port, reconnectPolicy);
     }
 }
