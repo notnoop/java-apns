@@ -81,7 +81,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 socket = factory.createSocket(host, port);
                 reconnectPolicy.reconnected();
                 logger.debug("Made a new connection to APNS");
-            } catch (Exception e) {
+            } catch (IOException e) {
                 logger.error("Couldn't connec to APNS server", e);
             }
         }

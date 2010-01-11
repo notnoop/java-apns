@@ -104,7 +104,7 @@ public interface ReconnectPolicy {
          * If you send <strong>a lot</strong> of messages though,
          * Apple may consider your requests to be a DoS attack.
          */
-        EVERY_MESSAGE {
+        EVERY_NOTIFICATION {
             @Override
             public ReconnectPolicy newObject() {
                 return new ReconnectPolicies.Always();
