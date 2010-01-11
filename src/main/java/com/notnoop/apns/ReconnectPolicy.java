@@ -35,7 +35,7 @@ import com.notnoop.apns.internal.ReconnectPolicies;
 /**
  * Represents the reconnection policy for the library.
  *
- * Each object should be used execlusively for one
+ * Each object should be used exclusively for one
  * {@code ApnsService} only.
  */
 public interface ReconnectPolicy {
