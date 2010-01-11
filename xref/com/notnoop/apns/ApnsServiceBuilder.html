@@ -80,7 +80,7 @@
 <a name="71" href="#71">71</a>      <strong>private</strong> <strong>int</strong> feedbackPort;
 <a name="72" href="#72">72</a>      <strong>private</strong> <strong>int</strong> pooledMax = 1;
 <a name="73" href="#73">73</a>  
-<a name="74" href="#74">74</a>      <strong>private</strong> <strong>boolean</strong> forceReconnect = false;
+<a name="74" href="#74">74</a>      <strong>private</strong> <a href="../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
 <a name="75" href="#75">75</a>      <strong>private</strong> <strong>boolean</strong> isQueued = false;
 <a name="76" href="#76">76</a>      <strong>private</strong> <strong>boolean</strong> isNonBlocking = false;
 <a name="77" href="#77">77</a>  
@@ -221,105 +221,108 @@
 <a name="212" href="#212">212</a>     }
 <a name="213" href="#213">213</a> 
 <a name="214" href="#214">214</a>     <em>/**<em>*</em></em>
-<a name="215" href="#215">215</a> <em>     * Specify that a new connection is established for every</em>
-<a name="216" href="#216">216</a> <em>     * message.  This is helpful in debugging mode.</em>
-<a name="217" href="#217">217</a> <em>     *</em>
-<a name="218" href="#218">218</a> <em>     * This is helpful in debugging mode, to ensure that a corrupted</em>
-<a name="219" href="#219">219</a> <em>     * message doesn't affect the subsequent messages delivery.</em>
-<a name="220" href="#220">220</a> <em>     *</em>
-<a name="221" href="#221">221</a> <em>     * Apple may ban your provider, if you send a lot of messages</em>
-<a name="222" href="#222">222</a> <em>     * with this enabled as they may mistakenly assume you are</em>
-<a name="223" href="#223">223</a> <em>     * performing a DoS attack.</em>
-<a name="224" href="#224">224</a> <em>     *</em>
-<a name="225" href="#225">225</a> <em>     * Note: This option has no effect when using non-blocking</em>
-<a name="226" href="#226">226</a> <em>     * connections.</em>
-<a name="227" href="#227">227</a> <em>     */</em>
-<a name="228" href="#228">228</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withForceReconnect() {
-<a name="229" href="#229">229</a>         <strong>this</strong>.forceReconnect = <strong>true</strong>;
-<a name="230" href="#230">230</a>         <strong>return</strong> <strong>this</strong>;
-<a name="231" href="#231">231</a>     }
-<a name="232" href="#232">232</a> 
-<a name="233" href="#233">233</a>     <em>/**<em>*</em></em>
-<a name="234" href="#234">234</a> <em>     * Constructs a pool of connections to the notification servers.</em>
-<a name="235" href="#235">235</a> <em>     *</em>
-<a name="236" href="#236">236</a> <em>     * Apple servers recommend using a pooled connection up to</em>
-<a name="237" href="#237">237</a> <em>     * 15 concurrent persistent connections to the gateways.</em>
+<a name="215" href="#215">215</a> <em>     * Specify the reconnection policy for the socket connection.</em>
+<a name="216" href="#216">216</a> <em>     *</em>
+<a name="217" href="#217">217</a> <em>     * Note: This option has no effect when using non-blocking</em>
+<a name="218" href="#218">218</a> <em>     * connections.</em>
+<a name="219" href="#219">219</a> <em>     */</em>
+<a name="220" href="#220">220</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withReconnectPolicy(<a href="../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> rp) {
+<a name="221" href="#221">221</a>         <strong>this</strong>.reconnectPolicy = rp;
+<a name="222" href="#222">222</a>         <strong>return</strong> <strong>this</strong>;
+<a name="223" href="#223">223</a>     }
+<a name="224" href="#224">224</a> 
+<a name="225" href="#225">225</a>     <em>/**<em>*</em></em>
+<a name="226" href="#226">226</a> <em>     * Specify the reconnection policy for the socket connection.</em>
+<a name="227" href="#227">227</a> <em>     *</em>
+<a name="228" href="#228">228</a> <em>     * Note: This option has no effect when using non-blocking</em>
+<a name="229" href="#229">229</a> <em>     * connections.</em>
+<a name="230" href="#230">230</a> <em>     */</em>
+<a name="231" href="#231">231</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withReconnectPolicy(ReconnectPolicy.Provided rp) {
+<a name="232" href="#232">232</a>         <strong>this</strong>.reconnectPolicy = rp.newObject();
+<a name="233" href="#233">233</a>         <strong>return</strong> <strong>this</strong>;
+<a name="234" href="#234">234</a>     }
+<a name="235" href="#235">235</a> 
+<a name="236" href="#236">236</a>     <em>/**<em>*</em></em>
+<a name="237" href="#237">237</a> <em>     * Constructs a pool of connections to the notification servers.</em>
 <a name="238" href="#238">238</a> <em>     *</em>
-<a name="239" href="#239">239</a> <em>     * Note: This option has no effect when using non-blocking</em>
-<a name="240" href="#240">240</a> <em>     * connections.</em>
-<a name="241" href="#241">241</a> <em>     */</em>
-<a name="242" href="#242">242</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asPool(<strong>int</strong> maxConnections) {
-<a name="243" href="#243">243</a>         <strong>this</strong>.pooledMax = maxConnections;
-<a name="244" href="#244">244</a>         <strong>return</strong> <strong>this</strong>;
-<a name="245" href="#245">245</a>     }
-<a name="246" href="#246">246</a> 
-<a name="247" href="#247">247</a>     <em>/**<em>*</em></em>
-<a name="248" href="#248">248</a> <em>     * Constructs a new thread with a processing queue to process</em>
-<a name="249" href="#249">249</a> <em>     * notification requests.</em>
-<a name="250" href="#250">250</a> <em>     *</em>
-<a name="251" href="#251">251</a> <em>     * @return  this</em>
-<a name="252" href="#252">252</a> <em>     */</em>
-<a name="253" href="#253">253</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asQueued() {
-<a name="254" href="#254">254</a>         <strong>this</strong>.isQueued = <strong>true</strong>;
-<a name="255" href="#255">255</a>         <strong>return</strong> <strong>this</strong>;
-<a name="256" href="#256">256</a>     }
-<a name="257" href="#257">257</a> 
-<a name="258" href="#258">258</a>     <em>/**<em>*</em></em>
-<a name="259" href="#259">259</a> <em>     * Constructs non-blocking queues and sockets connections</em>
-<a name="260" href="#260">260</a> <em>     * to send the iPhone notifications.</em>
-<a name="261" href="#261">261</a> <em>     *</em>
-<a name="262" href="#262">262</a> <em>     * @return  this</em>
-<a name="263" href="#263">263</a> <em>     */</em>
-<a name="264" href="#264">264</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asNonBlocking() {
-<a name="265" href="#265">265</a>         <strong>this</strong>.isNonBlocking = <strong>true</strong>;
-<a name="266" href="#266">266</a>         <strong>return</strong> <strong>this</strong>;
-<a name="267" href="#267">267</a>     }
-<a name="268" href="#268">268</a> 
-<a name="269" href="#269">269</a>     <em>/**<em>*</em></em>
-<a name="270" href="#270">270</a> <em>     * Returns a fully initialized instance of {@link ApnsService},</em>
-<a name="271" href="#271">271</a> <em>     * according to the requested settings.</em>
-<a name="272" href="#272">272</a> <em>     *</em>
-<a name="273" href="#273">273</a> <em>     * @return  a new instance of ApnsService</em>
-<a name="274" href="#274">274</a> <em>     */</em>
-<a name="275" href="#275">275</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsService.html">ApnsService</a> build() {
-<a name="276" href="#276">276</a>         checkInitialization();
-<a name="277" href="#277">277</a>         <a href="../../../com/notnoop/apns/ApnsService.html">ApnsService</a> service;
-<a name="278" href="#278">278</a> 
-<a name="279" href="#279">279</a>         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
-<a name="280" href="#280">280</a>         <a href="../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a>(sslFactory, feedbackHost, feedbackPort);
+<a name="239" href="#239">239</a> <em>     * Apple servers recommend using a pooled connection up to</em>
+<a name="240" href="#240">240</a> <em>     * 15 concurrent persistent connections to the gateways.</em>
+<a name="241" href="#241">241</a> <em>     *</em>
+<a name="242" href="#242">242</a> <em>     * Note: This option has no effect when using non-blocking</em>
+<a name="243" href="#243">243</a> <em>     * connections.</em>
+<a name="244" href="#244">244</a> <em>     */</em>
+<a name="245" href="#245">245</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asPool(<strong>int</strong> maxConnections) {
+<a name="246" href="#246">246</a>         <strong>this</strong>.pooledMax = maxConnections;
+<a name="247" href="#247">247</a>         <strong>return</strong> <strong>this</strong>;
+<a name="248" href="#248">248</a>     }
+<a name="249" href="#249">249</a> 
+<a name="250" href="#250">250</a>     <em>/**<em>*</em></em>
+<a name="251" href="#251">251</a> <em>     * Constructs a new thread with a processing queue to process</em>
+<a name="252" href="#252">252</a> <em>     * notification requests.</em>
+<a name="253" href="#253">253</a> <em>     *</em>
+<a name="254" href="#254">254</a> <em>     * @return  this</em>
+<a name="255" href="#255">255</a> <em>     */</em>
+<a name="256" href="#256">256</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asQueued() {
+<a name="257" href="#257">257</a>         <strong>this</strong>.isQueued = <strong>true</strong>;
+<a name="258" href="#258">258</a>         <strong>return</strong> <strong>this</strong>;
+<a name="259" href="#259">259</a>     }
+<a name="260" href="#260">260</a> 
+<a name="261" href="#261">261</a>     <em>/**<em>*</em></em>
+<a name="262" href="#262">262</a> <em>     * Constructs non-blocking queues and sockets connections</em>
+<a name="263" href="#263">263</a> <em>     * to send the iPhone notifications.</em>
+<a name="264" href="#264">264</a> <em>     *</em>
+<a name="265" href="#265">265</a> <em>     * @return  this</em>
+<a name="266" href="#266">266</a> <em>     */</em>
+<a name="267" href="#267">267</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asNonBlocking() {
+<a name="268" href="#268">268</a>         <strong>this</strong>.isNonBlocking = <strong>true</strong>;
+<a name="269" href="#269">269</a>         <strong>return</strong> <strong>this</strong>;
+<a name="270" href="#270">270</a>     }
+<a name="271" href="#271">271</a> 
+<a name="272" href="#272">272</a>     <em>/**<em>*</em></em>
+<a name="273" href="#273">273</a> <em>     * Returns a fully initialized instance of {@link ApnsService},</em>
+<a name="274" href="#274">274</a> <em>     * according to the requested settings.</em>
+<a name="275" href="#275">275</a> <em>     *</em>
+<a name="276" href="#276">276</a> <em>     * @return  a new instance of ApnsService</em>
+<a name="277" href="#277">277</a> <em>     */</em>
+<a name="278" href="#278">278</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsService.html">ApnsService</a> build() {
+<a name="279" href="#279">279</a>         checkInitialization();
+<a name="280" href="#280">280</a>         <a href="../../../com/notnoop/apns/ApnsService.html">ApnsService</a> service;
 <a name="281" href="#281">281</a> 
-<a name="282" href="#282">282</a>         <strong>if</strong> (isNonBlocking) {
-<a name="283" href="#283">283</a>             service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a>(sslContext, gatewayHost, gatewaPort, feedback);
-<a name="284" href="#284">284</a>         } <strong>else</strong> {
-<a name="285" href="#285">285</a>             <a href="../../../com/notnoop/apns/internal/ApnsConnection.html">ApnsConnection</a> conn = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(sslFactory, gatewayHost, gatewaPort, forceReconnect);
-<a name="286" href="#286">286</a>             <strong>if</strong> (pooledMax != 1) {
-<a name="287" href="#287">287</a>                 conn = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsPooledConnection.html">ApnsPooledConnection</a>(conn, pooledMax);
-<a name="288" href="#288">288</a>             }
-<a name="289" href="#289">289</a> 
-<a name="290" href="#290">290</a>             service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsServiceImpl.html">ApnsServiceImpl</a>(conn, feedback);
-<a name="291" href="#291">291</a> 
-<a name="292" href="#292">292</a>             <strong>if</strong> (isQueued) {
-<a name="293" href="#293">293</a>                 service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/QueuedApnsService.html">QueuedApnsService</a>(service);
-<a name="294" href="#294">294</a>             }
-<a name="295" href="#295">295</a>         }
-<a name="296" href="#296">296</a> 
-<a name="297" href="#297">297</a>         service.start();
-<a name="298" href="#298">298</a> 
-<a name="299" href="#299">299</a>         <strong>return</strong> service;
-<a name="300" href="#300">300</a>     }
+<a name="282" href="#282">282</a>         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
+<a name="283" href="#283">283</a>         <a href="../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a>(sslFactory, feedbackHost, feedbackPort);
+<a name="284" href="#284">284</a> 
+<a name="285" href="#285">285</a>         <strong>if</strong> (isNonBlocking) {
+<a name="286" href="#286">286</a>             service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a>(sslContext, gatewayHost, gatewaPort, feedback);
+<a name="287" href="#287">287</a>         } <strong>else</strong> {
+<a name="288" href="#288">288</a>             <a href="../../../com/notnoop/apns/internal/ApnsConnection.html">ApnsConnection</a> conn = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(sslFactory, gatewayHost, gatewaPort, reconnectPolicy);
+<a name="289" href="#289">289</a>             <strong>if</strong> (pooledMax != 1) {
+<a name="290" href="#290">290</a>                 conn = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsPooledConnection.html">ApnsPooledConnection</a>(conn, pooledMax);
+<a name="291" href="#291">291</a>             }
+<a name="292" href="#292">292</a> 
+<a name="293" href="#293">293</a>             service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsServiceImpl.html">ApnsServiceImpl</a>(conn, feedback);
+<a name="294" href="#294">294</a> 
+<a name="295" href="#295">295</a>             <strong>if</strong> (isQueued) {
+<a name="296" href="#296">296</a>                 service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/QueuedApnsService.html">QueuedApnsService</a>(service);
+<a name="297" href="#297">297</a>             }
+<a name="298" href="#298">298</a>         }
+<a name="299" href="#299">299</a> 
+<a name="300" href="#300">300</a>         service.start();
 <a name="301" href="#301">301</a> 
-<a name="302" href="#302">302</a>     <strong>private</strong> <strong>void</strong> checkInitialization() {
-<a name="303" href="#303">303</a>         <strong>if</strong> (sslContext == <strong>null</strong>)
-<a name="304" href="#304">304</a>             <strong>throw</strong> <strong>new</strong> IllegalStateException(
-<a name="305" href="#305">305</a>                     <span class="string">"SSL Certificates and attribute are not initialized\n"</span>
-<a name="306" href="#306">306</a>                     + <span class="string">"Use .withCert() methods."</span>);
-<a name="307" href="#307">307</a>         <strong>if</strong> (gatewayHost == <strong>null</strong> || gatewaPort == -1)
-<a name="308" href="#308">308</a>             <strong>throw</strong> <strong>new</strong> IllegalStateException(
-<a name="309" href="#309">309</a>                     <span class="string">"The Destination APNS server is not stated\n"</span>
-<a name="310" href="#310">310</a>                     + <span class="string">"Use .withDestination(), withSandboxDestination(), "</span>
-<a name="311" href="#311">311</a>                     + <span class="string">"or withProductionDestination()."</span>);
-<a name="312" href="#312">312</a>     }
-<a name="313" href="#313">313</a> }
+<a name="302" href="#302">302</a>         <strong>return</strong> service;
+<a name="303" href="#303">303</a>     }
+<a name="304" href="#304">304</a> 
+<a name="305" href="#305">305</a>     <strong>private</strong> <strong>void</strong> checkInitialization() {
+<a name="306" href="#306">306</a>         <strong>if</strong> (sslContext == <strong>null</strong>)
+<a name="307" href="#307">307</a>             <strong>throw</strong> <strong>new</strong> IllegalStateException(
+<a name="308" href="#308">308</a>                     <span class="string">"SSL Certificates and attribute are not initialized\n"</span>
+<a name="309" href="#309">309</a>                     + <span class="string">"Use .withCert() methods."</span>);
+<a name="310" href="#310">310</a>         <strong>if</strong> (gatewayHost == <strong>null</strong> || gatewaPort == -1)
+<a name="311" href="#311">311</a>             <strong>throw</strong> <strong>new</strong> IllegalStateException(
+<a name="312" href="#312">312</a>                     <span class="string">"The Destination APNS server is not stated\n"</span>
+<a name="313" href="#313">313</a>                     + <span class="string">"Use .withDestination(), withSandboxDestination(), "</span>
+<a name="314" href="#314">314</a>                     + <span class="string">"or withProductionDestination()."</span>);
+<a name="315" href="#315">315</a>     }
+<a name="316" href="#316">316</a> }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>

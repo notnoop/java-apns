@@ -71,55 +71,81 @@
 <a name="62" href="#62">62</a>      <strong>void</strong> push(String deviceToken, String payload);
 <a name="63" href="#63">63</a>  
 <a name="64" href="#64">64</a>      <em>/**<em>*</em></em>
-<a name="65" href="#65">65</a>  <em>     * Sends a bulk push notification with the provided</em>
-<a name="66" href="#66">66</a>  <em>     * {@code payload} to iPhone of {@code deviceToken}s set.</em>
+<a name="65" href="#65">65</a>  <em>     * Sends a push notification with the provided {@code payload} to the</em>
+<a name="66" href="#66">66</a>  <em>     * iPhone of {@code deviceToken}.</em>
 <a name="67" href="#67">67</a>  <em>     *</em>
 <a name="68" href="#68">68</a>  <em>     * The payload needs to be a valid JSON object, otherwise it may fail</em>
 <a name="69" href="#69">69</a>  <em>     * silently.  It is recommended to use {@link PayloadBuilder} to create</em>
 <a name="70" href="#70">70</a>  <em>     * one.</em>
 <a name="71" href="#71">71</a>  <em>     *</em>
-<a name="72" href="#72">72</a>  <em>     * @param deviceTokens   the destination iPhone device tokens</em>
+<a name="72" href="#72">72</a>  <em>     * @param deviceToken   the destination iPhone device token</em>
 <a name="73" href="#73">73</a>  <em>     * @param payload       The payload message</em>
 <a name="74" href="#74">74</a>  <em>     */</em>
-<a name="75" href="#75">75</a>      <strong>void</strong> push(Collection&lt;String> deviceTokens, String payload);
+<a name="75" href="#75">75</a>      <strong>void</strong> push(byte[] deviceToken, byte[] payload);
 <a name="76" href="#76">76</a>  
 <a name="77" href="#77">77</a>      <em>/**<em>*</em></em>
-<a name="78" href="#78">78</a>  <em>     * Sends the provided notification {@code message} to the desired</em>
-<a name="79" href="#79">79</a>  <em>     * destination.</em>
-<a name="80" href="#80">80</a>  <em>     */</em>
-<a name="81" href="#81">81</a>      <strong>void</strong> push(<a href="../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a> message);
-<a name="82" href="#82">82</a>  
-<a name="83" href="#83">83</a>      <em>/**<em>*</em></em>
-<a name="84" href="#84">84</a>  <em>     * Starts the service.</em>
-<a name="85" href="#85">85</a>  <em>     *</em>
-<a name="86" href="#86">86</a>  <em>     * The underlying implementation may prepare its connections or</em>
-<a name="87" href="#87">87</a>  <em>     * datastructures to be able to send the messages.</em>
-<a name="88" href="#88">88</a>  <em>     *</em>
-<a name="89" href="#89">89</a>  <em>     * This method is a blocking call, even if the service represents</em>
-<a name="90" href="#90">90</a>  <em>     * a Non-blocking push service.  Once the service is returned, it is ready</em>
-<a name="91" href="#91">91</a>  <em>     * to accept push requests.</em>
-<a name="92" href="#92">92</a>  <em>     */</em>
-<a name="93" href="#93">93</a>      <strong>void</strong> start();
-<a name="94" href="#94">94</a>  
-<a name="95" href="#95">95</a>      <em>/**<em>*</em></em>
-<a name="96" href="#96">96</a>  <em>     * Stops the service and frees any allocated resources it created for this</em>
-<a name="97" href="#97">97</a>  <em>     * service.</em>
-<a name="98" href="#98">98</a>  <em>     *</em>
-<a name="99" href="#99">99</a>  <em>     * The underlying implementation should close all connections it created,</em>
-<a name="100" href="#100">100</a> <em>     * and possibly stop any threads as well.</em>
-<a name="101" href="#101">101</a> <em>     */</em>
-<a name="102" href="#102">102</a>     <strong>void</strong> stop();
-<a name="103" href="#103">103</a> 
-<a name="104" href="#104">104</a>     <em>/**<em>*</em></em>
-<a name="105" href="#105">105</a> <em>     * Returns the list of devices that reported failed-delivery</em>
-<a name="106" href="#106">106</a> <em>     * attempts to the Apple Feedback services.</em>
-<a name="107" href="#107">107</a> <em>     *</em>
-<a name="108" href="#108">108</a> <em>     * The result is map, mapping the device tokens as Hex Strings</em>
-<a name="109" href="#109">109</a> <em>     * mapped to the timestamp when APNs determined that the</em>
-<a name="110" href="#110">110</a> <em>     * application no longer exists on the device.</em>
-<a name="111" href="#111">111</a> <em>     */</em>
-<a name="112" href="#112">112</a>     Map&lt;String, Date> getInactiveDevices();
-<a name="113" href="#113">113</a> }
+<a name="78" href="#78">78</a>  <em>     * Sends a bulk push notification with the provided</em>
+<a name="79" href="#79">79</a>  <em>     * {@code payload} to iPhone of {@code deviceToken}s set.</em>
+<a name="80" href="#80">80</a>  <em>     *</em>
+<a name="81" href="#81">81</a>  <em>     * The payload needs to be a valid JSON object, otherwise it may fail</em>
+<a name="82" href="#82">82</a>  <em>     * silently.  It is recommended to use {@link PayloadBuilder} to create</em>
+<a name="83" href="#83">83</a>  <em>     * one.</em>
+<a name="84" href="#84">84</a>  <em>     *</em>
+<a name="85" href="#85">85</a>  <em>     * @param deviceTokens   the destination iPhone device tokens</em>
+<a name="86" href="#86">86</a>  <em>     * @param payload       The payload message</em>
+<a name="87" href="#87">87</a>  <em>     */</em>
+<a name="88" href="#88">88</a>      <strong>void</strong> push(Collection&lt;String> deviceTokens, String payload);
+<a name="89" href="#89">89</a>  
+<a name="90" href="#90">90</a>      <em>/**<em>*</em></em>
+<a name="91" href="#91">91</a>  <em>     * Sends a bulk push notification with the provided</em>
+<a name="92" href="#92">92</a>  <em>     * {@code payload} to iPhone of {@code deviceToken}s set.</em>
+<a name="93" href="#93">93</a>  <em>     *</em>
+<a name="94" href="#94">94</a>  <em>     * The payload needs to be a valid JSON object, otherwise it may fail</em>
+<a name="95" href="#95">95</a>  <em>     * silently.  It is recommended to use {@link PayloadBuilder} to create</em>
+<a name="96" href="#96">96</a>  <em>     * one.</em>
+<a name="97" href="#97">97</a>  <em>     *</em>
+<a name="98" href="#98">98</a>  <em>     * @param deviceTokens   the destination iPhone device tokens</em>
+<a name="99" href="#99">99</a>  <em>     * @param payload       The payload message</em>
+<a name="100" href="#100">100</a> <em>     */</em>
+<a name="101" href="#101">101</a>     <strong>void</strong> push(Collection&lt;byte[]> deviceTokens, byte[] payload);
+<a name="102" href="#102">102</a> 
+<a name="103" href="#103">103</a>     <em>/**<em>*</em></em>
+<a name="104" href="#104">104</a> <em>     * Sends the provided notification {@code message} to the desired</em>
+<a name="105" href="#105">105</a> <em>     * destination.</em>
+<a name="106" href="#106">106</a> <em>     */</em>
+<a name="107" href="#107">107</a>     <strong>void</strong> push(<a href="../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a> message);
+<a name="108" href="#108">108</a> 
+<a name="109" href="#109">109</a>     <em>/**<em>*</em></em>
+<a name="110" href="#110">110</a> <em>     * Starts the service.</em>
+<a name="111" href="#111">111</a> <em>     *</em>
+<a name="112" href="#112">112</a> <em>     * The underlying implementation may prepare its connections or</em>
+<a name="113" href="#113">113</a> <em>     * datastructures to be able to send the messages.</em>
+<a name="114" href="#114">114</a> <em>     *</em>
+<a name="115" href="#115">115</a> <em>     * This method is a blocking call, even if the service represents</em>
+<a name="116" href="#116">116</a> <em>     * a Non-blocking push service.  Once the service is returned, it is ready</em>
+<a name="117" href="#117">117</a> <em>     * to accept push requests.</em>
+<a name="118" href="#118">118</a> <em>     */</em>
+<a name="119" href="#119">119</a>     <strong>void</strong> start();
+<a name="120" href="#120">120</a> 
+<a name="121" href="#121">121</a>     <em>/**<em>*</em></em>
+<a name="122" href="#122">122</a> <em>     * Stops the service and frees any allocated resources it created for this</em>
+<a name="123" href="#123">123</a> <em>     * service.</em>
+<a name="124" href="#124">124</a> <em>     *</em>
+<a name="125" href="#125">125</a> <em>     * The underlying implementation should close all connections it created,</em>
+<a name="126" href="#126">126</a> <em>     * and possibly stop any threads as well.</em>
+<a name="127" href="#127">127</a> <em>     */</em>
+<a name="128" href="#128">128</a>     <strong>void</strong> stop();
+<a name="129" href="#129">129</a> 
+<a name="130" href="#130">130</a>     <em>/**<em>*</em></em>
+<a name="131" href="#131">131</a> <em>     * Returns the list of devices that reported failed-delivery</em>
+<a name="132" href="#132">132</a> <em>     * attempts to the Apple Feedback services.</em>
+<a name="133" href="#133">133</a> <em>     *</em>
+<a name="134" href="#134">134</a> <em>     * The result is map, mapping the device tokens as Hex Strings</em>
+<a name="135" href="#135">135</a> <em>     * mapped to the timestamp when APNs determined that the</em>
+<a name="136" href="#136">136</a> <em>     * application no longer exists on the device.</em>
+<a name="137" href="#137">137</a> <em>     */</em>
+<a name="138" href="#138">138</a>     Map&lt;String, Date> getInactiveDevices();
+<a name="139" href="#139">139</a> }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>
