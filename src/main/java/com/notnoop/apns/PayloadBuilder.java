@@ -252,7 +252,6 @@ public final class PayloadBuilder {
      * without body is already longer than the permitted size, or
      * if the break occurs within word.
      *
-     * @param payloadLength the expected max size of the payload
      * @return  this
      */
     public PayloadBuilder shrinkBody() {
