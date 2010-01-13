@@ -53,6 +53,8 @@ import javax.net.ssl.TrustManagerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.notnoop.exceptions.InvalidSSLConfig;
+
 public class Utilities {
     private static Logger logger = LoggerFactory.getLogger(Utilities.class);
 
@@ -72,28 +74,32 @@ public class Utilities {
 
 
     public static SSLSocketFactory newSSLSocketFactory(InputStream cert, String password,
-         String ksType, String ksAlgorithm) throws Exception {
-     SSLContext context = newSSLContext(cert, password, ksType, ksAlgorithm);
-     return context.getSocketFactory();
+         String ksType, String ksAlgorithm) throws InvalidSSLConfig {
+        SSLContext context = newSSLContext(cert, password, ksType, ksAlgorithm);
+        return context.getSocketFactory();
     }
 
     public static SSLContext newSSLContext(InputStream cert, String password,
-         String ksType, String ksAlgorithm) throws Exception {
-     KeyStore ks = KeyStore.getInstance(ksType);
-     ks.load(cert, password.toCharArray());
+         String ksType, String ksAlgorithm) throws InvalidSSLConfig {
+        try {
+            KeyStore ks = KeyStore.getInstance(ksType);
+            ks.load(cert, password.toCharArray());
 
-     // Get a KeyManager and initialize it
-     KeyManagerFactory kmf = KeyManagerFactory.getInstance(ksAlgorithm);
-     kmf.init(ks, password.toCharArray());
+            // Get a KeyManager and initialize it
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(ksAlgorithm);
+            kmf.init(ks, password.toCharArray());
 
-     // Get a TrustManagerFactory and init with KeyStore
-     TrustManagerFactory tmf = TrustManagerFactory.getInstance(ksAlgorithm);
-     tmf.init(ks);
+            // Get a TrustManagerFactory and init with KeyStore
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(ksAlgorithm);
+            tmf.init(ks);
 
-     // Get the SSLContext to help create SSLSocketFactory
-     SSLContext sslc = SSLContext.getInstance("TLS");
-     sslc.init(kmf.getKeyManagers(), null, null);
-     return sslc;
+            // Get the SSLContext to help create SSLSocketFactory
+            SSLContext sslc = SSLContext.getInstance("TLS");
+            sslc.init(kmf.getKeyManagers(), null, null);
+            return sslc;
+        } catch (Exception e) {
+            throw new InvalidSSLConfig(e);
+        }
     }
 
     private static final Pattern pattern = Pattern.compile("[ -]");

@@ -38,6 +38,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.notnoop.apns.internal.*;
+import com.notnoop.exceptions.InvalidSSLConfig;
+import com.notnoop.exceptions.RuntimeIOException;
 
 import static com.notnoop.apns.internal.Utilities.*;
 
@@ -93,14 +95,19 @@ public class ApnsServiceBuilder {
      * @param fileName  the path to the certificate
      * @param password  the password of the keystore
      * @return  this
+     * @throws RuntimeIOException if it {@code fileName} cannot be
+     *          found or read
+     * @throws InvalidSSLConfig if fileName is invalid Keystore
+     *  or the password is invalid
      */
-    public ApnsServiceBuilder withCert(String fileName, String password) {
+    public ApnsServiceBuilder withCert(String fileName, String password)
+    throws RuntimeIOException, InvalidSSLConfig {
         FileInputStream stream = null;
         try {
             stream = new FileInputStream(fileName);
             return withCert(stream, password);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeIOException(e);
         } finally {
             Utilities.close(stream);
         }
@@ -118,8 +125,11 @@ public class ApnsServiceBuilder {
      * @param stream    the keystore represented as input stream
      * @param password  the password of the keystore
      * @return  this
+     * @throws InvalidSSLConfig if stream is invalid Keystore
+     *  or the password is invalid
      */
-    public ApnsServiceBuilder withCert(InputStream stream, String password) {
+    public ApnsServiceBuilder withCert(InputStream stream, String password)
+    throws InvalidSSLConfig {
         try {
             return withSSLContext(
                     newSSLContext(stream, password,
