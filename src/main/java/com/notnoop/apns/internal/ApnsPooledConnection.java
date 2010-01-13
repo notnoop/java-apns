@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import com.notnoop.apns.ApnsNotification;
+import com.notnoop.exceptions.NetworkIOException;
 
 public class ApnsPooledConnection implements ApnsConnection {
     private static final Logger logger = LoggerFactory.getLogger(ApnsPooledConnection.class);
@@ -36,7 +37,7 @@ public class ApnsPooledConnection implements ApnsConnection {
         }
     };
 
-    public void sendMessage(final ApnsNotification m) {
+    public void sendMessage(final ApnsNotification m) throws NetworkIOException {
         executors.execute(new Runnable() {
             public void run() {
                 uniquePrototype.get().sendMessage(m);

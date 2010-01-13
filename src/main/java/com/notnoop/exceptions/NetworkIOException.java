@@ -34,18 +34,16 @@ package com.notnoop.exceptions;
 import java.io.IOException;
 
 /**
- * Signals that an I/O exception of some sort has occurred. This
- * class is the general class of exceptions produced by failed or
- * interrupted I/O operations.
- *
- * This is a RuntimeException, unlike the java.io.IOException
+ * Thrown to indicate that that a network operation has failed:
+ * (e.g. connectivity problems, domain cannot be found, network
+ * dropped).
  */
-public class RuntimeIOException extends ApnsException {
-    private static final long serialVersionUID = 8665285084049041306L;
+public class NetworkIOException extends ApnsException {
+    private static final long serialVersionUID = 3353516625486306533L;
 
-    public RuntimeIOException()                      { super(); }
-    public RuntimeIOException(String message)        { super(message); }
-    public RuntimeIOException(IOException cause)       { super(cause); }
-    public RuntimeIOException(String m, IOException c) { super(m, c); }
+    public NetworkIOException()                      { super(); }
+    public NetworkIOException(String message)        { super(message); }
+    public NetworkIOException(IOException cause)       { super(cause); }
+    public NetworkIOException(String m, IOException c) { super(m, c); }
 
 }

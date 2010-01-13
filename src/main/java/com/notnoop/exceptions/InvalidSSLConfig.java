@@ -54,7 +54,7 @@ import java.security.cert.CertificateException;
  * </ol>
  *
  */
-public class InvalidSSLConfig extends RuntimeException {
+public class InvalidSSLConfig extends ApnsException {
     private static final long serialVersionUID = -7283168775864517167L;
 
     public InvalidSSLConfig()                      { super(); }

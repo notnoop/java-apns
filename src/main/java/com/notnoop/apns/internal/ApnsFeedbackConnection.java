@@ -41,6 +41,8 @@ import javax.net.SocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.notnoop.exceptions.NetworkIOException;
+
 public class ApnsFeedbackConnection {
     private static final Logger logger = LoggerFactory.getLogger(ApnsFeedbackConnection.class);
 
@@ -57,34 +59,32 @@ public class ApnsFeedbackConnection {
     int DELAY_IN_MS = 1000;
     private static final int RETRIES = 3;
 
-    public Map<String, Date> getInactiveDevices() {
+    public Map<String, Date> getInactiveDevices() throws NetworkIOException {
         int attempts = 0;
         while (true) {
-            attempts++;
             try {
+                attempts++;
                 Map<String, Date> result = getInactiveDevicesImpl();
+
                 attempts = 0;
                 return result;
             } catch (Exception e) {
+                logger.warn("Failed to retreive invalid devices", e);
                 if (attempts >= RETRIES) {
                     logger.error("Couldn't get feedback connection", e);
-                    throw new RuntimeException(e);
+                    Utilities.wrapAndThrowAsRuntimeException(e);
                 }
-                try {
-                    Thread.sleep(DELAY_IN_MS);
-                } catch (InterruptedException e1) {}
+                Utilities.sleep(DELAY_IN_MS);
             }
         }
     }
 
-    public Map<String, Date> getInactiveDevicesImpl() {
+    public Map<String, Date> getInactiveDevicesImpl() throws IOException {
         Socket socket = null;
         try {
             socket = factory.createSocket(host, port);
             InputStream stream = socket.getInputStream();
             return Utilities.parseFeedbackStream(stream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         } finally {
             Utilities.close(socket);
         }

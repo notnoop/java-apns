@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ReconnectPolicy;
+import com.notnoop.exceptions.NetworkIOException;
 
 public class ApnsConnectionImpl implements ApnsConnection {
     private static final Logger logger = LoggerFactory.getLogger(ApnsConnectionImpl.class);
@@ -69,8 +70,11 @@ public class ApnsConnectionImpl implements ApnsConnection {
         }
     }
 
+
+    // This method is only called from sendMessage.  sendMessage
+    // has the required logic for retrying
     private Socket socket;
-    private synchronized Socket socket() {
+    private synchronized Socket socket() throws NetworkIOException {
         if (reconnectPolicy.shouldReconnect()) {
             Utilities.close(socket);
             socket = null;
@@ -82,8 +86,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 reconnectPolicy.reconnected();
                 logger.debug("Made a new connection to APNS");
             } catch (IOException e) {
-                logger.error("Couldn't connec to APNS server", e);
-                throw new RuntimeException("Couldn't connect to APNS server");
+                logger.error("Couldn't connect to APNS server", e);
+                throw new NetworkIOException(e);
             }
         }
         return socket;
@@ -92,7 +96,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     int DELAY_IN_MS = 1000;
 
     private static final int RETRIES = 3;
-    public synchronized void sendMessage(ApnsNotification m) {
+    public synchronized void sendMessage(ApnsNotification m) throws NetworkIOException {
         int attempts = 0;
         while (true) {
             try {
@@ -108,10 +112,13 @@ public class ApnsConnectionImpl implements ApnsConnection {
             } catch (Exception e) {
                 if (attempts >= RETRIES) {
                     logger.error("Couldn't send message " + m, e);
-                    throw new RuntimeException(e);
+                    Utilities.wrapAndThrowAsRuntimeException(e);
                 }
                 logger.warn("Failed to send message " + m + "... trying again", e);
-                Utilities.sleep(DELAY_IN_MS);
+                // The first failure might be due to closed connection
+                // don't delay quite yet
+                if (attempts != 1)
+                    Utilities.sleep(DELAY_IN_MS);
                 Utilities.close(socket);
                 socket = null;
             }

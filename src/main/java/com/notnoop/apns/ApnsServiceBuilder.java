@@ -130,13 +130,9 @@ public class ApnsServiceBuilder {
      */
     public ApnsServiceBuilder withCert(InputStream stream, String password)
     throws InvalidSSLConfig {
-        try {
-            return withSSLContext(
-                    newSSLContext(stream, password,
-                            KEYSTORE_TYPE, KEY_ALGORITHM));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        return withSSLContext(
+                newSSLContext(stream, password,
+                        KEYSTORE_TYPE, KEY_ALGORITHM));
     }
 
     /**

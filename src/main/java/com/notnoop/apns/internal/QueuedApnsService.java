@@ -37,6 +37,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.exceptions.NetworkIOException;
 
 public class QueuedApnsService extends AbstractApnsService {
 
@@ -89,7 +90,7 @@ public class QueuedApnsService extends AbstractApnsService {
     }
 
     @Override
-    public Map<String, Date> getInactiveDevices() {
+    public Map<String, Date> getInactiveDevices() throws NetworkIOException {
         return service.getInactiveDevices();
     }
 

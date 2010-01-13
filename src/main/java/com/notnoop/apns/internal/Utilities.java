@@ -54,6 +54,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.notnoop.exceptions.InvalidSSLConfig;
+import com.notnoop.exceptions.NetworkIOException;
 
 public class Utilities {
     private static Logger logger = LoggerFactory.getLogger(Utilities.class);
@@ -241,6 +242,18 @@ public class Utilities {
         System.arraycopy(original, from, copy, 0,
                          Math.min(original.length - from, newLength));
         return copy;
+    }
+
+    public static void wrapAndThrowAsRuntimeException(Exception e) throws NetworkIOException {
+        if (e instanceof IOException)
+            throw new NetworkIOException((IOException)e);
+        else if (e instanceof NetworkIOException)
+            throw (NetworkIOException)e;
+        // unknown errors
+        else if (e instanceof RuntimeException)
+            throw (RuntimeException)e;
+        else
+            throw new RuntimeException(e);
     }
 
 }

@@ -36,6 +36,7 @@ import java.util.Map;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.exceptions.NetworkIOException;
 
 abstract class AbstractApnsService implements ApnsService {
     private ApnsFeedbackConnection feedback;
@@ -44,15 +45,15 @@ abstract class AbstractApnsService implements ApnsService {
         this.feedback = feedback;
     }
 
-    public void push(String deviceToken, String payload) {
+    public void push(String deviceToken, String payload) throws NetworkIOException {
         push(new ApnsNotification(deviceToken, payload));
     }
 
-    public void push(byte[] deviceToken, byte[] payload) {
+    public void push(byte[] deviceToken, byte[] payload) throws NetworkIOException {
         push(new ApnsNotification(deviceToken, payload));
     }
 
-    public void push(Collection<String> deviceTokens, String payload) {
+    public void push(Collection<String> deviceTokens, String payload) throws NetworkIOException {
         byte[] messageBytes = Utilities.toUTF8Bytes(payload);
         for (String deviceToken : deviceTokens) {
             byte[] dtbytes = Utilities.decodeHex(deviceToken);
@@ -60,15 +61,15 @@ abstract class AbstractApnsService implements ApnsService {
         }
     }
 
-    public void push(Collection<byte[]> deviceTokens, byte[] payload) {
+    public void push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException {
         for (byte[] deviceToken : deviceTokens) {
             push(new ApnsNotification(deviceToken, payload));
         }
     }
 
-    public abstract void push(ApnsNotification message);
+    public abstract void push(ApnsNotification message) throws NetworkIOException;
 
-    public Map<String, Date> getInactiveDevices() {
+    public Map<String, Date> getInactiveDevices() throws NetworkIOException {
         return feedback.getInactiveDevices();
     }
 

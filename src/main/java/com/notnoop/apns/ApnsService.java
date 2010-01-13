@@ -34,6 +34,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import com.notnoop.exceptions.NetworkIOException;
+
 /**
  * Represents the connection and interface to the Apple APNS servers.
  *
@@ -58,8 +60,10 @@ public interface ApnsService {
      *
      * @param deviceToken   the destination iPhone device token
      * @param payload       The payload message
+     * @throws NetworkIOException if a network error occured while
+     *      attempting to send the message
      */
-    void push(String deviceToken, String payload);
+    void push(String deviceToken, String payload) throws NetworkIOException;
 
     /**
      * Sends a push notification with the provided {@code payload} to the
@@ -71,8 +75,10 @@ public interface ApnsService {
      *
      * @param deviceToken   the destination iPhone device token
      * @param payload       The payload message
+     * @throws NetworkIOException if a network error occurred while
+     *      attempting to send the message
      */
-    void push(byte[] deviceToken, byte[] payload);
+    void push(byte[] deviceToken, byte[] payload) throws NetworkIOException;
 
     /**
      * Sends a bulk push notification with the provided
@@ -84,8 +90,10 @@ public interface ApnsService {
      *
      * @param deviceTokens   the destination iPhone device tokens
      * @param payload       The payload message
+     * @throws NetworkIOException if a network error occurred while
+     *      attempting to send the message
      */
-    void push(Collection<String> deviceTokens, String payload);
+    void push(Collection<String> deviceTokens, String payload) throws NetworkIOException;
 
     /**
      * Sends a bulk push notification with the provided
@@ -97,14 +105,18 @@ public interface ApnsService {
      *
      * @param deviceTokens   the destination iPhone device tokens
      * @param payload       The payload message
+     * @throws NetworkIOException if a network error occurred while
+     *      attempting to send the message
      */
-    void push(Collection<byte[]> deviceTokens, byte[] payload);
+    void push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException;
 
     /**
      * Sends the provided notification {@code message} to the desired
      * destination.
+     * @throws NetworkIOException if a network error occured while
+     *      attempting to send the message
      */
-    void push(ApnsNotification message);
+    void push(ApnsNotification message) throws NetworkIOException;
 
     /**
      * Starts the service.
@@ -115,6 +127,9 @@ public interface ApnsService {
      * This method is a blocking call, even if the service represents
      * a Non-blocking push service.  Once the service is returned, it is ready
      * to accept push requests.
+     *
+     * @throws NetworkIOException if a network error occurred while
+     *      starting the service
      */
     void start();
 
@@ -134,6 +149,7 @@ public interface ApnsService {
      * The result is map, mapping the device tokens as Hex Strings
      * mapped to the timestamp when APNs determined that the
      * application no longer exists on the device.
+     * @throws NetworkIOException
      */
-    Map<String, Date> getInactiveDevices();
+    Map<String, Date> getInactiveDevices() throws NetworkIOException;
 }

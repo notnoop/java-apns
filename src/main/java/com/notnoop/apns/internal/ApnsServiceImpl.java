@@ -31,6 +31,7 @@
 package com.notnoop.apns.internal;
 
 import com.notnoop.apns.ApnsNotification;
+import com.notnoop.exceptions.NetworkIOException;
 
 public class ApnsServiceImpl extends AbstractApnsService {
     private ApnsConnection connection;
@@ -41,7 +42,7 @@ public class ApnsServiceImpl extends AbstractApnsService {
     }
 
     @Override
-    public void push(ApnsNotification msg) {
+    public void push(ApnsNotification msg) throws NetworkIOException {
         connection.sendMessage(msg);
     }
 
