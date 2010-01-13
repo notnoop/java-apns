@@ -38,6 +38,7 @@ import javax.net.SocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ReconnectPolicy;
 import com.notnoop.exceptions.NetworkIOException;
@@ -49,16 +50,18 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final String host;
     private final int port;
     private final ReconnectPolicy reconnectPolicy;
+    private final ApnsDelegate delegate;
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port) {
-        this(factory, host, port, new ReconnectPolicies.Never());
+        this(factory, host, port, new ReconnectPolicies.Never(), ApnsDelegate.EMPTY);
     }
 
-    public ApnsConnectionImpl(SocketFactory factory, String host, int port, ReconnectPolicy reconnectPolicy) {
+    public ApnsConnectionImpl(SocketFactory factory, String host, int port, ReconnectPolicy reconnectPolicy, ApnsDelegate delegate) {
         this.factory = factory;
         this.host = host;
         this.port = port;
         this.reconnectPolicy = reconnectPolicy;
+        this.delegate = delegate == null ? ApnsDelegate.EMPTY : delegate;
     }
 
     public synchronized void close() {
@@ -104,6 +107,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 Socket socket = socket();
                 socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
+                delegate.messageSent(m);
 
                 logger.debug("Message \"{}\" sent", m);
 
@@ -112,6 +116,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
             } catch (Exception e) {
                 if (attempts >= RETRIES) {
                     logger.error("Couldn't send message " + m, e);
+                    delegate.messageSendFailed(m, e);
                     Utilities.wrapAndThrowAsRuntimeException(e);
                 }
                 logger.warn("Failed to send message " + m + "... trying again", e);
@@ -126,6 +131,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
     }
 
     public ApnsConnectionImpl copy() {
-        return new ApnsConnectionImpl(factory, host, port, reconnectPolicy);
+        return new ApnsConnectionImpl(factory, host, port, reconnectPolicy, delegate);
     }
 }

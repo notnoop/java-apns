@@ -76,6 +76,7 @@ public class ApnsServiceBuilder {
     private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
     private boolean isQueued = false;
     private boolean isNonBlocking = false;
+    private ApnsDelegate delegate = ApnsDelegate.EMPTY;
 
     /**
      * Constructs a new instance of {@code ApnsServiceBuilder}
@@ -276,6 +277,18 @@ public class ApnsServiceBuilder {
     }
 
     /**
+     * Sets the delegate of the service, that gets notified of the
+     * status of message delivery.
+     *
+     * Note: This option has no effect when using non-blocking
+     * connections.
+     */
+    public ApnsServiceBuilder withDelegate(ApnsDelegate delegate) {
+        this.delegate = delegate == null ? ApnsDelegate.EMPTY : delegate;
+        return this;
+    }
+
+    /**
      * Returns a fully initialized instance of {@link ApnsService},
      * according to the requested settings.
      *
@@ -291,7 +304,7 @@ public class ApnsServiceBuilder {
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
         } else {
-            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, reconnectPolicy);
+            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, reconnectPolicy, delegate);
             if (pooledMax != 1) {
                 conn = new ApnsPooledConnection(conn, pooledMax);
             }
