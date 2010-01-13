@@ -11,6 +11,7 @@ import org.apache.mina.filter.ssl.SslFilter;
 import org.apache.mina.transport.socket.nio.NioSocketConnector;
 
 import com.notnoop.apns.ApnsNotification;
+import com.notnoop.exceptions.NetworkIOException;
 
 public class MinaAdaptor extends AbstractApnsService {
     NioSocketConnector connector;
@@ -57,5 +58,9 @@ public class MinaAdaptor extends AbstractApnsService {
         Utilities.sleep(1000);
         cf.getSession().close(false).awaitUninterruptibly(100000);
         connector.dispose();
+    }
+
+    public void testConnection() throws NetworkIOException {
+        // TODO: Implement me in a bit
     }
 }

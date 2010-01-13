@@ -72,5 +72,4 @@ abstract class AbstractApnsService implements ApnsService {
     public Map<String, Date> getInactiveDevices() throws NetworkIOException {
         return feedback.getInactiveDevices();
     }
-
 }

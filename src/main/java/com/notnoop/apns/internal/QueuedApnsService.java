@@ -94,4 +94,8 @@ public class QueuedApnsService extends AbstractApnsService {
         return service.getInactiveDevices();
     }
 
+    public void testConnection() throws NetworkIOException {
+        service.testConnection();
+    }
+
 }

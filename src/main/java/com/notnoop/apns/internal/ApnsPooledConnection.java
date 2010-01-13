@@ -61,4 +61,8 @@ public class ApnsPooledConnection implements ApnsConnection {
         }
         Utilities.close(prototype);
     }
+
+    public void testConnection() {
+        prototype.testConnection();
+    }
 }

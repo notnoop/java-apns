@@ -52,4 +52,8 @@ public class ApnsServiceImpl extends AbstractApnsService {
     public void stop() {
         Utilities.close(connection);
     }
+
+    public void testConnection() {
+        connection.testConnection();
+    }
 }

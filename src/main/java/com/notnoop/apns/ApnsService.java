@@ -153,4 +153,13 @@ public interface ApnsService {
      *      while retrieving invalid device connection
      */
     Map<String, Date> getInactiveDevices() throws NetworkIOException;
+
+    /**
+     * Test that the service is setup properly and the Apple servers
+     * are reachable.
+     *
+     * @throws NetworkIOException   if the Apple servers aren't reachable
+     *      or the service cannot send notifications for now
+     */
+    void testConnection() throws NetworkIOException;
 }

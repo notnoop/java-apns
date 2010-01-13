@@ -37,5 +37,6 @@ import com.notnoop.exceptions.NetworkIOException;
 
 public interface ApnsConnection extends Closeable {
     void sendMessage(ApnsNotification m) throws NetworkIOException;
+    void testConnection() throws NetworkIOException;
     ApnsConnection copy();
 }

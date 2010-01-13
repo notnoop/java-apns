@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.exceptions.NetworkIOException;
 
 public class QueuedApnsServiceTest {
 
@@ -96,6 +97,6 @@ public class QueuedApnsServiceTest {
         }
 
         public void close() throws IOException {}
-
+        public void testConnection() throws NetworkIOException {}
     }
 }
