@@ -8,6 +8,7 @@ import javax.net.SocketFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import com.notnoop.apns.ApnsNotification;
 
@@ -22,6 +23,7 @@ public class ApnsConnectionTest {
     }
 
     @Test
+    @Ignore
     public void closedSocket() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         SocketFactory factory = mockClosedThenOpenSocket(baos, null, true, 1);

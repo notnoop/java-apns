@@ -76,13 +76,14 @@ public class ApnsConnectionImpl implements ApnsConnection {
             socket = null;
         }
 
-        while (socket == null || socket.isClosed()) {
+        if (socket == null || socket.isClosed()) {
             try {
                 socket = factory.createSocket(host, port);
                 reconnectPolicy.reconnected();
                 logger.debug("Made a new connection to APNS");
             } catch (IOException e) {
                 logger.error("Couldn't connec to APNS server", e);
+                throw new RuntimeException("Couldn't connect to APNS server");
             }
         }
         return socket;
