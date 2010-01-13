@@ -149,7 +149,8 @@ public interface ApnsService {
      * The result is map, mapping the device tokens as Hex Strings
      * mapped to the timestamp when APNs determined that the
      * application no longer exists on the device.
-     * @throws NetworkIOException
+     * @throws NetworkIOException if a network error occurred
+     *      while retrieving invalid device connection
      */
     Map<String, Date> getInactiveDevices() throws NetworkIOException;
 }
