@@ -47,89 +47,108 @@
 <a name="38" href="#38">38</a>  <strong>import</strong> org.slf4j.Logger;
 <a name="39" href="#39">39</a>  <strong>import</strong> org.slf4j.LoggerFactory;
 <a name="40" href="#40">40</a>  
-<a name="41" href="#41">41</a>  <strong>import</strong> com.notnoop.apns.ApnsNotification;
-<a name="42" href="#42">42</a>  <strong>import</strong> com.notnoop.apns.ReconnectPolicy;
-<a name="43" href="#43">43</a>  
-<a name="44" href="#44">44</a>  <strong>public</strong> <strong>class</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a> implements <a href="../../../../com/notnoop/apns/internal/ApnsConnection.html">ApnsConnection</a> {
-<a name="45" href="#45">45</a>      <strong>private</strong> <strong>static</strong> <strong>final</strong> Logger logger = LoggerFactory.getLogger(ApnsConnectionImpl.<strong>class</strong>);
-<a name="46" href="#46">46</a>  
-<a name="47" href="#47">47</a>      <strong>private</strong> <strong>final</strong> SocketFactory factory;
-<a name="48" href="#48">48</a>      <strong>private</strong> <strong>final</strong> String host;
-<a name="49" href="#49">49</a>      <strong>private</strong> <strong>final</strong> <strong>int</strong> port;
-<a name="50" href="#50">50</a>      <strong>private</strong> <strong>final</strong> <a href="../../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> reconnectPolicy;
-<a name="51" href="#51">51</a>  
-<a name="52" href="#52">52</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(SocketFactory factory, String host, <strong>int</strong> port) {
-<a name="53" href="#53">53</a>          <strong>this</strong>(factory, host, port, <strong>new</strong> ReconnectPolicies.Never());
-<a name="54" href="#54">54</a>      }
-<a name="55" href="#55">55</a>  
-<a name="56" href="#56">56</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(SocketFactory factory, String host, <strong>int</strong> port, <a href="../../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> reconnectPolicy) {
-<a name="57" href="#57">57</a>          <strong>this</strong>.factory = factory;
-<a name="58" href="#58">58</a>          <strong>this</strong>.host = host;
-<a name="59" href="#59">59</a>          <strong>this</strong>.port = port;
-<a name="60" href="#60">60</a>          <strong>this</strong>.reconnectPolicy = reconnectPolicy;
-<a name="61" href="#61">61</a>      }
-<a name="62" href="#62">62</a>  
-<a name="63" href="#63">63</a>      <strong>public</strong> <strong>synchronized</strong> <strong>void</strong> close() {
-<a name="64" href="#64">64</a>          <strong>try</strong> {
-<a name="65" href="#65">65</a>              <strong>if</strong> (socket != <strong>null</strong>)
-<a name="66" href="#66">66</a>                  <strong>this</strong>.socket.close();
-<a name="67" href="#67">67</a>          } <strong>catch</strong> (IOException e) {
-<a name="68" href="#68">68</a>              logger.debug(<span class="string">"Error while closing socket connection"</span>, e);
-<a name="69" href="#69">69</a>          }
-<a name="70" href="#70">70</a>      }
-<a name="71" href="#71">71</a>  
-<a name="72" href="#72">72</a>      <strong>private</strong> Socket socket;
-<a name="73" href="#73">73</a>      <strong>private</strong> <strong>synchronized</strong> Socket socket() {
-<a name="74" href="#74">74</a>          <strong>if</strong> (reconnectPolicy.shouldReconnect()) {
-<a name="75" href="#75">75</a>              Utilities.close(socket);
-<a name="76" href="#76">76</a>              socket = <strong>null</strong>;
-<a name="77" href="#77">77</a>          }
-<a name="78" href="#78">78</a>  
-<a name="79" href="#79">79</a>          <strong>while</strong> (socket == <strong>null</strong> || socket.isClosed()) {
-<a name="80" href="#80">80</a>              <strong>try</strong> {
-<a name="81" href="#81">81</a>                  socket = factory.createSocket(host, port);
-<a name="82" href="#82">82</a>                  reconnectPolicy.reconnected();
-<a name="83" href="#83">83</a>                  logger.debug(<span class="string">"Made a new connection to APNS"</span>);
-<a name="84" href="#84">84</a>              } <strong>catch</strong> (IOException e) {
-<a name="85" href="#85">85</a>                  logger.error(<span class="string">"Couldn't connec to APNS server"</span>, e);
-<a name="86" href="#86">86</a>              }
-<a name="87" href="#87">87</a>          }
-<a name="88" href="#88">88</a>          <strong>return</strong> socket;
-<a name="89" href="#89">89</a>      }
-<a name="90" href="#90">90</a>  
-<a name="91" href="#91">91</a>      <strong>int</strong> DELAY_IN_MS = 1000;
-<a name="92" href="#92">92</a>  
-<a name="93" href="#93">93</a>      <strong>private</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> RETRIES = 3;
-<a name="94" href="#94">94</a>      <strong>public</strong> <strong>synchronized</strong> <strong>void</strong> sendMessage(<a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a> m) {
-<a name="95" href="#95">95</a>          <strong>int</strong> attempts = 0;
-<a name="96" href="#96">96</a>          <strong>while</strong> (<strong>true</strong>) {
-<a name="97" href="#97">97</a>              <strong>try</strong> {
-<a name="98" href="#98">98</a>                  attempts++;
-<a name="99" href="#99">99</a>                  Socket socket = socket();
-<a name="100" href="#100">100</a>                 socket.getOutputStream().write(m.marshall());
-<a name="101" href="#101">101</a>                 socket.getOutputStream().flush();
-<a name="102" href="#102">102</a> 
-<a name="103" href="#103">103</a>                 logger.debug(<span class="string">"Message \&quot;{}\&quot; sent"</span>, m);
-<a name="104" href="#104">104</a> 
-<a name="105" href="#105">105</a>                 attempts = 0;
-<a name="106" href="#106">106</a>                 <strong>break</strong>;
-<a name="107" href="#107">107</a>             } <strong>catch</strong> (Exception e) {
-<a name="108" href="#108">108</a>                 <strong>if</strong> (attempts >= RETRIES) {
-<a name="109" href="#109">109</a>                     logger.error(<span class="string">"Couldn't send message "</span> + m, e);
-<a name="110" href="#110">110</a>                     <strong>throw</strong> <strong>new</strong> RuntimeException(e);
-<a name="111" href="#111">111</a>                 }
-<a name="112" href="#112">112</a>                 logger.warn(<span class="string">"Failed to send message "</span> + m + <span class="string">"... trying again"</span>, e);
-<a name="113" href="#113">113</a>                 Utilities.sleep(DELAY_IN_MS);
-<a name="114" href="#114">114</a>                 Utilities.close(socket);
-<a name="115" href="#115">115</a>                 socket = <strong>null</strong>;
-<a name="116" href="#116">116</a>             }
-<a name="117" href="#117">117</a>         }
-<a name="118" href="#118">118</a>     }
-<a name="119" href="#119">119</a> 
-<a name="120" href="#120">120</a>     <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a> copy() {
-<a name="121" href="#121">121</a>         <strong>return</strong> <strong>new</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(factory, host, port, reconnectPolicy);
-<a name="122" href="#122">122</a>     }
-<a name="123" href="#123">123</a> }
+<a name="41" href="#41">41</a>  <strong>import</strong> com.notnoop.apns.ApnsDelegate;
+<a name="42" href="#42">42</a>  <strong>import</strong> com.notnoop.apns.ApnsNotification;
+<a name="43" href="#43">43</a>  <strong>import</strong> com.notnoop.apns.ReconnectPolicy;
+<a name="44" href="#44">44</a>  <strong>import</strong> com.notnoop.exceptions.NetworkIOException;
+<a name="45" href="#45">45</a>  
+<a name="46" href="#46">46</a>  <strong>public</strong> <strong>class</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a> implements <a href="../../../../com/notnoop/apns/internal/ApnsConnection.html">ApnsConnection</a> {
+<a name="47" href="#47">47</a>      <strong>private</strong> <strong>static</strong> <strong>final</strong> Logger logger = LoggerFactory.getLogger(ApnsConnectionImpl.<strong>class</strong>);
+<a name="48" href="#48">48</a>  
+<a name="49" href="#49">49</a>      <strong>private</strong> <strong>final</strong> SocketFactory factory;
+<a name="50" href="#50">50</a>      <strong>private</strong> <strong>final</strong> String host;
+<a name="51" href="#51">51</a>      <strong>private</strong> <strong>final</strong> <strong>int</strong> port;
+<a name="52" href="#52">52</a>      <strong>private</strong> <strong>final</strong> <a href="../../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> reconnectPolicy;
+<a name="53" href="#53">53</a>      <strong>private</strong> <strong>final</strong> <a href="../../../../com/notnoop/apns/ApnsDelegate.html">ApnsDelegate</a> delegate;
+<a name="54" href="#54">54</a>  
+<a name="55" href="#55">55</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(SocketFactory factory, String host, <strong>int</strong> port) {
+<a name="56" href="#56">56</a>          <strong>this</strong>(factory, host, port, <strong>new</strong> ReconnectPolicies.Never(), ApnsDelegate.EMPTY);
+<a name="57" href="#57">57</a>      }
+<a name="58" href="#58">58</a>  
+<a name="59" href="#59">59</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(SocketFactory factory, String host, <strong>int</strong> port, <a href="../../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> reconnectPolicy, <a href="../../../../com/notnoop/apns/ApnsDelegate.html">ApnsDelegate</a> delegate) {
+<a name="60" href="#60">60</a>          <strong>this</strong>.factory = factory;
+<a name="61" href="#61">61</a>          <strong>this</strong>.host = host;
+<a name="62" href="#62">62</a>          <strong>this</strong>.port = port;
+<a name="63" href="#63">63</a>          <strong>this</strong>.reconnectPolicy = reconnectPolicy;
+<a name="64" href="#64">64</a>          <strong>this</strong>.delegate = delegate == <strong>null</strong> ? ApnsDelegate.EMPTY : delegate;
+<a name="65" href="#65">65</a>      }
+<a name="66" href="#66">66</a>  
+<a name="67" href="#67">67</a>      <strong>public</strong> <strong>synchronized</strong> <strong>void</strong> close() {
+<a name="68" href="#68">68</a>          <strong>try</strong> {
+<a name="69" href="#69">69</a>              <strong>if</strong> (socket != <strong>null</strong>)
+<a name="70" href="#70">70</a>                  <strong>this</strong>.socket.close();
+<a name="71" href="#71">71</a>          } <strong>catch</strong> (IOException e) {
+<a name="72" href="#72">72</a>              logger.debug(<span class="string">"Error while closing socket connection"</span>, e);
+<a name="73" href="#73">73</a>          }
+<a name="74" href="#74">74</a>      }
+<a name="75" href="#75">75</a>  
+<a name="76" href="#76">76</a>  
+<a name="77" href="#77">77</a>      <em class="comment">// This method is only called from sendMessage.  sendMessage</em>
+<a name="78" href="#78">78</a>      <em class="comment">// has the required logic for retrying</em>
+<a name="79" href="#79">79</a>      <strong>private</strong> Socket socket;
+<a name="80" href="#80">80</a>      <strong>private</strong> <strong>synchronized</strong> Socket socket() throws NetworkIOException {
+<a name="81" href="#81">81</a>          <strong>if</strong> (reconnectPolicy.shouldReconnect()) {
+<a name="82" href="#82">82</a>              Utilities.close(socket);
+<a name="83" href="#83">83</a>              socket = <strong>null</strong>;
+<a name="84" href="#84">84</a>          }
+<a name="85" href="#85">85</a>  
+<a name="86" href="#86">86</a>          <strong>if</strong> (socket == <strong>null</strong> || socket.isClosed()) {
+<a name="87" href="#87">87</a>              <strong>try</strong> {
+<a name="88" href="#88">88</a>                  socket = factory.createSocket(host, port);
+<a name="89" href="#89">89</a>                  reconnectPolicy.reconnected();
+<a name="90" href="#90">90</a>                  logger.debug(<span class="string">"Made a new connection to APNS"</span>);
+<a name="91" href="#91">91</a>              } <strong>catch</strong> (IOException e) {
+<a name="92" href="#92">92</a>                  logger.error(<span class="string">"Couldn't connect to APNS server"</span>, e);
+<a name="93" href="#93">93</a>                  <strong>throw</strong> <strong>new</strong> <a href="../../../../com/notnoop/exceptions/NetworkIOException.html">NetworkIOException</a>(e);
+<a name="94" href="#94">94</a>              }
+<a name="95" href="#95">95</a>          }
+<a name="96" href="#96">96</a>          <strong>return</strong> socket;
+<a name="97" href="#97">97</a>      }
+<a name="98" href="#98">98</a>  
+<a name="99" href="#99">99</a>      <strong>int</strong> DELAY_IN_MS = 1000;
+<a name="100" href="#100">100</a> 
+<a name="101" href="#101">101</a>     <strong>private</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> RETRIES = 3;
+<a name="102" href="#102">102</a>     <strong>public</strong> <strong>synchronized</strong> <strong>void</strong> sendMessage(<a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a> m) throws NetworkIOException {
+<a name="103" href="#103">103</a>         <strong>int</strong> attempts = 0;
+<a name="104" href="#104">104</a>         <strong>while</strong> (<strong>true</strong>) {
+<a name="105" href="#105">105</a>             <strong>try</strong> {
+<a name="106" href="#106">106</a>                 attempts++;
+<a name="107" href="#107">107</a>                 Socket socket = socket();
+<a name="108" href="#108">108</a>                 socket.getOutputStream().write(m.marshall());
+<a name="109" href="#109">109</a>                 socket.getOutputStream().flush();
+<a name="110" href="#110">110</a>                 delegate.messageSent(m);
+<a name="111" href="#111">111</a> 
+<a name="112" href="#112">112</a>                 logger.debug(<span class="string">"Message \&quot;{}\&quot; sent"</span>, m);
+<a name="113" href="#113">113</a> 
+<a name="114" href="#114">114</a>                 attempts = 0;
+<a name="115" href="#115">115</a>                 <strong>break</strong>;
+<a name="116" href="#116">116</a>             } <strong>catch</strong> (Exception e) {
+<a name="117" href="#117">117</a>                 <strong>if</strong> (attempts >= RETRIES) {
+<a name="118" href="#118">118</a>                     logger.error(<span class="string">"Couldn't send message "</span> + m, e);
+<a name="119" href="#119">119</a>                     delegate.messageSendFailed(m, e);
+<a name="120" href="#120">120</a>                     Utilities.wrapAndThrowAsRuntimeException(e);
+<a name="121" href="#121">121</a>                 }
+<a name="122" href="#122">122</a>                 logger.warn(<span class="string">"Failed to send message "</span> + m + <span class="string">"... trying again"</span>, e);
+<a name="123" href="#123">123</a>                 <em class="comment">// The first failure might be due to closed connection</em>
+<a name="124" href="#124">124</a>                 <em class="comment">// don't delay quite yet</em>
+<a name="125" href="#125">125</a>                 <strong>if</strong> (attempts != 1)
+<a name="126" href="#126">126</a>                     Utilities.sleep(DELAY_IN_MS);
+<a name="127" href="#127">127</a>                 Utilities.close(socket);
+<a name="128" href="#128">128</a>                 socket = <strong>null</strong>;
+<a name="129" href="#129">129</a>             }
+<a name="130" href="#130">130</a>         }
+<a name="131" href="#131">131</a>     }
+<a name="132" href="#132">132</a> 
+<a name="133" href="#133">133</a>     <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a> copy() {
+<a name="134" href="#134">134</a>         <strong>return</strong> <strong>new</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(factory, host, port, reconnectPolicy, delegate);
+<a name="135" href="#135">135</a>     }
+<a name="136" href="#136">136</a> 
+<a name="137" href="#137">137</a>     <strong>public</strong> <strong>void</strong> testConnection() throws NetworkIOException {
+<a name="138" href="#138">138</a>         <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a> testConnection = <strong>new</strong> <a href="../../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(factory, host, port, reconnectPolicy, ApnsDelegate.EMPTY);
+<a name="139" href="#139">139</a>         testConnection.sendMessage(<strong>new</strong> <a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a>(<strong>new</strong> byte[] {0}, <strong>new</strong> byte[]{0}));
+<a name="140" href="#140">140</a>         testConnection.close();
+<a name="141" href="#141">141</a>     }
+<a name="142" href="#142">142</a> }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>

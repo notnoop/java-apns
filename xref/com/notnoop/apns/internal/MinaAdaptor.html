@@ -20,54 +20,59 @@
 <a name="11" href="#11">11</a>  <strong>import</strong> org.apache.mina.transport.socket.nio.NioSocketConnector;
 <a name="12" href="#12">12</a>  
 <a name="13" href="#13">13</a>  <strong>import</strong> com.notnoop.apns.ApnsNotification;
-<a name="14" href="#14">14</a>  
-<a name="15" href="#15">15</a>  <strong>public</strong> <strong>class</strong> <a href="../../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a> <strong>extends</strong> <a href="../../../../com/notnoop/apns/internal/AbstractApnsService.html">AbstractApnsService</a> {
-<a name="16" href="#16">16</a>      NioSocketConnector connector;
-<a name="17" href="#17">17</a>      ConnectFuture cf;
-<a name="18" href="#18">18</a>      <strong>private</strong> <strong>final</strong> String host;
-<a name="19" href="#19">19</a>      <strong>private</strong> <strong>final</strong> <strong>int</strong> port;
-<a name="20" href="#20">20</a>  
-<a name="21" href="#21">21</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a>(SSLContext sslContext, String host, <strong>int</strong> port) {
-<a name="22" href="#22">22</a>          <strong>this</strong>(sslContext, host, port, <strong>null</strong>);
-<a name="23" href="#23">23</a>      }
-<a name="24" href="#24">24</a>  
-<a name="25" href="#25">25</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a>(SSLContext sslContext, String host,
-<a name="26" href="#26">26</a>              <strong>int</strong> port, <a href="../../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback) {
-<a name="27" href="#27">27</a>          <strong>super</strong>(feedback);
-<a name="28" href="#28">28</a>          <strong>this</strong>.host = host;
-<a name="29" href="#29">29</a>          <strong>this</strong>.port = port;
-<a name="30" href="#30">30</a>          <strong>this</strong>.connector = createNioSocketConnector(sslContext);
-<a name="31" href="#31">31</a>      }
-<a name="32" href="#32">32</a>  
-<a name="33" href="#33">33</a>      <strong>private</strong> NioSocketConnector createNioSocketConnector(SSLContext sslContext) {
-<a name="34" href="#34">34</a>          NioSocketConnector connector = <strong>new</strong> NioSocketConnector();
-<a name="35" href="#35">35</a>          connector.setConnectTimeoutMillis(30 * 1000L);
-<a name="36" href="#36">36</a>          connector.setHandler(<strong>new</strong> IoHandlerAdapter());
-<a name="37" href="#37">37</a>          SslFilter sslFilter = <strong>new</strong> SslFilter(sslContext);
-<a name="38" href="#38">38</a>          sslFilter.setUseClientMode(<strong>true</strong>);
-<a name="39" href="#39">39</a>          connector.getFilterChain().addLast(<span class="string">"SSL"</span>, sslFilter);
-<a name="40" href="#40">40</a>          <strong>return</strong> connector;
-<a name="41" href="#41">41</a>      }
-<a name="42" href="#42">42</a>  
-<a name="43" href="#43">43</a>      @Override
-<a name="44" href="#44">44</a>      <strong>public</strong> <strong>void</strong> push(<a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a> message) {
-<a name="45" href="#45">45</a>          byte[] msg = message.marshall();
-<a name="46" href="#46">46</a>          IoBuffer buf = IoBuffer.allocate(msg.length);
-<a name="47" href="#47">47</a>          System.arraycopy(msg, 0, buf.array(), 0, msg.length);
-<a name="48" href="#48">48</a>          cf.getSession().write(buf);
-<a name="49" href="#49">49</a>      }
-<a name="50" href="#50">50</a>  
-<a name="51" href="#51">51</a>      <strong>public</strong> <strong>void</strong> start() {
-<a name="52" href="#52">52</a>          cf = connector.connect(<strong>new</strong> InetSocketAddress(host, port));
-<a name="53" href="#53">53</a>          cf.awaitUninterruptibly();
-<a name="54" href="#54">54</a>      }
-<a name="55" href="#55">55</a>  
-<a name="56" href="#56">56</a>      <strong>public</strong> <strong>void</strong> stop() {
-<a name="57" href="#57">57</a>          Utilities.sleep(1000);
-<a name="58" href="#58">58</a>          cf.getSession().close(false).awaitUninterruptibly(100000);
-<a name="59" href="#59">59</a>          connector.dispose();
-<a name="60" href="#60">60</a>      }
-<a name="61" href="#61">61</a>  }
+<a name="14" href="#14">14</a>  <strong>import</strong> com.notnoop.exceptions.NetworkIOException;
+<a name="15" href="#15">15</a>  
+<a name="16" href="#16">16</a>  <strong>public</strong> <strong>class</strong> <a href="../../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a> <strong>extends</strong> <a href="../../../../com/notnoop/apns/internal/AbstractApnsService.html">AbstractApnsService</a> {
+<a name="17" href="#17">17</a>      NioSocketConnector connector;
+<a name="18" href="#18">18</a>      ConnectFuture cf;
+<a name="19" href="#19">19</a>      <strong>private</strong> <strong>final</strong> String host;
+<a name="20" href="#20">20</a>      <strong>private</strong> <strong>final</strong> <strong>int</strong> port;
+<a name="21" href="#21">21</a>  
+<a name="22" href="#22">22</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a>(SSLContext sslContext, String host, <strong>int</strong> port) {
+<a name="23" href="#23">23</a>          <strong>this</strong>(sslContext, host, port, <strong>null</strong>);
+<a name="24" href="#24">24</a>      }
+<a name="25" href="#25">25</a>  
+<a name="26" href="#26">26</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a>(SSLContext sslContext, String host,
+<a name="27" href="#27">27</a>              <strong>int</strong> port, <a href="../../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback) {
+<a name="28" href="#28">28</a>          <strong>super</strong>(feedback);
+<a name="29" href="#29">29</a>          <strong>this</strong>.host = host;
+<a name="30" href="#30">30</a>          <strong>this</strong>.port = port;
+<a name="31" href="#31">31</a>          <strong>this</strong>.connector = createNioSocketConnector(sslContext);
+<a name="32" href="#32">32</a>      }
+<a name="33" href="#33">33</a>  
+<a name="34" href="#34">34</a>      <strong>private</strong> NioSocketConnector createNioSocketConnector(SSLContext sslContext) {
+<a name="35" href="#35">35</a>          NioSocketConnector connector = <strong>new</strong> NioSocketConnector();
+<a name="36" href="#36">36</a>          connector.setConnectTimeoutMillis(30 * 1000L);
+<a name="37" href="#37">37</a>          connector.setHandler(<strong>new</strong> IoHandlerAdapter());
+<a name="38" href="#38">38</a>          SslFilter sslFilter = <strong>new</strong> SslFilter(sslContext);
+<a name="39" href="#39">39</a>          sslFilter.setUseClientMode(<strong>true</strong>);
+<a name="40" href="#40">40</a>          connector.getFilterChain().addLast(<span class="string">"SSL"</span>, sslFilter);
+<a name="41" href="#41">41</a>          <strong>return</strong> connector;
+<a name="42" href="#42">42</a>      }
+<a name="43" href="#43">43</a>  
+<a name="44" href="#44">44</a>      @Override
+<a name="45" href="#45">45</a>      <strong>public</strong> <strong>void</strong> push(<a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a> message) {
+<a name="46" href="#46">46</a>          byte[] msg = message.marshall();
+<a name="47" href="#47">47</a>          IoBuffer buf = IoBuffer.allocate(msg.length);
+<a name="48" href="#48">48</a>          System.arraycopy(msg, 0, buf.array(), 0, msg.length);
+<a name="49" href="#49">49</a>          cf.getSession().write(buf);
+<a name="50" href="#50">50</a>      }
+<a name="51" href="#51">51</a>  
+<a name="52" href="#52">52</a>      <strong>public</strong> <strong>void</strong> start() {
+<a name="53" href="#53">53</a>          cf = connector.connect(<strong>new</strong> InetSocketAddress(host, port));
+<a name="54" href="#54">54</a>          cf.awaitUninterruptibly();
+<a name="55" href="#55">55</a>      }
+<a name="56" href="#56">56</a>  
+<a name="57" href="#57">57</a>      <strong>public</strong> <strong>void</strong> stop() {
+<a name="58" href="#58">58</a>          Utilities.sleep(1000);
+<a name="59" href="#59">59</a>          cf.getSession().close(false).awaitUninterruptibly(100000);
+<a name="60" href="#60">60</a>          connector.dispose();
+<a name="61" href="#61">61</a>      }
+<a name="62" href="#62">62</a>  
+<a name="63" href="#63">63</a>      <strong>public</strong> <strong>void</strong> testConnection() throws NetworkIOException {
+<a name="64" href="#64">64</a>          <em class="comment">// TODO: Implement me in a bit</em>
+<a name="65" href="#65">65</a>      }
+<a name="66" href="#66">66</a>  }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>

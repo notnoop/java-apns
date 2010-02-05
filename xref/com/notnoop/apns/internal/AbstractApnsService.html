@@ -45,42 +45,42 @@
 <a name="36" href="#36">36</a>  
 <a name="37" href="#37">37</a>  <strong>import</strong> com.notnoop.apns.ApnsNotification;
 <a name="38" href="#38">38</a>  <strong>import</strong> com.notnoop.apns.ApnsService;
-<a name="39" href="#39">39</a>  
-<a name="40" href="#40">40</a>  <strong>abstract</strong> <strong>class</strong> <a href="../../../../com/notnoop/apns/internal/AbstractApnsService.html">AbstractApnsService</a> implements <a href="../../../../com/notnoop/apns/ApnsService.html">ApnsService</a> {
-<a name="41" href="#41">41</a>      <strong>private</strong> <a href="../../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback;
-<a name="42" href="#42">42</a>  
-<a name="43" href="#43">43</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/AbstractApnsService.html">AbstractApnsService</a>(<a href="../../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback) {
-<a name="44" href="#44">44</a>          <strong>this</strong>.feedback = feedback;
-<a name="45" href="#45">45</a>      }
-<a name="46" href="#46">46</a>  
-<a name="47" href="#47">47</a>      <strong>public</strong> <strong>void</strong> push(String deviceToken, String payload) {
-<a name="48" href="#48">48</a>          push(<strong>new</strong> <a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a>(deviceToken, payload));
-<a name="49" href="#49">49</a>      }
-<a name="50" href="#50">50</a>  
-<a name="51" href="#51">51</a>      <strong>public</strong> <strong>void</strong> push(byte[] deviceToken, byte[] payload) {
-<a name="52" href="#52">52</a>          push(<strong>new</strong> <a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a>(deviceToken, payload));
-<a name="53" href="#53">53</a>      }
-<a name="54" href="#54">54</a>  
-<a name="55" href="#55">55</a>      <strong>public</strong> <strong>void</strong> push(Collection&lt;String> deviceTokens, String payload) {
-<a name="56" href="#56">56</a>          byte[] messageBytes = Utilities.toUTF8Bytes(payload);
-<a name="57" href="#57">57</a>          <strong>for</strong> (String deviceToken : deviceTokens) {
-<a name="58" href="#58">58</a>              byte[] dtbytes = Utilities.decodeHex(deviceToken);
-<a name="59" href="#59">59</a>              push(<strong>new</strong> <a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a>(dtbytes, messageBytes));
-<a name="60" href="#60">60</a>          }
-<a name="61" href="#61">61</a>      }
-<a name="62" href="#62">62</a>  
-<a name="63" href="#63">63</a>      <strong>public</strong> <strong>void</strong> push(Collection&lt;byte[]> deviceTokens, byte[] payload) {
-<a name="64" href="#64">64</a>          <strong>for</strong> (byte[] deviceToken : deviceTokens) {
-<a name="65" href="#65">65</a>              push(<strong>new</strong> <a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a>(deviceToken, payload));
-<a name="66" href="#66">66</a>          }
-<a name="67" href="#67">67</a>      }
-<a name="68" href="#68">68</a>  
-<a name="69" href="#69">69</a>      <strong>public</strong> <strong>abstract</strong> <strong>void</strong> push(<a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a> message);
-<a name="70" href="#70">70</a>  
-<a name="71" href="#71">71</a>      <strong>public</strong> Map&lt;String, Date> getInactiveDevices() {
-<a name="72" href="#72">72</a>          <strong>return</strong> feedback.getInactiveDevices();
-<a name="73" href="#73">73</a>      }
-<a name="74" href="#74">74</a>  
+<a name="39" href="#39">39</a>  <strong>import</strong> com.notnoop.exceptions.NetworkIOException;
+<a name="40" href="#40">40</a>  
+<a name="41" href="#41">41</a>  <strong>abstract</strong> <strong>class</strong> <a href="../../../../com/notnoop/apns/internal/AbstractApnsService.html">AbstractApnsService</a> implements <a href="../../../../com/notnoop/apns/ApnsService.html">ApnsService</a> {
+<a name="42" href="#42">42</a>      <strong>private</strong> <a href="../../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback;
+<a name="43" href="#43">43</a>  
+<a name="44" href="#44">44</a>      <strong>public</strong> <a href="../../../../com/notnoop/apns/internal/AbstractApnsService.html">AbstractApnsService</a>(<a href="../../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback) {
+<a name="45" href="#45">45</a>          <strong>this</strong>.feedback = feedback;
+<a name="46" href="#46">46</a>      }
+<a name="47" href="#47">47</a>  
+<a name="48" href="#48">48</a>      <strong>public</strong> <strong>void</strong> push(String deviceToken, String payload) throws NetworkIOException {
+<a name="49" href="#49">49</a>          push(<strong>new</strong> <a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a>(deviceToken, payload));
+<a name="50" href="#50">50</a>      }
+<a name="51" href="#51">51</a>  
+<a name="52" href="#52">52</a>      <strong>public</strong> <strong>void</strong> push(byte[] deviceToken, byte[] payload) throws NetworkIOException {
+<a name="53" href="#53">53</a>          push(<strong>new</strong> <a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a>(deviceToken, payload));
+<a name="54" href="#54">54</a>      }
+<a name="55" href="#55">55</a>  
+<a name="56" href="#56">56</a>      <strong>public</strong> <strong>void</strong> push(Collection&lt;String> deviceTokens, String payload) throws NetworkIOException {
+<a name="57" href="#57">57</a>          byte[] messageBytes = Utilities.toUTF8Bytes(payload);
+<a name="58" href="#58">58</a>          <strong>for</strong> (String deviceToken : deviceTokens) {
+<a name="59" href="#59">59</a>              byte[] dtbytes = Utilities.decodeHex(deviceToken);
+<a name="60" href="#60">60</a>              push(<strong>new</strong> <a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a>(dtbytes, messageBytes));
+<a name="61" href="#61">61</a>          }
+<a name="62" href="#62">62</a>      }
+<a name="63" href="#63">63</a>  
+<a name="64" href="#64">64</a>      <strong>public</strong> <strong>void</strong> push(Collection&lt;byte[]> deviceTokens, byte[] payload) throws NetworkIOException {
+<a name="65" href="#65">65</a>          <strong>for</strong> (byte[] deviceToken : deviceTokens) {
+<a name="66" href="#66">66</a>              push(<strong>new</strong> <a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a>(deviceToken, payload));
+<a name="67" href="#67">67</a>          }
+<a name="68" href="#68">68</a>      }
+<a name="69" href="#69">69</a>  
+<a name="70" href="#70">70</a>      <strong>public</strong> <strong>abstract</strong> <strong>void</strong> push(<a href="../../../../com/notnoop/apns/ApnsNotification.html">ApnsNotification</a> message) throws NetworkIOException;
+<a name="71" href="#71">71</a>  
+<a name="72" href="#72">72</a>      <strong>public</strong> Map&lt;String, Date> getInactiveDevices() throws NetworkIOException {
+<a name="73" href="#73">73</a>          <strong>return</strong> feedback.getInactiveDevices();
+<a name="74" href="#74">74</a>      }
 <a name="75" href="#75">75</a>  }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>

@@ -62,191 +62,210 @@
 <a name="53" href="#53">53</a>  <strong>import</strong> org.slf4j.Logger;
 <a name="54" href="#54">54</a>  <strong>import</strong> org.slf4j.LoggerFactory;
 <a name="55" href="#55">55</a>  
-<a name="56" href="#56">56</a>  <strong>public</strong> <strong>class</strong> <a href="../../../../com/notnoop/apns/internal/Utilities.html">Utilities</a> {
-<a name="57" href="#57">57</a>      <strong>private</strong> <strong>static</strong> Logger logger = LoggerFactory.getLogger(Utilities.<strong>class</strong>);
+<a name="56" href="#56">56</a>  <strong>import</strong> com.notnoop.exceptions.InvalidSSLConfig;
+<a name="57" href="#57">57</a>  <strong>import</strong> com.notnoop.exceptions.NetworkIOException;
 <a name="58" href="#58">58</a>  
-<a name="59" href="#59">59</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> String SANDBOX_GATEWAY_HOST = <span class="string">"gateway.sandbox.push.apple.com"</span>;
-<a name="60" href="#60">60</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> SANDBOX_GATEWAY_PORT = 2195;
+<a name="59" href="#59">59</a>  <strong>public</strong> <strong>class</strong> <a href="../../../../com/notnoop/apns/internal/Utilities.html">Utilities</a> {
+<a name="60" href="#60">60</a>      <strong>private</strong> <strong>static</strong> Logger logger = LoggerFactory.getLogger(Utilities.<strong>class</strong>);
 <a name="61" href="#61">61</a>  
-<a name="62" href="#62">62</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> String SANDBOX_FEEDBACK_HOST = <span class="string">"feedback.sandbox.push.apple.com"</span>;
-<a name="63" href="#63">63</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> SANDBOX_FEEDBACK_PORT = 2196;
+<a name="62" href="#62">62</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> String SANDBOX_GATEWAY_HOST = <span class="string">"gateway.sandbox.push.apple.com"</span>;
+<a name="63" href="#63">63</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> SANDBOX_GATEWAY_PORT = 2195;
 <a name="64" href="#64">64</a>  
-<a name="65" href="#65">65</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> String PRODUCTION_GATEWAY_HOST = <span class="string">"gateway.push.apple.com"</span>;
-<a name="66" href="#66">66</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> PRODUCTION_GATEWAY_PORT = 2195;
+<a name="65" href="#65">65</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> String SANDBOX_FEEDBACK_HOST = <span class="string">"feedback.sandbox.push.apple.com"</span>;
+<a name="66" href="#66">66</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> SANDBOX_FEEDBACK_PORT = 2196;
 <a name="67" href="#67">67</a>  
-<a name="68" href="#68">68</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> String PRODUCTION_FEEDBACK_HOST = <span class="string">"feedback.push.apple.com"</span>;
-<a name="69" href="#69">69</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> PRODUCTION_FEEDBACK_PORT = 2196;
+<a name="68" href="#68">68</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> String PRODUCTION_GATEWAY_HOST = <span class="string">"gateway.push.apple.com"</span>;
+<a name="69" href="#69">69</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> PRODUCTION_GATEWAY_PORT = 2195;
 <a name="70" href="#70">70</a>  
-<a name="71" href="#71">71</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> MAX_PAYLOAD_LENGTH = 256;
-<a name="72" href="#72">72</a>  
+<a name="71" href="#71">71</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> String PRODUCTION_FEEDBACK_HOST = <span class="string">"feedback.push.apple.com"</span>;
+<a name="72" href="#72">72</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> PRODUCTION_FEEDBACK_PORT = 2196;
 <a name="73" href="#73">73</a>  
-<a name="74" href="#74">74</a>      <strong>public</strong> <strong>static</strong> SSLSocketFactory newSSLSocketFactory(InputStream cert, String password,
-<a name="75" href="#75">75</a>           String ksType, String ksAlgorithm) throws Exception {
-<a name="76" href="#76">76</a>       SSLContext context = newSSLContext(cert, password, ksType, ksAlgorithm);
-<a name="77" href="#77">77</a>       <strong>return</strong> context.getSocketFactory();
-<a name="78" href="#78">78</a>      }
-<a name="79" href="#79">79</a>  
-<a name="80" href="#80">80</a>      <strong>public</strong> <strong>static</strong> SSLContext newSSLContext(InputStream cert, String password,
-<a name="81" href="#81">81</a>           String ksType, String ksAlgorithm) throws Exception {
-<a name="82" href="#82">82</a>       KeyStore ks = KeyStore.getInstance(ksType);
-<a name="83" href="#83">83</a>       ks.load(cert, password.toCharArray());
-<a name="84" href="#84">84</a>  
-<a name="85" href="#85">85</a>       <em class="comment">// Get a KeyManager and initialize it</em>
-<a name="86" href="#86">86</a>       KeyManagerFactory kmf = KeyManagerFactory.getInstance(ksAlgorithm);
-<a name="87" href="#87">87</a>       kmf.init(ks, password.toCharArray());
+<a name="74" href="#74">74</a>      <strong>public</strong> <strong>static</strong> <strong>final</strong> <strong>int</strong> MAX_PAYLOAD_LENGTH = 256;
+<a name="75" href="#75">75</a>  
+<a name="76" href="#76">76</a>  
+<a name="77" href="#77">77</a>      <strong>public</strong> <strong>static</strong> SSLSocketFactory newSSLSocketFactory(InputStream cert, String password,
+<a name="78" href="#78">78</a>           String ksType, String ksAlgorithm) throws InvalidSSLConfig {
+<a name="79" href="#79">79</a>          SSLContext context = newSSLContext(cert, password, ksType, ksAlgorithm);
+<a name="80" href="#80">80</a>          <strong>return</strong> context.getSocketFactory();
+<a name="81" href="#81">81</a>      }
+<a name="82" href="#82">82</a>  
+<a name="83" href="#83">83</a>      <strong>public</strong> <strong>static</strong> SSLContext newSSLContext(InputStream cert, String password,
+<a name="84" href="#84">84</a>           String ksType, String ksAlgorithm) throws InvalidSSLConfig {
+<a name="85" href="#85">85</a>          <strong>try</strong> {
+<a name="86" href="#86">86</a>              KeyStore ks = KeyStore.getInstance(ksType);
+<a name="87" href="#87">87</a>              ks.load(cert, password.toCharArray());
 <a name="88" href="#88">88</a>  
-<a name="89" href="#89">89</a>       <em class="comment">// Get a TrustManagerFactory and init with KeyStore</em>
-<a name="90" href="#90">90</a>       TrustManagerFactory tmf = TrustManagerFactory.getInstance(ksAlgorithm);
-<a name="91" href="#91">91</a>       tmf.init(ks);
+<a name="89" href="#89">89</a>              <em class="comment">// Get a KeyManager and initialize it</em>
+<a name="90" href="#90">90</a>              KeyManagerFactory kmf = KeyManagerFactory.getInstance(ksAlgorithm);
+<a name="91" href="#91">91</a>              kmf.init(ks, password.toCharArray());
 <a name="92" href="#92">92</a>  
-<a name="93" href="#93">93</a>       <em class="comment">// Get the SSLContext to help create SSLSocketFactory</em>
-<a name="94" href="#94">94</a>       SSLContext sslc = SSLContext.getInstance(<span class="string">"TLS"</span>);
-<a name="95" href="#95">95</a>       sslc.init(kmf.getKeyManagers(), <strong>null</strong>, <strong>null</strong>);
-<a name="96" href="#96">96</a>       <strong>return</strong> sslc;
-<a name="97" href="#97">97</a>      }
-<a name="98" href="#98">98</a>  
-<a name="99" href="#99">99</a>      <strong>private</strong> <strong>static</strong> <strong>final</strong> Pattern pattern = Pattern.compile(<span class="string">"[ -]"</span>);
-<a name="100" href="#100">100</a>     <strong>public</strong> <strong>static</strong> byte[] decodeHex(String deviceToken) {
-<a name="101" href="#101">101</a>      String hex = pattern.matcher(deviceToken).replaceAll(<span class="string">""</span>);
-<a name="102" href="#102">102</a> 
-<a name="103" href="#103">103</a>      byte[] bts = <strong>new</strong> byte[hex.length() / 2];
-<a name="104" href="#104">104</a>      <strong>for</strong> (<strong>int</strong> i = 0; i &lt; bts.length; i++) {
-<a name="105" href="#105">105</a>          bts[i] = (byte) (charval(hex.charAt(2*i)) * 16 + charval(hex.charAt(2*i + 1)));
-<a name="106" href="#106">106</a>      }
-<a name="107" href="#107">107</a>      <strong>return</strong> bts;
-<a name="108" href="#108">108</a>     }
+<a name="93" href="#93">93</a>              <em class="comment">// Get a TrustManagerFactory and init with KeyStore</em>
+<a name="94" href="#94">94</a>              TrustManagerFactory tmf = TrustManagerFactory.getInstance(ksAlgorithm);
+<a name="95" href="#95">95</a>              tmf.init(ks);
+<a name="96" href="#96">96</a>  
+<a name="97" href="#97">97</a>              <em class="comment">// Get the SSLContext to help create SSLSocketFactory</em>
+<a name="98" href="#98">98</a>              SSLContext sslc = SSLContext.getInstance(<span class="string">"TLS"</span>);
+<a name="99" href="#99">99</a>              sslc.init(kmf.getKeyManagers(), <strong>null</strong>, <strong>null</strong>);
+<a name="100" href="#100">100</a>             <strong>return</strong> sslc;
+<a name="101" href="#101">101</a>         } <strong>catch</strong> (Exception e) {
+<a name="102" href="#102">102</a>             <strong>throw</strong> <strong>new</strong> <a href="../../../../com/notnoop/exceptions/InvalidSSLConfig.html">InvalidSSLConfig</a>(e);
+<a name="103" href="#103">103</a>         }
+<a name="104" href="#104">104</a>     }
+<a name="105" href="#105">105</a> 
+<a name="106" href="#106">106</a>     <strong>private</strong> <strong>static</strong> <strong>final</strong> Pattern pattern = Pattern.compile(<span class="string">"[ -]"</span>);
+<a name="107" href="#107">107</a>     <strong>public</strong> <strong>static</strong> byte[] decodeHex(String deviceToken) {
+<a name="108" href="#108">108</a>      String hex = pattern.matcher(deviceToken).replaceAll(<span class="string">""</span>);
 <a name="109" href="#109">109</a> 
-<a name="110" href="#110">110</a>     <strong>private</strong> <strong>static</strong> <strong>int</strong> <strong>char</strong>val(<strong>char</strong> a) {
-<a name="111" href="#111">111</a>         <strong>if</strong> ('0' &lt;= a &amp;&amp; a &lt;= '9')
-<a name="112" href="#112">112</a>             <strong>return</strong> (a - '0');
-<a name="113" href="#113">113</a>         <strong>else</strong> <strong>if</strong> ('a' &lt;= a &amp;&amp; a &lt;= 'f')
-<a name="114" href="#114">114</a>             <strong>return</strong> (a - 'a') + 10;
-<a name="115" href="#115">115</a>         <strong>else</strong> <strong>if</strong> ('A' &lt;= a &amp;&amp; a &lt;= 'F')
-<a name="116" href="#116">116</a>             <strong>return</strong> (a - 'A') + 10;
-<a name="117" href="#117">117</a>         <strong>else</strong>
-<a name="118" href="#118">118</a>             <strong>throw</strong> <strong>new</strong> RuntimeException(<span class="string">"Invalid hex character: "</span> + a);
-<a name="119" href="#119">119</a>     }
-<a name="120" href="#120">120</a> 
-<a name="121" href="#121">121</a>     <strong>private</strong> <strong>static</strong> <strong>final</strong> <strong>char</strong> base[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-<a name="122" href="#122">122</a> 
-<a name="123" href="#123">123</a>     <strong>public</strong> <strong>static</strong> String encodeHex(byte[] bytes) {
-<a name="124" href="#124">124</a>      <strong>char</strong>[] <strong>char</strong>s = <strong>new</strong> <strong>char</strong>[bytes.length * 2];
-<a name="125" href="#125">125</a> 
-<a name="126" href="#126">126</a>      <strong>for</strong> (<strong>int</strong> i = 0; i &lt; bytes.length; ++i) {
-<a name="127" href="#127">127</a>          <strong>int</strong> b = ((<strong>int</strong>)bytes[i]) &amp; 0xFF;
-<a name="128" href="#128">128</a>          chars[2 * i] = base[b >>> 4];
-<a name="129" href="#129">129</a>          chars[2 * i + 1] = base[b &amp; 0xF];
-<a name="130" href="#130">130</a>      }
-<a name="131" href="#131">131</a> 
-<a name="132" href="#132">132</a>      <strong>return</strong> <strong>new</strong> String(chars);
-<a name="133" href="#133">133</a>     }
-<a name="134" href="#134">134</a> 
-<a name="135" href="#135">135</a>     <strong>public</strong> <strong>static</strong> byte[] toUTF8Bytes(String s) {
-<a name="136" href="#136">136</a>      <strong>try</strong> {
-<a name="137" href="#137">137</a>          <strong>return</strong> s.getBytes(<span class="string">"UTF-8"</span>);
-<a name="138" href="#138">138</a>      } <strong>catch</strong> (UnsupportedEncodingException e) {
-<a name="139" href="#139">139</a>          <strong>throw</strong> <strong>new</strong> RuntimeException(e);
-<a name="140" href="#140">140</a>      }
-<a name="141" href="#141">141</a>     }
-<a name="142" href="#142">142</a> 
-<a name="143" href="#143">143</a>     <strong>public</strong> <strong>static</strong> byte[] marshall(byte command, byte[] deviceToken, byte[] payload) {
-<a name="144" href="#144">144</a>      ByteArrayOutputStream boas = <strong>new</strong> ByteArrayOutputStream();
-<a name="145" href="#145">145</a>      DataOutputStream dos = <strong>new</strong> DataOutputStream(boas);
-<a name="146" href="#146">146</a> 
-<a name="147" href="#147">147</a>      <strong>try</strong> {
-<a name="148" href="#148">148</a>          dos.writeByte(command);
-<a name="149" href="#149">149</a>          dos.writeShort(deviceToken.length);
-<a name="150" href="#150">150</a>          dos.write(deviceToken);
-<a name="151" href="#151">151</a>          dos.writeShort(payload.length);
-<a name="152" href="#152">152</a>          dos.write(payload);
-<a name="153" href="#153">153</a>          <strong>return</strong> boas.toByteArray();
-<a name="154" href="#154">154</a>      } <strong>catch</strong> (IOException e) {
-<a name="155" href="#155">155</a>          <strong>throw</strong> <strong>new</strong> AssertionError();
-<a name="156" href="#156">156</a>      }
-<a name="157" href="#157">157</a>     }
-<a name="158" href="#158">158</a> 
-<a name="159" href="#159">159</a>     <strong>public</strong> <strong>static</strong> Map&lt;byte[], Integer> parseFeedbackStreamRaw(InputStream in) {
-<a name="160" href="#160">160</a>      Map&lt;byte[], Integer> result = <strong>new</strong> HashMap&lt;byte[], Integer>();
-<a name="161" href="#161">161</a> 
-<a name="162" href="#162">162</a>      DataInputStream data = <strong>new</strong> DataInputStream(in);
-<a name="163" href="#163">163</a> 
-<a name="164" href="#164">164</a>      <strong>while</strong> (<strong>true</strong>) {
-<a name="165" href="#165">165</a>          <strong>try</strong> {
-<a name="166" href="#166">166</a>           <strong>int</strong> time = data.readInt();
-<a name="167" href="#167">167</a>           <strong>int</strong> dtLength = data.readUnsignedShort();
-<a name="168" href="#168">168</a>           byte[] deviceToken = <strong>new</strong> byte[dtLength];
-<a name="169" href="#169">169</a>           data.readFully(deviceToken);
+<a name="110" href="#110">110</a>      byte[] bts = <strong>new</strong> byte[hex.length() / 2];
+<a name="111" href="#111">111</a>      <strong>for</strong> (<strong>int</strong> i = 0; i &lt; bts.length; i++) {
+<a name="112" href="#112">112</a>          bts[i] = (byte) (charval(hex.charAt(2*i)) * 16 + charval(hex.charAt(2*i + 1)));
+<a name="113" href="#113">113</a>      }
+<a name="114" href="#114">114</a>      <strong>return</strong> bts;
+<a name="115" href="#115">115</a>     }
+<a name="116" href="#116">116</a> 
+<a name="117" href="#117">117</a>     <strong>private</strong> <strong>static</strong> <strong>int</strong> <strong>char</strong>val(<strong>char</strong> a) {
+<a name="118" href="#118">118</a>         <strong>if</strong> ('0' &lt;= a &amp;&amp; a &lt;= '9')
+<a name="119" href="#119">119</a>             <strong>return</strong> (a - '0');
+<a name="120" href="#120">120</a>         <strong>else</strong> <strong>if</strong> ('a' &lt;= a &amp;&amp; a &lt;= 'f')
+<a name="121" href="#121">121</a>             <strong>return</strong> (a - 'a') + 10;
+<a name="122" href="#122">122</a>         <strong>else</strong> <strong>if</strong> ('A' &lt;= a &amp;&amp; a &lt;= 'F')
+<a name="123" href="#123">123</a>             <strong>return</strong> (a - 'A') + 10;
+<a name="124" href="#124">124</a>         <strong>else</strong>
+<a name="125" href="#125">125</a>             <strong>throw</strong> <strong>new</strong> RuntimeException(<span class="string">"Invalid hex character: "</span> + a);
+<a name="126" href="#126">126</a>     }
+<a name="127" href="#127">127</a> 
+<a name="128" href="#128">128</a>     <strong>private</strong> <strong>static</strong> <strong>final</strong> <strong>char</strong> base[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+<a name="129" href="#129">129</a> 
+<a name="130" href="#130">130</a>     <strong>public</strong> <strong>static</strong> String encodeHex(byte[] bytes) {
+<a name="131" href="#131">131</a>      <strong>char</strong>[] <strong>char</strong>s = <strong>new</strong> <strong>char</strong>[bytes.length * 2];
+<a name="132" href="#132">132</a> 
+<a name="133" href="#133">133</a>      <strong>for</strong> (<strong>int</strong> i = 0; i &lt; bytes.length; ++i) {
+<a name="134" href="#134">134</a>          <strong>int</strong> b = ((<strong>int</strong>)bytes[i]) &amp; 0xFF;
+<a name="135" href="#135">135</a>          chars[2 * i] = base[b >>> 4];
+<a name="136" href="#136">136</a>          chars[2 * i + 1] = base[b &amp; 0xF];
+<a name="137" href="#137">137</a>      }
+<a name="138" href="#138">138</a> 
+<a name="139" href="#139">139</a>      <strong>return</strong> <strong>new</strong> String(chars);
+<a name="140" href="#140">140</a>     }
+<a name="141" href="#141">141</a> 
+<a name="142" href="#142">142</a>     <strong>public</strong> <strong>static</strong> byte[] toUTF8Bytes(String s) {
+<a name="143" href="#143">143</a>      <strong>try</strong> {
+<a name="144" href="#144">144</a>          <strong>return</strong> s.getBytes(<span class="string">"UTF-8"</span>);
+<a name="145" href="#145">145</a>      } <strong>catch</strong> (UnsupportedEncodingException e) {
+<a name="146" href="#146">146</a>          <strong>throw</strong> <strong>new</strong> RuntimeException(e);
+<a name="147" href="#147">147</a>      }
+<a name="148" href="#148">148</a>     }
+<a name="149" href="#149">149</a> 
+<a name="150" href="#150">150</a>     <strong>public</strong> <strong>static</strong> byte[] marshall(byte command, byte[] deviceToken, byte[] payload) {
+<a name="151" href="#151">151</a>      ByteArrayOutputStream boas = <strong>new</strong> ByteArrayOutputStream();
+<a name="152" href="#152">152</a>      DataOutputStream dos = <strong>new</strong> DataOutputStream(boas);
+<a name="153" href="#153">153</a> 
+<a name="154" href="#154">154</a>      <strong>try</strong> {
+<a name="155" href="#155">155</a>          dos.writeByte(command);
+<a name="156" href="#156">156</a>          dos.writeShort(deviceToken.length);
+<a name="157" href="#157">157</a>          dos.write(deviceToken);
+<a name="158" href="#158">158</a>          dos.writeShort(payload.length);
+<a name="159" href="#159">159</a>          dos.write(payload);
+<a name="160" href="#160">160</a>          <strong>return</strong> boas.toByteArray();
+<a name="161" href="#161">161</a>      } <strong>catch</strong> (IOException e) {
+<a name="162" href="#162">162</a>          <strong>throw</strong> <strong>new</strong> AssertionError();
+<a name="163" href="#163">163</a>      }
+<a name="164" href="#164">164</a>     }
+<a name="165" href="#165">165</a> 
+<a name="166" href="#166">166</a>     <strong>public</strong> <strong>static</strong> Map&lt;byte[], Integer> parseFeedbackStreamRaw(InputStream in) {
+<a name="167" href="#167">167</a>      Map&lt;byte[], Integer> result = <strong>new</strong> HashMap&lt;byte[], Integer>();
+<a name="168" href="#168">168</a> 
+<a name="169" href="#169">169</a>      DataInputStream data = <strong>new</strong> DataInputStream(in);
 <a name="170" href="#170">170</a> 
-<a name="171" href="#171">171</a>           result.put(deviceToken, time);
-<a name="172" href="#172">172</a>          } <strong>catch</strong> (EOFException e) {
-<a name="173" href="#173">173</a>           <strong>break</strong>;
-<a name="174" href="#174">174</a>          } <strong>catch</strong> (IOException e) {
-<a name="175" href="#175">175</a>           <strong>throw</strong> <strong>new</strong> RuntimeException(e);
-<a name="176" href="#176">176</a>          }
-<a name="177" href="#177">177</a>      }
-<a name="178" href="#178">178</a> 
-<a name="179" href="#179">179</a>      <strong>return</strong> result;
-<a name="180" href="#180">180</a>     }
-<a name="181" href="#181">181</a> 
-<a name="182" href="#182">182</a>     <strong>public</strong> <strong>static</strong> Map&lt;String, Date> parseFeedbackStream(InputStream in) {
-<a name="183" href="#183">183</a>      Map&lt;String, Date> result = <strong>new</strong> HashMap&lt;String, Date>();
-<a name="184" href="#184">184</a> 
-<a name="185" href="#185">185</a>      Map&lt;byte[], Integer> raw = parseFeedbackStreamRaw(in);
-<a name="186" href="#186">186</a>      <strong>for</strong> (Map.Entry&lt;byte[], Integer> entry : raw.entrySet()) {
-<a name="187" href="#187">187</a>          byte[] dtArray = entry.getKey();
-<a name="188" href="#188">188</a>          <strong>int</strong> time = entry.getValue(); <em class="comment">// in seconds</em>
-<a name="189" href="#189">189</a> 
-<a name="190" href="#190">190</a>          Date date = <strong>new</strong> Date(time * 1000L);    <em class="comment">// in ms</em>
-<a name="191" href="#191">191</a>          String dtString = encodeHex(dtArray);
-<a name="192" href="#192">192</a>          result.put(dtString, date);
-<a name="193" href="#193">193</a>      }
-<a name="194" href="#194">194</a> 
-<a name="195" href="#195">195</a>      <strong>return</strong> result;
-<a name="196" href="#196">196</a>     }
-<a name="197" href="#197">197</a> 
-<a name="198" href="#198">198</a>     <strong>public</strong> <strong>static</strong> <strong>void</strong> close(Closeable closeable) {
-<a name="199" href="#199">199</a>         <strong>try</strong> {
-<a name="200" href="#200">200</a>             <strong>if</strong> (closeable != <strong>null</strong>) {
-<a name="201" href="#201">201</a>                 closeable.close();
-<a name="202" href="#202">202</a>             }
-<a name="203" href="#203">203</a>         } <strong>catch</strong> (IOException e) {
-<a name="204" href="#204">204</a>             logger.debug(<span class="string">"error while closing resource"</span>, e);
-<a name="205" href="#205">205</a>         }
-<a name="206" href="#206">206</a>     }
-<a name="207" href="#207">207</a> 
-<a name="208" href="#208">208</a>     <strong>public</strong> <strong>static</strong> <strong>void</strong> close(Socket closeable) {
-<a name="209" href="#209">209</a>         <strong>try</strong> {
-<a name="210" href="#210">210</a>             <strong>if</strong> (closeable != <strong>null</strong>) {
-<a name="211" href="#211">211</a>                 closeable.close();
-<a name="212" href="#212">212</a>             }
-<a name="213" href="#213">213</a>         } <strong>catch</strong> (IOException e) {
-<a name="214" href="#214">214</a>             logger.debug(<span class="string">"error while closing socket"</span>, e);
-<a name="215" href="#215">215</a>         }
-<a name="216" href="#216">216</a>     }
-<a name="217" href="#217">217</a> 
-<a name="218" href="#218">218</a>     <strong>public</strong> <strong>static</strong> <strong>void</strong> sleep(<strong>int</strong> delay) {
-<a name="219" href="#219">219</a>         <strong>try</strong> {
-<a name="220" href="#220">220</a>             Thread.sleep(delay);
-<a name="221" href="#221">221</a>         } <strong>catch</strong> (InterruptedException e1) {}
-<a name="222" href="#222">222</a>     }
-<a name="223" href="#223">223</a> 
-<a name="224" href="#224">224</a>     <strong>public</strong> <strong>static</strong> byte[] copyOf(byte[] bytes) {
-<a name="225" href="#225">225</a>         byte[] copy = <strong>new</strong> byte[bytes.length];
-<a name="226" href="#226">226</a>         System.arraycopy(bytes, 0, copy, 0, bytes.length);
-<a name="227" href="#227">227</a>         <strong>return</strong> copy;
-<a name="228" href="#228">228</a>     }
-<a name="229" href="#229">229</a> 
-<a name="230" href="#230">230</a>     <strong>public</strong> <strong>static</strong> byte[] copyOfRange(byte[] original, <strong>int</strong> from, <strong>int</strong> to) {
-<a name="231" href="#231">231</a>         <strong>int</strong> newLength = to - from;
-<a name="232" href="#232">232</a>         <strong>if</strong> (newLength &lt; 0)
-<a name="233" href="#233">233</a>             <strong>throw</strong> <strong>new</strong> IllegalArgumentException(from + <span class="string">" > "</span> + to);
-<a name="234" href="#234">234</a>         byte[] copy = <strong>new</strong> byte[<strong>new</strong>Length];
-<a name="235" href="#235">235</a>         System.arraycopy(original, from, copy, 0,
-<a name="236" href="#236">236</a>                          Math.min(original.length - from, newLength));
-<a name="237" href="#237">237</a>         <strong>return</strong> copy;
-<a name="238" href="#238">238</a>     }
-<a name="239" href="#239">239</a> 
-<a name="240" href="#240">240</a> }
+<a name="171" href="#171">171</a>      <strong>while</strong> (<strong>true</strong>) {
+<a name="172" href="#172">172</a>          <strong>try</strong> {
+<a name="173" href="#173">173</a>           <strong>int</strong> time = data.readInt();
+<a name="174" href="#174">174</a>           <strong>int</strong> dtLength = data.readUnsignedShort();
+<a name="175" href="#175">175</a>           byte[] deviceToken = <strong>new</strong> byte[dtLength];
+<a name="176" href="#176">176</a>           data.readFully(deviceToken);
+<a name="177" href="#177">177</a> 
+<a name="178" href="#178">178</a>           result.put(deviceToken, time);
+<a name="179" href="#179">179</a>          } <strong>catch</strong> (EOFException e) {
+<a name="180" href="#180">180</a>           <strong>break</strong>;
+<a name="181" href="#181">181</a>          } <strong>catch</strong> (IOException e) {
+<a name="182" href="#182">182</a>           <strong>throw</strong> <strong>new</strong> RuntimeException(e);
+<a name="183" href="#183">183</a>          }
+<a name="184" href="#184">184</a>      }
+<a name="185" href="#185">185</a> 
+<a name="186" href="#186">186</a>      <strong>return</strong> result;
+<a name="187" href="#187">187</a>     }
+<a name="188" href="#188">188</a> 
+<a name="189" href="#189">189</a>     <strong>public</strong> <strong>static</strong> Map&lt;String, Date> parseFeedbackStream(InputStream in) {
+<a name="190" href="#190">190</a>      Map&lt;String, Date> result = <strong>new</strong> HashMap&lt;String, Date>();
+<a name="191" href="#191">191</a> 
+<a name="192" href="#192">192</a>      Map&lt;byte[], Integer> raw = parseFeedbackStreamRaw(in);
+<a name="193" href="#193">193</a>      <strong>for</strong> (Map.Entry&lt;byte[], Integer> entry : raw.entrySet()) {
+<a name="194" href="#194">194</a>          byte[] dtArray = entry.getKey();
+<a name="195" href="#195">195</a>          <strong>int</strong> time = entry.getValue(); <em class="comment">// in seconds</em>
+<a name="196" href="#196">196</a> 
+<a name="197" href="#197">197</a>          Date date = <strong>new</strong> Date(time * 1000L);    <em class="comment">// in ms</em>
+<a name="198" href="#198">198</a>          String dtString = encodeHex(dtArray);
+<a name="199" href="#199">199</a>          result.put(dtString, date);
+<a name="200" href="#200">200</a>      }
+<a name="201" href="#201">201</a> 
+<a name="202" href="#202">202</a>      <strong>return</strong> result;
+<a name="203" href="#203">203</a>     }
+<a name="204" href="#204">204</a> 
+<a name="205" href="#205">205</a>     <strong>public</strong> <strong>static</strong> <strong>void</strong> close(Closeable closeable) {
+<a name="206" href="#206">206</a>         <strong>try</strong> {
+<a name="207" href="#207">207</a>             <strong>if</strong> (closeable != <strong>null</strong>) {
+<a name="208" href="#208">208</a>                 closeable.close();
+<a name="209" href="#209">209</a>             }
+<a name="210" href="#210">210</a>         } <strong>catch</strong> (IOException e) {
+<a name="211" href="#211">211</a>             logger.debug(<span class="string">"error while closing resource"</span>, e);
+<a name="212" href="#212">212</a>         }
+<a name="213" href="#213">213</a>     }
+<a name="214" href="#214">214</a> 
+<a name="215" href="#215">215</a>     <strong>public</strong> <strong>static</strong> <strong>void</strong> close(Socket closeable) {
+<a name="216" href="#216">216</a>         <strong>try</strong> {
+<a name="217" href="#217">217</a>             <strong>if</strong> (closeable != <strong>null</strong>) {
+<a name="218" href="#218">218</a>                 closeable.close();
+<a name="219" href="#219">219</a>             }
+<a name="220" href="#220">220</a>         } <strong>catch</strong> (IOException e) {
+<a name="221" href="#221">221</a>             logger.debug(<span class="string">"error while closing socket"</span>, e);
+<a name="222" href="#222">222</a>         }
+<a name="223" href="#223">223</a>     }
+<a name="224" href="#224">224</a> 
+<a name="225" href="#225">225</a>     <strong>public</strong> <strong>static</strong> <strong>void</strong> sleep(<strong>int</strong> delay) {
+<a name="226" href="#226">226</a>         <strong>try</strong> {
+<a name="227" href="#227">227</a>             Thread.sleep(delay);
+<a name="228" href="#228">228</a>         } <strong>catch</strong> (InterruptedException e1) {}
+<a name="229" href="#229">229</a>     }
+<a name="230" href="#230">230</a> 
+<a name="231" href="#231">231</a>     <strong>public</strong> <strong>static</strong> byte[] copyOf(byte[] bytes) {
+<a name="232" href="#232">232</a>         byte[] copy = <strong>new</strong> byte[bytes.length];
+<a name="233" href="#233">233</a>         System.arraycopy(bytes, 0, copy, 0, bytes.length);
+<a name="234" href="#234">234</a>         <strong>return</strong> copy;
+<a name="235" href="#235">235</a>     }
+<a name="236" href="#236">236</a> 
+<a name="237" href="#237">237</a>     <strong>public</strong> <strong>static</strong> byte[] copyOfRange(byte[] original, <strong>int</strong> from, <strong>int</strong> to) {
+<a name="238" href="#238">238</a>         <strong>int</strong> newLength = to - from;
+<a name="239" href="#239">239</a>         <strong>if</strong> (newLength &lt; 0)
+<a name="240" href="#240">240</a>             <strong>throw</strong> <strong>new</strong> IllegalArgumentException(from + <span class="string">" > "</span> + to);
+<a name="241" href="#241">241</a>         byte[] copy = <strong>new</strong> byte[<strong>new</strong>Length];
+<a name="242" href="#242">242</a>         System.arraycopy(original, from, copy, 0,
+<a name="243" href="#243">243</a>                          Math.min(original.length - from, newLength));
+<a name="244" href="#244">244</a>         <strong>return</strong> copy;
+<a name="245" href="#245">245</a>     }
+<a name="246" href="#246">246</a> 
+<a name="247" href="#247">247</a>     <strong>public</strong> <strong>static</strong> <strong>void</strong> wrapAndThrowAsRuntimeException(Exception e) throws NetworkIOException {
+<a name="248" href="#248">248</a>         <strong>if</strong> (e instanceof IOException)
+<a name="249" href="#249">249</a>             <strong>throw</strong> <strong>new</strong> <a href="../../../../com/notnoop/exceptions/NetworkIOException.html">NetworkIOException</a>((IOException)e);
+<a name="250" href="#250">250</a>         <strong>else</strong> <strong>if</strong> (e instanceof NetworkIOException)
+<a name="251" href="#251">251</a>             <strong>throw</strong> (NetworkIOException)e;
+<a name="252" href="#252">252</a>         <em class="comment">// unknown errors</em>
+<a name="253" href="#253">253</a>         <strong>else</strong> <strong>if</strong> (e instanceof RuntimeException)
+<a name="254" href="#254">254</a>             <strong>throw</strong> (RuntimeException)e;
+<a name="255" href="#255">255</a>         <strong>else</strong>
+<a name="256" href="#256">256</a>             <strong>throw</strong> <strong>new</strong> RuntimeException(e);
+<a name="257" href="#257">257</a>     }
+<a name="258" href="#258">258</a> 
+<a name="259" href="#259">259</a> }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>

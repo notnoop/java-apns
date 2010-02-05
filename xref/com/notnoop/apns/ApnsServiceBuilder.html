@@ -47,282 +47,301 @@
 <a name="38" href="#38">38</a>  <strong>import</strong> javax.net.ssl.SSLSocketFactory;
 <a name="39" href="#39">39</a>  
 <a name="40" href="#40">40</a>  <strong>import</strong> com.notnoop.apns.internal.*;
-<a name="41" href="#41">41</a>  
-<a name="42" href="#42">42</a>  <strong>import</strong> <strong>static</strong> com.notnoop.apns.internal.Utilities.*;
+<a name="41" href="#41">41</a>  <strong>import</strong> com.notnoop.exceptions.InvalidSSLConfig;
+<a name="42" href="#42">42</a>  <strong>import</strong> com.notnoop.exceptions.RuntimeIOException;
 <a name="43" href="#43">43</a>  
-<a name="44" href="#44">44</a>  <em>/**<em>*</em></em>
-<a name="45" href="#45">45</a>  <em> * The class is used to create instances of {@link ApnsService}.</em>
-<a name="46" href="#46">46</a>  <em> *</em>
-<a name="47" href="#47">47</a>  <em> * Note that this class is not synchronized.  If multiple threads access a</em>
-<a name="48" href="#48">48</a>  <em> * {@code ApnsServiceBuilder} instance concurrently, and at least on of the</em>
-<a name="49" href="#49">49</a>  <em> * threads modifies one of the attributes structurally, it must be</em>
-<a name="50" href="#50">50</a>  <em> * synchronized externally.</em>
-<a name="51" href="#51">51</a>  <em> *</em>
-<a name="52" href="#52">52</a>  <em> * Starting a new {@code ApnsService} is easy:</em>
+<a name="44" href="#44">44</a>  <strong>import</strong> <strong>static</strong> com.notnoop.apns.internal.Utilities.*;
+<a name="45" href="#45">45</a>  
+<a name="46" href="#46">46</a>  <em>/**<em>*</em></em>
+<a name="47" href="#47">47</a>  <em> * The class is used to create instances of {@link ApnsService}.</em>
+<a name="48" href="#48">48</a>  <em> *</em>
+<a name="49" href="#49">49</a>  <em> * Note that this class is not synchronized.  If multiple threads access a</em>
+<a name="50" href="#50">50</a>  <em> * {@code ApnsServiceBuilder} instance concurrently, and at least on of the</em>
+<a name="51" href="#51">51</a>  <em> * threads modifies one of the attributes structurally, it must be</em>
+<a name="52" href="#52">52</a>  <em> * synchronized externally.</em>
 <a name="53" href="#53">53</a>  <em> *</em>
-<a name="54" href="#54">54</a>  <em> * &lt;pre></em>
-<a name="55" href="#55">55</a>  <em> *   ApnsService = APNS.newService()</em>
-<a name="56" href="#56">56</a>  <em> *    .withCert("/path/to/certificate.p12", "MyCertPassword")</em>
-<a name="57" href="#57">57</a>  <em> *    .withSandboxDestination()</em>
-<a name="58" href="#58">58</a>  <em> *    .build()</em>
-<a name="59" href="#59">59</a>  <em> * &lt;/pre></em>
-<a name="60" href="#60">60</a>  <em> */</em>
-<a name="61" href="#61">61</a>  <strong>public</strong> <strong>class</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> {
-<a name="62" href="#62">62</a>      <strong>private</strong> <strong>static</strong> <strong>final</strong> String KEYSTORE_TYPE = <span class="string">"PKCS12"</span>;
-<a name="63" href="#63">63</a>      <strong>private</strong> <strong>static</strong> <strong>final</strong> String KEY_ALGORITHM = <span class="string">"sunx509"</span>;
-<a name="64" href="#64">64</a>  
-<a name="65" href="#65">65</a>      <strong>private</strong> SSLContext sslContext;
+<a name="54" href="#54">54</a>  <em> * Starting a new {@code ApnsService} is easy:</em>
+<a name="55" href="#55">55</a>  <em> *</em>
+<a name="56" href="#56">56</a>  <em> * &lt;pre></em>
+<a name="57" href="#57">57</a>  <em> *   ApnsService = APNS.newService()</em>
+<a name="58" href="#58">58</a>  <em> *    .withCert("/path/to/certificate.p12", "MyCertPassword")</em>
+<a name="59" href="#59">59</a>  <em> *    .withSandboxDestination()</em>
+<a name="60" href="#60">60</a>  <em> *    .build()</em>
+<a name="61" href="#61">61</a>  <em> * &lt;/pre></em>
+<a name="62" href="#62">62</a>  <em> */</em>
+<a name="63" href="#63">63</a>  <strong>public</strong> <strong>class</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> {
+<a name="64" href="#64">64</a>      <strong>private</strong> <strong>static</strong> <strong>final</strong> String KEYSTORE_TYPE = <span class="string">"PKCS12"</span>;
+<a name="65" href="#65">65</a>      <strong>private</strong> <strong>static</strong> <strong>final</strong> String KEY_ALGORITHM = <span class="string">"sunx509"</span>;
 <a name="66" href="#66">66</a>  
-<a name="67" href="#67">67</a>      <strong>private</strong> String gatewayHost;
-<a name="68" href="#68">68</a>      <strong>private</strong> <strong>int</strong> gatewaPort = -1;
-<a name="69" href="#69">69</a>  
-<a name="70" href="#70">70</a>      <strong>private</strong> String feedbackHost;
-<a name="71" href="#71">71</a>      <strong>private</strong> <strong>int</strong> feedbackPort;
-<a name="72" href="#72">72</a>      <strong>private</strong> <strong>int</strong> pooledMax = 1;
-<a name="73" href="#73">73</a>  
-<a name="74" href="#74">74</a>      <strong>private</strong> <a href="../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
-<a name="75" href="#75">75</a>      <strong>private</strong> <strong>boolean</strong> isQueued = false;
-<a name="76" href="#76">76</a>      <strong>private</strong> <strong>boolean</strong> isNonBlocking = false;
-<a name="77" href="#77">77</a>  
-<a name="78" href="#78">78</a>      <em>/**<em>*</em></em>
-<a name="79" href="#79">79</a>  <em>     * Constructs a new instance of {@code ApnsServiceBuilder}</em>
-<a name="80" href="#80">80</a>  <em>     */</em>
-<a name="81" href="#81">81</a>      <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a>() { sslContext = <strong>null</strong>; }
-<a name="82" href="#82">82</a>  
-<a name="83" href="#83">83</a>      <em>/**<em>*</em></em>
-<a name="84" href="#84">84</a>  <em>     * Specify the certificate used to connect to Apple APNS</em>
-<a name="85" href="#85">85</a>  <em>     * servers.  This relies on the path (absolute or relative to</em>
-<a name="86" href="#86">86</a>  <em>     * working path) to the keystore (*.p12) containing the</em>
-<a name="87" href="#87">87</a>  <em>     * certificate, along with the given password.</em>
-<a name="88" href="#88">88</a>  <em>     *</em>
-<a name="89" href="#89">89</a>  <em>     * The keystore needs to be of PKCS12 and the keystore</em>
-<a name="90" href="#90">90</a>  <em>     * needs to be encrypted using the SunX509 algorithm.  Both</em>
-<a name="91" href="#91">91</a>  <em>     * of these settings are the default.</em>
-<a name="92" href="#92">92</a>  <em>     *</em>
-<a name="93" href="#93">93</a>  <em>     * @param fileName  the path to the certificate</em>
-<a name="94" href="#94">94</a>  <em>     * @param password  the password of the keystore</em>
-<a name="95" href="#95">95</a>  <em>     * @return  this</em>
-<a name="96" href="#96">96</a>  <em>     */</em>
-<a name="97" href="#97">97</a>      <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withCert(String fileName, String password) {
-<a name="98" href="#98">98</a>          FileInputStream stream = <strong>null</strong>;
-<a name="99" href="#99">99</a>          <strong>try</strong> {
-<a name="100" href="#100">100</a>             stream = <strong>new</strong> FileInputStream(fileName);
-<a name="101" href="#101">101</a>             <strong>return</strong> withCert(stream, password);
-<a name="102" href="#102">102</a>         } <strong>catch</strong> (FileNotFoundException e) {
-<a name="103" href="#103">103</a>             <strong>throw</strong> <strong>new</strong> RuntimeException(e);
-<a name="104" href="#104">104</a>         } <strong>finally</strong> {
-<a name="105" href="#105">105</a>             Utilities.close(stream);
-<a name="106" href="#106">106</a>         }
-<a name="107" href="#107">107</a>     }
-<a name="108" href="#108">108</a> 
-<a name="109" href="#109">109</a>     <em>/**<em>*</em></em>
-<a name="110" href="#110">110</a> <em>     * Specify the certificate used to connect to Apple APNS</em>
-<a name="111" href="#111">111</a> <em>     * servers.  This relies on the stream of keystore (*.p12)</em>
-<a name="112" href="#112">112</a> <em>     * containing the certificate, along with the given password.</em>
-<a name="113" href="#113">113</a> <em>     *</em>
-<a name="114" href="#114">114</a> <em>     * The keystore needs to be of PKCS12 and the keystore</em>
-<a name="115" href="#115">115</a> <em>     * needs to be encrypted using the SunX509 algorithm.  Both</em>
-<a name="116" href="#116">116</a> <em>     * of these settings are the default.</em>
-<a name="117" href="#117">117</a> <em>     *</em>
-<a name="118" href="#118">118</a> <em>     * @param stream    the keystore represented as input stream</em>
-<a name="119" href="#119">119</a> <em>     * @param password  the password of the keystore</em>
-<a name="120" href="#120">120</a> <em>     * @return  this</em>
-<a name="121" href="#121">121</a> <em>     */</em>
-<a name="122" href="#122">122</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withCert(InputStream stream, String password) {
-<a name="123" href="#123">123</a>         <strong>try</strong> {
-<a name="124" href="#124">124</a>             <strong>return</strong> withSSLContext(
-<a name="125" href="#125">125</a>                     newSSLContext(stream, password,
-<a name="126" href="#126">126</a>                             KEYSTORE_TYPE, KEY_ALGORITHM));
-<a name="127" href="#127">127</a>         } <strong>catch</strong> (Exception e) {
-<a name="128" href="#128">128</a>             <strong>throw</strong> <strong>new</strong> RuntimeException(e);
-<a name="129" href="#129">129</a>         }
-<a name="130" href="#130">130</a>     }
-<a name="131" href="#131">131</a> 
-<a name="132" href="#132">132</a>     <em>/**<em>*</em></em>
-<a name="133" href="#133">133</a> <em>     * Specify the SSLContext that should be used to initiate the</em>
-<a name="134" href="#134">134</a> <em>     * connection to Apple Server.</em>
-<a name="135" href="#135">135</a> <em>     *</em>
-<a name="136" href="#136">136</a> <em>     * Most clients would use {@link #withCert(InputStream, String)}</em>
-<a name="137" href="#137">137</a> <em>     * or {@link #withCert(String, String)} instead.  But some</em>
-<a name="138" href="#138">138</a> <em>     * clients may need to represent the Keystore in a different</em>
-<a name="139" href="#139">139</a> <em>     * format than supported.</em>
-<a name="140" href="#140">140</a> <em>     *</em>
-<a name="141" href="#141">141</a> <em>     * @param sslContext    Context to be used to create secure connections</em>
-<a name="142" href="#142">142</a> <em>     * @return  this</em>
-<a name="143" href="#143">143</a> <em>     */</em>
-<a name="144" href="#144">144</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withSSLContext(SSLContext sslContext) {
-<a name="145" href="#145">145</a>         <strong>this</strong>.sslContext = sslContext;
-<a name="146" href="#146">146</a>         <strong>return</strong> <strong>this</strong>;
-<a name="147" href="#147">147</a>     }
-<a name="148" href="#148">148</a> 
-<a name="149" href="#149">149</a>     <em>/**<em>*</em></em>
-<a name="150" href="#150">150</a> <em>     * Specify the gateway server for sending Apple iPhone</em>
-<a name="151" href="#151">151</a> <em>     * notifications.</em>
-<a name="152" href="#152">152</a> <em>     *</em>
-<a name="153" href="#153">153</a> <em>     * Most clients should use {@link #withSandboxDestination()}</em>
-<a name="154" href="#154">154</a> <em>     * or {@link #withProductionDestination()}.  Clients may use</em>
-<a name="155" href="#155">155</a> <em>     * this method to connect to mocking tests and such.</em>
-<a name="156" href="#156">156</a> <em>     *</em>
-<a name="157" href="#157">157</a> <em>     * @param host  hostname the notification gateway of Apple</em>
-<a name="158" href="#158">158</a> <em>     * @param port  port of the notification gateway of Apple</em>
-<a name="159" href="#159">159</a> <em>     * @return  this</em>
-<a name="160" href="#160">160</a> <em>     */</em>
-<a name="161" href="#161">161</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withGatewayDestination(String host, <strong>int</strong> port) {
-<a name="162" href="#162">162</a>         <strong>this</strong>.gatewayHost = host;
-<a name="163" href="#163">163</a>         <strong>this</strong>.gatewaPort = port;
-<a name="164" href="#164">164</a>         <strong>return</strong> <strong>this</strong>;
-<a name="165" href="#165">165</a>     }
-<a name="166" href="#166">166</a> 
-<a name="167" href="#167">167</a>     <em>/**<em>*</em></em>
-<a name="168" href="#168">168</a> <em>     * Specify the Feedback for getting failed devices from</em>
-<a name="169" href="#169">169</a> <em>     * Apple iPhone Push servers.</em>
-<a name="170" href="#170">170</a> <em>     *</em>
-<a name="171" href="#171">171</a> <em>     * Most clients should use {@link #withSandboxDestination()}</em>
-<a name="172" href="#172">172</a> <em>     * or {@link #withProductionDestination()}.  Clients may use</em>
-<a name="173" href="#173">173</a> <em>     * this method to connect to mocking tests and such.</em>
-<a name="174" href="#174">174</a> <em>     *</em>
-<a name="175" href="#175">175</a> <em>     * @param host  hostname of the feedback server of Apple</em>
-<a name="176" href="#176">176</a> <em>     * @param port  port of the feedback server of Apple</em>
-<a name="177" href="#177">177</a> <em>     * @return this</em>
-<a name="178" href="#178">178</a> <em>     */</em>
-<a name="179" href="#179">179</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withFeedbackDestination(String host, <strong>int</strong> port) {
-<a name="180" href="#180">180</a>         <strong>this</strong>.feedbackHost = host;
-<a name="181" href="#181">181</a>         <strong>this</strong>.feedbackPort = port;
-<a name="182" href="#182">182</a>         <strong>return</strong> <strong>this</strong>;
-<a name="183" href="#183">183</a>     }
-<a name="184" href="#184">184</a> 
-<a name="185" href="#185">185</a>     <em>/**<em>*</em></em>
-<a name="186" href="#186">186</a> <em>     * Specify to use the Apple sandbox servers as iPhone gateway</em>
-<a name="187" href="#187">187</a> <em>     * and feedback servers.</em>
-<a name="188" href="#188">188</a> <em>     *</em>
-<a name="189" href="#189">189</a> <em>     * This is desired when in testing and pushing notifications</em>
-<a name="190" href="#190">190</a> <em>     * with a development provision.</em>
-<a name="191" href="#191">191</a> <em>     *</em>
-<a name="192" href="#192">192</a> <em>     * @return  this</em>
-<a name="193" href="#193">193</a> <em>     */</em>
-<a name="194" href="#194">194</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withSandboxDestination() {
-<a name="195" href="#195">195</a>         <strong>return</strong> withGatewayDestination(SANDBOX_GATEWAY_HOST, SANDBOX_GATEWAY_PORT)
-<a name="196" href="#196">196</a>         .withFeedbackDestination(SANDBOX_FEEDBACK_HOST, SANDBOX_FEEDBACK_PORT);
-<a name="197" href="#197">197</a>     }
-<a name="198" href="#198">198</a> 
-<a name="199" href="#199">199</a>     <em>/**<em>*</em></em>
-<a name="200" href="#200">200</a> <em>     * Specify to use the Apple Production servers as iPhone gateway</em>
-<a name="201" href="#201">201</a> <em>     * and feedback servers.</em>
-<a name="202" href="#202">202</a> <em>     *</em>
-<a name="203" href="#203">203</a> <em>     * This is desired when sending notifications to devices with</em>
-<a name="204" href="#204">204</a> <em>     * a production provision (whether through App Store or Ad hoc</em>
-<a name="205" href="#205">205</a> <em>     * distribution).</em>
-<a name="206" href="#206">206</a> <em>     *</em>
-<a name="207" href="#207">207</a> <em>     * @return  this</em>
-<a name="208" href="#208">208</a> <em>     */</em>
-<a name="209" href="#209">209</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withProductionDestination() {
-<a name="210" href="#210">210</a>         <strong>return</strong> withGatewayDestination(PRODUCTION_GATEWAY_HOST, PRODUCTION_GATEWAY_PORT)
-<a name="211" href="#211">211</a>         .withFeedbackDestination(PRODUCTION_FEEDBACK_HOST, PRODUCTION_FEEDBACK_PORT);
-<a name="212" href="#212">212</a>     }
-<a name="213" href="#213">213</a> 
-<a name="214" href="#214">214</a>     <em>/**<em>*</em></em>
-<a name="215" href="#215">215</a> <em>     * Specify the reconnection policy for the socket connection.</em>
-<a name="216" href="#216">216</a> <em>     *</em>
-<a name="217" href="#217">217</a> <em>     * Note: This option has no effect when using non-blocking</em>
-<a name="218" href="#218">218</a> <em>     * connections.</em>
-<a name="219" href="#219">219</a> <em>     */</em>
-<a name="220" href="#220">220</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withReconnectPolicy(<a href="../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> rp) {
-<a name="221" href="#221">221</a>         <strong>this</strong>.reconnectPolicy = rp;
-<a name="222" href="#222">222</a>         <strong>return</strong> <strong>this</strong>;
-<a name="223" href="#223">223</a>     }
-<a name="224" href="#224">224</a> 
-<a name="225" href="#225">225</a>     <em>/**<em>*</em></em>
-<a name="226" href="#226">226</a> <em>     * Specify the reconnection policy for the socket connection.</em>
-<a name="227" href="#227">227</a> <em>     *</em>
-<a name="228" href="#228">228</a> <em>     * Note: This option has no effect when using non-blocking</em>
-<a name="229" href="#229">229</a> <em>     * connections.</em>
-<a name="230" href="#230">230</a> <em>     */</em>
-<a name="231" href="#231">231</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withReconnectPolicy(ReconnectPolicy.Provided rp) {
-<a name="232" href="#232">232</a>         <strong>this</strong>.reconnectPolicy = rp.newObject();
-<a name="233" href="#233">233</a>         <strong>return</strong> <strong>this</strong>;
-<a name="234" href="#234">234</a>     }
-<a name="235" href="#235">235</a> 
-<a name="236" href="#236">236</a>     <em>/**<em>*</em></em>
-<a name="237" href="#237">237</a> <em>     * Constructs a pool of connections to the notification servers.</em>
-<a name="238" href="#238">238</a> <em>     *</em>
-<a name="239" href="#239">239</a> <em>     * Apple servers recommend using a pooled connection up to</em>
-<a name="240" href="#240">240</a> <em>     * 15 concurrent persistent connections to the gateways.</em>
-<a name="241" href="#241">241</a> <em>     *</em>
-<a name="242" href="#242">242</a> <em>     * Note: This option has no effect when using non-blocking</em>
-<a name="243" href="#243">243</a> <em>     * connections.</em>
-<a name="244" href="#244">244</a> <em>     */</em>
-<a name="245" href="#245">245</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asPool(<strong>int</strong> maxConnections) {
-<a name="246" href="#246">246</a>         <strong>this</strong>.pooledMax = maxConnections;
-<a name="247" href="#247">247</a>         <strong>return</strong> <strong>this</strong>;
-<a name="248" href="#248">248</a>     }
-<a name="249" href="#249">249</a> 
-<a name="250" href="#250">250</a>     <em>/**<em>*</em></em>
-<a name="251" href="#251">251</a> <em>     * Constructs a new thread with a processing queue to process</em>
-<a name="252" href="#252">252</a> <em>     * notification requests.</em>
-<a name="253" href="#253">253</a> <em>     *</em>
-<a name="254" href="#254">254</a> <em>     * @return  this</em>
-<a name="255" href="#255">255</a> <em>     */</em>
-<a name="256" href="#256">256</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asQueued() {
-<a name="257" href="#257">257</a>         <strong>this</strong>.isQueued = <strong>true</strong>;
-<a name="258" href="#258">258</a>         <strong>return</strong> <strong>this</strong>;
-<a name="259" href="#259">259</a>     }
-<a name="260" href="#260">260</a> 
-<a name="261" href="#261">261</a>     <em>/**<em>*</em></em>
-<a name="262" href="#262">262</a> <em>     * Constructs non-blocking queues and sockets connections</em>
-<a name="263" href="#263">263</a> <em>     * to send the iPhone notifications.</em>
-<a name="264" href="#264">264</a> <em>     *</em>
-<a name="265" href="#265">265</a> <em>     * @return  this</em>
-<a name="266" href="#266">266</a> <em>     */</em>
-<a name="267" href="#267">267</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asNonBlocking() {
-<a name="268" href="#268">268</a>         <strong>this</strong>.isNonBlocking = <strong>true</strong>;
-<a name="269" href="#269">269</a>         <strong>return</strong> <strong>this</strong>;
-<a name="270" href="#270">270</a>     }
-<a name="271" href="#271">271</a> 
-<a name="272" href="#272">272</a>     <em>/**<em>*</em></em>
-<a name="273" href="#273">273</a> <em>     * Returns a fully initialized instance of {@link ApnsService},</em>
-<a name="274" href="#274">274</a> <em>     * according to the requested settings.</em>
-<a name="275" href="#275">275</a> <em>     *</em>
-<a name="276" href="#276">276</a> <em>     * @return  a new instance of ApnsService</em>
-<a name="277" href="#277">277</a> <em>     */</em>
-<a name="278" href="#278">278</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsService.html">ApnsService</a> build() {
-<a name="279" href="#279">279</a>         checkInitialization();
-<a name="280" href="#280">280</a>         <a href="../../../com/notnoop/apns/ApnsService.html">ApnsService</a> service;
-<a name="281" href="#281">281</a> 
-<a name="282" href="#282">282</a>         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
-<a name="283" href="#283">283</a>         <a href="../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a>(sslFactory, feedbackHost, feedbackPort);
-<a name="284" href="#284">284</a> 
-<a name="285" href="#285">285</a>         <strong>if</strong> (isNonBlocking) {
-<a name="286" href="#286">286</a>             service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a>(sslContext, gatewayHost, gatewaPort, feedback);
-<a name="287" href="#287">287</a>         } <strong>else</strong> {
-<a name="288" href="#288">288</a>             <a href="../../../com/notnoop/apns/internal/ApnsConnection.html">ApnsConnection</a> conn = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(sslFactory, gatewayHost, gatewaPort, reconnectPolicy);
-<a name="289" href="#289">289</a>             <strong>if</strong> (pooledMax != 1) {
-<a name="290" href="#290">290</a>                 conn = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsPooledConnection.html">ApnsPooledConnection</a>(conn, pooledMax);
-<a name="291" href="#291">291</a>             }
-<a name="292" href="#292">292</a> 
-<a name="293" href="#293">293</a>             service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsServiceImpl.html">ApnsServiceImpl</a>(conn, feedback);
-<a name="294" href="#294">294</a> 
-<a name="295" href="#295">295</a>             <strong>if</strong> (isQueued) {
-<a name="296" href="#296">296</a>                 service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/QueuedApnsService.html">QueuedApnsService</a>(service);
-<a name="297" href="#297">297</a>             }
-<a name="298" href="#298">298</a>         }
-<a name="299" href="#299">299</a> 
-<a name="300" href="#300">300</a>         service.start();
-<a name="301" href="#301">301</a> 
-<a name="302" href="#302">302</a>         <strong>return</strong> service;
-<a name="303" href="#303">303</a>     }
-<a name="304" href="#304">304</a> 
-<a name="305" href="#305">305</a>     <strong>private</strong> <strong>void</strong> checkInitialization() {
-<a name="306" href="#306">306</a>         <strong>if</strong> (sslContext == <strong>null</strong>)
-<a name="307" href="#307">307</a>             <strong>throw</strong> <strong>new</strong> IllegalStateException(
-<a name="308" href="#308">308</a>                     <span class="string">"SSL Certificates and attribute are not initialized\n"</span>
-<a name="309" href="#309">309</a>                     + <span class="string">"Use .withCert() methods."</span>);
-<a name="310" href="#310">310</a>         <strong>if</strong> (gatewayHost == <strong>null</strong> || gatewaPort == -1)
-<a name="311" href="#311">311</a>             <strong>throw</strong> <strong>new</strong> IllegalStateException(
-<a name="312" href="#312">312</a>                     <span class="string">"The Destination APNS server is not stated\n"</span>
-<a name="313" href="#313">313</a>                     + <span class="string">"Use .withDestination(), withSandboxDestination(), "</span>
-<a name="314" href="#314">314</a>                     + <span class="string">"or withProductionDestination()."</span>);
-<a name="315" href="#315">315</a>     }
-<a name="316" href="#316">316</a> }
+<a name="67" href="#67">67</a>      <strong>private</strong> SSLContext sslContext;
+<a name="68" href="#68">68</a>  
+<a name="69" href="#69">69</a>      <strong>private</strong> String gatewayHost;
+<a name="70" href="#70">70</a>      <strong>private</strong> <strong>int</strong> gatewaPort = -1;
+<a name="71" href="#71">71</a>  
+<a name="72" href="#72">72</a>      <strong>private</strong> String feedbackHost;
+<a name="73" href="#73">73</a>      <strong>private</strong> <strong>int</strong> feedbackPort;
+<a name="74" href="#74">74</a>      <strong>private</strong> <strong>int</strong> pooledMax = 1;
+<a name="75" href="#75">75</a>  
+<a name="76" href="#76">76</a>      <strong>private</strong> <a href="../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
+<a name="77" href="#77">77</a>      <strong>private</strong> <strong>boolean</strong> isQueued = false;
+<a name="78" href="#78">78</a>      <strong>private</strong> <strong>boolean</strong> isNonBlocking = false;
+<a name="79" href="#79">79</a>      <strong>private</strong> <a href="../../../com/notnoop/apns/ApnsDelegate.html">ApnsDelegate</a> delegate = ApnsDelegate.EMPTY;
+<a name="80" href="#80">80</a>  
+<a name="81" href="#81">81</a>      <em>/**<em>*</em></em>
+<a name="82" href="#82">82</a>  <em>     * Constructs a new instance of {@code ApnsServiceBuilder}</em>
+<a name="83" href="#83">83</a>  <em>     */</em>
+<a name="84" href="#84">84</a>      <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a>() { sslContext = <strong>null</strong>; }
+<a name="85" href="#85">85</a>  
+<a name="86" href="#86">86</a>      <em>/**<em>*</em></em>
+<a name="87" href="#87">87</a>  <em>     * Specify the certificate used to connect to Apple APNS</em>
+<a name="88" href="#88">88</a>  <em>     * servers.  This relies on the path (absolute or relative to</em>
+<a name="89" href="#89">89</a>  <em>     * working path) to the keystore (*.p12) containing the</em>
+<a name="90" href="#90">90</a>  <em>     * certificate, along with the given password.</em>
+<a name="91" href="#91">91</a>  <em>     *</em>
+<a name="92" href="#92">92</a>  <em>     * The keystore needs to be of PKCS12 and the keystore</em>
+<a name="93" href="#93">93</a>  <em>     * needs to be encrypted using the SunX509 algorithm.  Both</em>
+<a name="94" href="#94">94</a>  <em>     * of these settings are the default.</em>
+<a name="95" href="#95">95</a>  <em>     *</em>
+<a name="96" href="#96">96</a>  <em>     * @param fileName  the path to the certificate</em>
+<a name="97" href="#97">97</a>  <em>     * @param password  the password of the keystore</em>
+<a name="98" href="#98">98</a>  <em>     * @return  this</em>
+<a name="99" href="#99">99</a>  <em>     * @throws RuntimeIOException if it {@code fileName} cannot be</em>
+<a name="100" href="#100">100</a> <em>     *          found or read</em>
+<a name="101" href="#101">101</a> <em>     * @throws InvalidSSLConfig if fileName is invalid Keystore</em>
+<a name="102" href="#102">102</a> <em>     *  or the password is invalid</em>
+<a name="103" href="#103">103</a> <em>     */</em>
+<a name="104" href="#104">104</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withCert(String fileName, String password)
+<a name="105" href="#105">105</a>     throws RuntimeIOException, <a href="../../../com/notnoop/exceptions/InvalidSSLConfig.html">InvalidSSLConfig</a> {
+<a name="106" href="#106">106</a>         FileInputStream stream = <strong>null</strong>;
+<a name="107" href="#107">107</a>         <strong>try</strong> {
+<a name="108" href="#108">108</a>             stream = <strong>new</strong> FileInputStream(fileName);
+<a name="109" href="#109">109</a>             <strong>return</strong> withCert(stream, password);
+<a name="110" href="#110">110</a>         } <strong>catch</strong> (FileNotFoundException e) {
+<a name="111" href="#111">111</a>             <strong>throw</strong> <strong>new</strong> <a href="../../../com/notnoop/exceptions/RuntimeIOException.html">RuntimeIOException</a>(e);
+<a name="112" href="#112">112</a>         } <strong>finally</strong> {
+<a name="113" href="#113">113</a>             Utilities.close(stream);
+<a name="114" href="#114">114</a>         }
+<a name="115" href="#115">115</a>     }
+<a name="116" href="#116">116</a> 
+<a name="117" href="#117">117</a>     <em>/**<em>*</em></em>
+<a name="118" href="#118">118</a> <em>     * Specify the certificate used to connect to Apple APNS</em>
+<a name="119" href="#119">119</a> <em>     * servers.  This relies on the stream of keystore (*.p12)</em>
+<a name="120" href="#120">120</a> <em>     * containing the certificate, along with the given password.</em>
+<a name="121" href="#121">121</a> <em>     *</em>
+<a name="122" href="#122">122</a> <em>     * The keystore needs to be of PKCS12 and the keystore</em>
+<a name="123" href="#123">123</a> <em>     * needs to be encrypted using the SunX509 algorithm.  Both</em>
+<a name="124" href="#124">124</a> <em>     * of these settings are the default.</em>
+<a name="125" href="#125">125</a> <em>     *</em>
+<a name="126" href="#126">126</a> <em>     * @param stream    the keystore represented as input stream</em>
+<a name="127" href="#127">127</a> <em>     * @param password  the password of the keystore</em>
+<a name="128" href="#128">128</a> <em>     * @return  this</em>
+<a name="129" href="#129">129</a> <em>     * @throws InvalidSSLConfig if stream is invalid Keystore</em>
+<a name="130" href="#130">130</a> <em>     *  or the password is invalid</em>
+<a name="131" href="#131">131</a> <em>     */</em>
+<a name="132" href="#132">132</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withCert(InputStream stream, String password)
+<a name="133" href="#133">133</a>     throws <a href="../../../com/notnoop/exceptions/InvalidSSLConfig.html">InvalidSSLConfig</a> {
+<a name="134" href="#134">134</a>         <strong>return</strong> withSSLContext(
+<a name="135" href="#135">135</a>                 newSSLContext(stream, password,
+<a name="136" href="#136">136</a>                         KEYSTORE_TYPE, KEY_ALGORITHM));
+<a name="137" href="#137">137</a>     }
+<a name="138" href="#138">138</a> 
+<a name="139" href="#139">139</a>     <em>/**<em>*</em></em>
+<a name="140" href="#140">140</a> <em>     * Specify the SSLContext that should be used to initiate the</em>
+<a name="141" href="#141">141</a> <em>     * connection to Apple Server.</em>
+<a name="142" href="#142">142</a> <em>     *</em>
+<a name="143" href="#143">143</a> <em>     * Most clients would use {@link #withCert(InputStream, String)}</em>
+<a name="144" href="#144">144</a> <em>     * or {@link #withCert(String, String)} instead.  But some</em>
+<a name="145" href="#145">145</a> <em>     * clients may need to represent the Keystore in a different</em>
+<a name="146" href="#146">146</a> <em>     * format than supported.</em>
+<a name="147" href="#147">147</a> <em>     *</em>
+<a name="148" href="#148">148</a> <em>     * @param sslContext    Context to be used to create secure connections</em>
+<a name="149" href="#149">149</a> <em>     * @return  this</em>
+<a name="150" href="#150">150</a> <em>     */</em>
+<a name="151" href="#151">151</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withSSLContext(SSLContext sslContext) {
+<a name="152" href="#152">152</a>         <strong>this</strong>.sslContext = sslContext;
+<a name="153" href="#153">153</a>         <strong>return</strong> <strong>this</strong>;
+<a name="154" href="#154">154</a>     }
+<a name="155" href="#155">155</a> 
+<a name="156" href="#156">156</a>     <em>/**<em>*</em></em>
+<a name="157" href="#157">157</a> <em>     * Specify the gateway server for sending Apple iPhone</em>
+<a name="158" href="#158">158</a> <em>     * notifications.</em>
+<a name="159" href="#159">159</a> <em>     *</em>
+<a name="160" href="#160">160</a> <em>     * Most clients should use {@link #withSandboxDestination()}</em>
+<a name="161" href="#161">161</a> <em>     * or {@link #withProductionDestination()}.  Clients may use</em>
+<a name="162" href="#162">162</a> <em>     * this method to connect to mocking tests and such.</em>
+<a name="163" href="#163">163</a> <em>     *</em>
+<a name="164" href="#164">164</a> <em>     * @param host  hostname the notification gateway of Apple</em>
+<a name="165" href="#165">165</a> <em>     * @param port  port of the notification gateway of Apple</em>
+<a name="166" href="#166">166</a> <em>     * @return  this</em>
+<a name="167" href="#167">167</a> <em>     */</em>
+<a name="168" href="#168">168</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withGatewayDestination(String host, <strong>int</strong> port) {
+<a name="169" href="#169">169</a>         <strong>this</strong>.gatewayHost = host;
+<a name="170" href="#170">170</a>         <strong>this</strong>.gatewaPort = port;
+<a name="171" href="#171">171</a>         <strong>return</strong> <strong>this</strong>;
+<a name="172" href="#172">172</a>     }
+<a name="173" href="#173">173</a> 
+<a name="174" href="#174">174</a>     <em>/**<em>*</em></em>
+<a name="175" href="#175">175</a> <em>     * Specify the Feedback for getting failed devices from</em>
+<a name="176" href="#176">176</a> <em>     * Apple iPhone Push servers.</em>
+<a name="177" href="#177">177</a> <em>     *</em>
+<a name="178" href="#178">178</a> <em>     * Most clients should use {@link #withSandboxDestination()}</em>
+<a name="179" href="#179">179</a> <em>     * or {@link #withProductionDestination()}.  Clients may use</em>
+<a name="180" href="#180">180</a> <em>     * this method to connect to mocking tests and such.</em>
+<a name="181" href="#181">181</a> <em>     *</em>
+<a name="182" href="#182">182</a> <em>     * @param host  hostname of the feedback server of Apple</em>
+<a name="183" href="#183">183</a> <em>     * @param port  port of the feedback server of Apple</em>
+<a name="184" href="#184">184</a> <em>     * @return this</em>
+<a name="185" href="#185">185</a> <em>     */</em>
+<a name="186" href="#186">186</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withFeedbackDestination(String host, <strong>int</strong> port) {
+<a name="187" href="#187">187</a>         <strong>this</strong>.feedbackHost = host;
+<a name="188" href="#188">188</a>         <strong>this</strong>.feedbackPort = port;
+<a name="189" href="#189">189</a>         <strong>return</strong> <strong>this</strong>;
+<a name="190" href="#190">190</a>     }
+<a name="191" href="#191">191</a> 
+<a name="192" href="#192">192</a>     <em>/**<em>*</em></em>
+<a name="193" href="#193">193</a> <em>     * Specify to use the Apple sandbox servers as iPhone gateway</em>
+<a name="194" href="#194">194</a> <em>     * and feedback servers.</em>
+<a name="195" href="#195">195</a> <em>     *</em>
+<a name="196" href="#196">196</a> <em>     * This is desired when in testing and pushing notifications</em>
+<a name="197" href="#197">197</a> <em>     * with a development provision.</em>
+<a name="198" href="#198">198</a> <em>     *</em>
+<a name="199" href="#199">199</a> <em>     * @return  this</em>
+<a name="200" href="#200">200</a> <em>     */</em>
+<a name="201" href="#201">201</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withSandboxDestination() {
+<a name="202" href="#202">202</a>         <strong>return</strong> withGatewayDestination(SANDBOX_GATEWAY_HOST, SANDBOX_GATEWAY_PORT)
+<a name="203" href="#203">203</a>         .withFeedbackDestination(SANDBOX_FEEDBACK_HOST, SANDBOX_FEEDBACK_PORT);
+<a name="204" href="#204">204</a>     }
+<a name="205" href="#205">205</a> 
+<a name="206" href="#206">206</a>     <em>/**<em>*</em></em>
+<a name="207" href="#207">207</a> <em>     * Specify to use the Apple Production servers as iPhone gateway</em>
+<a name="208" href="#208">208</a> <em>     * and feedback servers.</em>
+<a name="209" href="#209">209</a> <em>     *</em>
+<a name="210" href="#210">210</a> <em>     * This is desired when sending notifications to devices with</em>
+<a name="211" href="#211">211</a> <em>     * a production provision (whether through App Store or Ad hoc</em>
+<a name="212" href="#212">212</a> <em>     * distribution).</em>
+<a name="213" href="#213">213</a> <em>     *</em>
+<a name="214" href="#214">214</a> <em>     * @return  this</em>
+<a name="215" href="#215">215</a> <em>     */</em>
+<a name="216" href="#216">216</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withProductionDestination() {
+<a name="217" href="#217">217</a>         <strong>return</strong> withGatewayDestination(PRODUCTION_GATEWAY_HOST, PRODUCTION_GATEWAY_PORT)
+<a name="218" href="#218">218</a>         .withFeedbackDestination(PRODUCTION_FEEDBACK_HOST, PRODUCTION_FEEDBACK_PORT);
+<a name="219" href="#219">219</a>     }
+<a name="220" href="#220">220</a> 
+<a name="221" href="#221">221</a>     <em>/**<em>*</em></em>
+<a name="222" href="#222">222</a> <em>     * Specify the reconnection policy for the socket connection.</em>
+<a name="223" href="#223">223</a> <em>     *</em>
+<a name="224" href="#224">224</a> <em>     * Note: This option has no effect when using non-blocking</em>
+<a name="225" href="#225">225</a> <em>     * connections.</em>
+<a name="226" href="#226">226</a> <em>     */</em>
+<a name="227" href="#227">227</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withReconnectPolicy(<a href="../../../com/notnoop/apns/ReconnectPolicy.html">ReconnectPolicy</a> rp) {
+<a name="228" href="#228">228</a>         <strong>this</strong>.reconnectPolicy = rp;
+<a name="229" href="#229">229</a>         <strong>return</strong> <strong>this</strong>;
+<a name="230" href="#230">230</a>     }
+<a name="231" href="#231">231</a> 
+<a name="232" href="#232">232</a>     <em>/**<em>*</em></em>
+<a name="233" href="#233">233</a> <em>     * Specify the reconnection policy for the socket connection.</em>
+<a name="234" href="#234">234</a> <em>     *</em>
+<a name="235" href="#235">235</a> <em>     * Note: This option has no effect when using non-blocking</em>
+<a name="236" href="#236">236</a> <em>     * connections.</em>
+<a name="237" href="#237">237</a> <em>     */</em>
+<a name="238" href="#238">238</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withReconnectPolicy(ReconnectPolicy.Provided rp) {
+<a name="239" href="#239">239</a>         <strong>this</strong>.reconnectPolicy = rp.newObject();
+<a name="240" href="#240">240</a>         <strong>return</strong> <strong>this</strong>;
+<a name="241" href="#241">241</a>     }
+<a name="242" href="#242">242</a> 
+<a name="243" href="#243">243</a>     <em>/**<em>*</em></em>
+<a name="244" href="#244">244</a> <em>     * Constructs a pool of connections to the notification servers.</em>
+<a name="245" href="#245">245</a> <em>     *</em>
+<a name="246" href="#246">246</a> <em>     * Apple servers recommend using a pooled connection up to</em>
+<a name="247" href="#247">247</a> <em>     * 15 concurrent persistent connections to the gateways.</em>
+<a name="248" href="#248">248</a> <em>     *</em>
+<a name="249" href="#249">249</a> <em>     * Note: This option has no effect when using non-blocking</em>
+<a name="250" href="#250">250</a> <em>     * connections.</em>
+<a name="251" href="#251">251</a> <em>     */</em>
+<a name="252" href="#252">252</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asPool(<strong>int</strong> maxConnections) {
+<a name="253" href="#253">253</a>         <strong>this</strong>.pooledMax = maxConnections;
+<a name="254" href="#254">254</a>         <strong>return</strong> <strong>this</strong>;
+<a name="255" href="#255">255</a>     }
+<a name="256" href="#256">256</a> 
+<a name="257" href="#257">257</a>     <em>/**<em>*</em></em>
+<a name="258" href="#258">258</a> <em>     * Constructs a new thread with a processing queue to process</em>
+<a name="259" href="#259">259</a> <em>     * notification requests.</em>
+<a name="260" href="#260">260</a> <em>     *</em>
+<a name="261" href="#261">261</a> <em>     * @return  this</em>
+<a name="262" href="#262">262</a> <em>     */</em>
+<a name="263" href="#263">263</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asQueued() {
+<a name="264" href="#264">264</a>         <strong>this</strong>.isQueued = <strong>true</strong>;
+<a name="265" href="#265">265</a>         <strong>return</strong> <strong>this</strong>;
+<a name="266" href="#266">266</a>     }
+<a name="267" href="#267">267</a> 
+<a name="268" href="#268">268</a>     <em>/**<em>*</em></em>
+<a name="269" href="#269">269</a> <em>     * Constructs non-blocking queues and sockets connections</em>
+<a name="270" href="#270">270</a> <em>     * to send the iPhone notifications.</em>
+<a name="271" href="#271">271</a> <em>     *</em>
+<a name="272" href="#272">272</a> <em>     * @return  this</em>
+<a name="273" href="#273">273</a> <em>     */</em>
+<a name="274" href="#274">274</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> asNonBlocking() {
+<a name="275" href="#275">275</a>         <strong>this</strong>.isNonBlocking = <strong>true</strong>;
+<a name="276" href="#276">276</a>         <strong>return</strong> <strong>this</strong>;
+<a name="277" href="#277">277</a>     }
+<a name="278" href="#278">278</a> 
+<a name="279" href="#279">279</a>     <em>/**<em>*</em></em>
+<a name="280" href="#280">280</a> <em>     * Sets the delegate of the service, that gets notified of the</em>
+<a name="281" href="#281">281</a> <em>     * status of message delivery.</em>
+<a name="282" href="#282">282</a> <em>     *</em>
+<a name="283" href="#283">283</a> <em>     * Note: This option has no effect when using non-blocking</em>
+<a name="284" href="#284">284</a> <em>     * connections.</em>
+<a name="285" href="#285">285</a> <em>     */</em>
+<a name="286" href="#286">286</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsServiceBuilder.html">ApnsServiceBuilder</a> withDelegate(<a href="../../../com/notnoop/apns/ApnsDelegate.html">ApnsDelegate</a> delegate) {
+<a name="287" href="#287">287</a>         <strong>this</strong>.delegate = delegate == <strong>null</strong> ? ApnsDelegate.EMPTY : delegate;
+<a name="288" href="#288">288</a>         <strong>return</strong> <strong>this</strong>;
+<a name="289" href="#289">289</a>     }
+<a name="290" href="#290">290</a> 
+<a name="291" href="#291">291</a>     <em>/**<em>*</em></em>
+<a name="292" href="#292">292</a> <em>     * Returns a fully initialized instance of {@link ApnsService},</em>
+<a name="293" href="#293">293</a> <em>     * according to the requested settings.</em>
+<a name="294" href="#294">294</a> <em>     *</em>
+<a name="295" href="#295">295</a> <em>     * @return  a new instance of ApnsService</em>
+<a name="296" href="#296">296</a> <em>     */</em>
+<a name="297" href="#297">297</a>     <strong>public</strong> <a href="../../../com/notnoop/apns/ApnsService.html">ApnsService</a> build() {
+<a name="298" href="#298">298</a>         checkInitialization();
+<a name="299" href="#299">299</a>         <a href="../../../com/notnoop/apns/ApnsService.html">ApnsService</a> service;
+<a name="300" href="#300">300</a> 
+<a name="301" href="#301">301</a>         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
+<a name="302" href="#302">302</a>         <a href="../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a> feedback = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsFeedbackConnection.html">ApnsFeedbackConnection</a>(sslFactory, feedbackHost, feedbackPort);
+<a name="303" href="#303">303</a> 
+<a name="304" href="#304">304</a>         <strong>if</strong> (isNonBlocking) {
+<a name="305" href="#305">305</a>             service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/MinaAdaptor.html">MinaAdaptor</a>(sslContext, gatewayHost, gatewaPort, feedback);
+<a name="306" href="#306">306</a>         } <strong>else</strong> {
+<a name="307" href="#307">307</a>             <a href="../../../com/notnoop/apns/internal/ApnsConnection.html">ApnsConnection</a> conn = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsConnectionImpl.html">ApnsConnectionImpl</a>(sslFactory, gatewayHost, gatewaPort, reconnectPolicy, delegate);
+<a name="308" href="#308">308</a>             <strong>if</strong> (pooledMax != 1) {
+<a name="309" href="#309">309</a>                 conn = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsPooledConnection.html">ApnsPooledConnection</a>(conn, pooledMax);
+<a name="310" href="#310">310</a>             }
+<a name="311" href="#311">311</a> 
+<a name="312" href="#312">312</a>             service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/ApnsServiceImpl.html">ApnsServiceImpl</a>(conn, feedback);
+<a name="313" href="#313">313</a> 
+<a name="314" href="#314">314</a>             <strong>if</strong> (isQueued) {
+<a name="315" href="#315">315</a>                 service = <strong>new</strong> <a href="../../../com/notnoop/apns/internal/QueuedApnsService.html">QueuedApnsService</a>(service);
+<a name="316" href="#316">316</a>             }
+<a name="317" href="#317">317</a>         }
+<a name="318" href="#318">318</a> 
+<a name="319" href="#319">319</a>         service.start();
+<a name="320" href="#320">320</a> 
+<a name="321" href="#321">321</a>         <strong>return</strong> service;
+<a name="322" href="#322">322</a>     }
+<a name="323" href="#323">323</a> 
+<a name="324" href="#324">324</a>     <strong>private</strong> <strong>void</strong> checkInitialization() {
+<a name="325" href="#325">325</a>         <strong>if</strong> (sslContext == <strong>null</strong>)
+<a name="326" href="#326">326</a>             <strong>throw</strong> <strong>new</strong> IllegalStateException(
+<a name="327" href="#327">327</a>                     <span class="string">"SSL Certificates and attribute are not initialized\n"</span>
+<a name="328" href="#328">328</a>                     + <span class="string">"Use .withCert() methods."</span>);
+<a name="329" href="#329">329</a>         <strong>if</strong> (gatewayHost == <strong>null</strong> || gatewaPort == -1)
+<a name="330" href="#330">330</a>             <strong>throw</strong> <strong>new</strong> IllegalStateException(
+<a name="331" href="#331">331</a>                     <span class="string">"The Destination APNS server is not stated\n"</span>
+<a name="332" href="#332">332</a>                     + <span class="string">"Use .withDestination(), withSandboxDestination(), "</span>
+<a name="333" href="#333">333</a>                     + <span class="string">"or withProductionDestination()."</span>);
+<a name="334" href="#334">334</a>     }
+<a name="335" href="#335">335</a> }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>
