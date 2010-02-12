@@ -31,6 +31,7 @@
 package com.notnoop.apns.internal;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import javax.net.SocketFactory;
@@ -97,10 +98,12 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
         if (socket == null || socket.isClosed()) {
             try {
-                if (underlyingSocket == null)
+                if (underlyingSocket == null) {
                     socket = factory.createSocket(host, port);
-                else
-                    socket = ((SSLSocketFactory)factory).createSocket(underlyingSocket, host, port, true);
+                } else {
+                    underlyingSocket.connect(new InetSocketAddress(host, port));
+                    socket = ((SSLSocketFactory)factory).createSocket(underlyingSocket, host, port, false);
+                }
                 reconnectPolicy.reconnected();
                 logger.debug("Made a new connection to APNS");
             } catch (IOException e) {
