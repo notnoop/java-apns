@@ -33,6 +33,9 @@ package com.notnoop.apns;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Socket;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -77,6 +80,7 @@ public class ApnsServiceBuilder {
     private boolean isQueued = false;
     private boolean isNonBlocking = false;
     private ApnsDelegate delegate = ApnsDelegate.EMPTY;
+    private Socket proxySocket = null;
 
     /**
      * Constructs a new instance of {@code ApnsServiceBuilder}
@@ -241,6 +245,54 @@ public class ApnsServiceBuilder {
     }
 
     /**
+     * Specify the address of the SOCKS proxy the connection should
+     * use.
+     *
+     * <p>Read the <a href="http://java.sun.com/javase/6/docs/technotes/guides/net/proxies.html">
+     * Java Networking and Proxies</a> guide to understand the
+     * proxies complexity.
+     *
+     * <p>Be aware that this method only handles SOCKS proxies, not
+     * HTTPS proxies.  Use {@link #withProxy(Proxy)} instead.
+     *
+     * @param host  the hostname of the SOCKS proxy
+     * @param port  the port of the SOCKS proxy server
+     * @return  this
+     */
+    public ApnsServiceBuilder withSocksProxy(String host, int port) {
+        Proxy proxy = new Proxy(Proxy.Type.SOCKS,
+                new InetSocketAddress(host, port));
+        return withProxy(proxy);
+    }
+
+    /**
+     * Specify the proxy to be used to establish the connections
+     * to Apple Servers
+     *
+     * <p>Read the <a href="http://java.sun.com/javase/6/docs/technotes/guides/net/proxies.html">
+     * Java Networking and Proxies</a> guide to understand the
+     * proxies complexity.
+     *
+     * @param proxy the proxy object to be used to create connections
+     * @return  this
+     */
+    public ApnsServiceBuilder withProxy(Proxy proxy) {
+        return withProxySocket(new Socket(proxy));
+    }
+
+    /**
+     * Specify the socket to be used as unlying socket to connect
+     * to the APN service.
+     *
+     * @param proxySocket   the underlying socket for connections
+     * @return  this
+     */
+    public ApnsServiceBuilder withProxySocket(Socket proxySocket) {
+        this.proxySocket = proxySocket;
+        return this;
+    }
+
+    /**
      * Constructs a pool of connections to the notification servers.
      *
      * Apple servers recommend using a pooled connection up to
@@ -304,7 +356,7 @@ public class ApnsServiceBuilder {
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
         } else {
-            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, reconnectPolicy, delegate);
+            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, proxySocket, reconnectPolicy, delegate);
             if (pooledMax != 1) {
                 conn = new ApnsPooledConnection(conn, pooledMax);
             }

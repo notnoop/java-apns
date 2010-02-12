@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final SocketFactory factory;
     private final String host;
     private final int port;
+    private final Socket underlyingSocket;
     private final ReconnectPolicy reconnectPolicy;
     private final ApnsDelegate delegate;
 
@@ -56,13 +58,23 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this(factory, host, port, new ReconnectPolicies.Never(), ApnsDelegate.EMPTY);
     }
 
-    public ApnsConnectionImpl(SocketFactory factory, String host, int port, ReconnectPolicy reconnectPolicy, ApnsDelegate delegate) {
+    public ApnsConnectionImpl(SocketFactory factory, String host,
+            int port, ReconnectPolicy reconnectPolicy,
+            ApnsDelegate delegate) {
+        this(factory, host, port, null, reconnectPolicy, delegate);
+    }
+
+    public ApnsConnectionImpl(SocketFactory factory, String host,
+            int port, Socket underlyingSocket,
+            ReconnectPolicy reconnectPolicy, ApnsDelegate delegate) {
         this.factory = factory;
         this.host = host;
         this.port = port;
         this.reconnectPolicy = reconnectPolicy;
         this.delegate = delegate == null ? ApnsDelegate.EMPTY : delegate;
+        this.underlyingSocket = underlyingSocket;
     }
+
 
     public synchronized void close() {
         try {
@@ -85,7 +97,10 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
         if (socket == null || socket.isClosed()) {
             try {
-                socket = factory.createSocket(host, port);
+                if (underlyingSocket == null)
+                    socket = factory.createSocket(host, port);
+                else
+                    socket = ((SSLSocketFactory)factory).createSocket(underlyingSocket, host, port, true);
                 reconnectPolicy.reconnected();
                 logger.debug("Made a new connection to APNS");
             } catch (IOException e) {
