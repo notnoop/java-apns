@@ -245,25 +245,42 @@ public final class PayloadBuilder {
      * @return  this
      */
     public PayloadBuilder resizeAlertBody(int payloadLength, String postfix) {
-        String body = (String)aps.get("alert");
-        
-        int currLength = length() + postfix.length();
-        if (currLength < payloadLength) {
-            aps.put("alert", body + postfix);
+        int currLength = length();
+        if (currLength <= payloadLength) {
             return this;
         }
 
-        int overflow = (currLength + postfix.length()) - payloadLength;
-
-
-        if ((body.length() + postfix.length()) < overflow)
-            aps.remove("alert");
-        else {
-            int endIndex = (body.length() + postfix.length()) - overflow;
-            CharSequence truncated = body.subSequence(0, endIndex);
-            aps.put("alert", truncated + postfix);
+        // now we are sure that truncation is required
+        String body = (String)aps.get("alert");
+        
+        int charsToChopOff = currLength - payloadLength;
+        
+        // since we are going to attach the postfix, chop off extra chars to account for the postfix
+        charsToChopOff = charsToChopOff + postfix.length();
+        
+        // max we can chop off is the whole string
+        if(charsToChopOff > body.length()) {
+            charsToChopOff = body.length();
         }
-
+        
+        // chop off the last part of the string
+        body = body.substring(0, body.length() - charsToChopOff);
+        
+        // attach the postfix
+        body = body + postfix;
+        
+        // set it back
+        aps.put("alert", body);
+        
+        // calculate the length again
+        currLength = length();
+        
+        if(currLength > payloadLength) {
+            // string is still too long, just remove the body as the body is anyway not the cause
+            // OR the postfix might be too long
+            aps.remove("alert");
+        }
+        
         return this;
     }
 
