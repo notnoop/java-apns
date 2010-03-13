@@ -228,17 +228,41 @@ public final class PayloadBuilder {
      * @return  this
      */
     public PayloadBuilder resizeAlertBody(int payloadLength) {
-        int currLength = length();
-        if (currLength < payloadLength)
-            return this;
-
-        int d = currLength - payloadLength;
+        return resizeAlertBody(payloadLength, "");
+    }
+    
+    /**
+     * Shrinks the alert message body so that the resulting payload
+     * message fits within the passed expected payload length.
+     *
+     * This method performs best-effort approach, and its behavior
+     * is unspecified when handling alerts where the payload
+     * without body is already longer than the permitted size, or
+     * if the break occurs within word.
+     *
+     * @param payloadLength the expected max size of the payload
+     * @param postfix for the truncated body, e.g. "..."
+     * @return  this
+     */
+    public PayloadBuilder resizeAlertBody(int payloadLength, String postfix) {
         String body = (String)aps.get("alert");
+        
+        int currLength = length() + postfix.length();
+        if (currLength < payloadLength) {
+            aps.put("alert", body + postfix);
+            return this;
+        }
 
-        if (body.length() < d)
+        int overflow = (currLength + postfix.length()) - payloadLength;
+
+
+        if ((body.length() + postfix.length()) < overflow)
             aps.remove("alert");
-        else
-            aps.put("alert", body.subSequence(0, body.length() - d));
+        else {
+            int endIndex = (body.length() + postfix.length()) - overflow;
+            CharSequence truncated = body.subSequence(0, endIndex);
+            aps.put("alert", truncated + postfix);
+        }
 
         return this;
     }
@@ -255,9 +279,26 @@ public final class PayloadBuilder {
      * @return  this
      */
     public PayloadBuilder shrinkBody() {
-        return resizeAlertBody(Utilities.MAX_PAYLOAD_LENGTH);
+        return shrinkBody("");
     }
 
+    /**
+     * Shrinks the alert message body so that the resulting payload
+     * message fits within require Apple specification (256 bytes).
+     *
+     * This method performs best-effort approach, and its behavior
+     * is unspecified when handling alerts where the payload
+     * without body is already longer than the permitted size, or
+     * if the break occurs within word.
+     *
+     * @param postfix for the truncated body, e.g. "..."
+     *
+     * @return  this
+     */
+    public PayloadBuilder shrinkBody(String postfix) {
+        return resizeAlertBody(Utilities.MAX_PAYLOAD_LENGTH, postfix);
+    }
+    
     /**
      * Returns the JSON String representation of the payload
      * according to Apple APNS specification
