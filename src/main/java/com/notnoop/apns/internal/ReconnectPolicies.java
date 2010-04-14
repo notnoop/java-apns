@@ -38,11 +38,13 @@ public final class ReconnectPolicies {
 
         public boolean shouldReconnect() { return false; }
         public void reconnected() { }
+        public Never copy() { return this; }
     }
 
     public static class Always implements ReconnectPolicy {
         public boolean shouldReconnect() { return true; }
         public void reconnected() { }
+        public Always copy() { return this; }
     }
 
     public static class EveryHalfHour implements ReconnectPolicy {
@@ -56,6 +58,10 @@ public final class ReconnectPolicies {
 
         public void reconnected() {
             lastRunning = System.currentTimeMillis();
+        }
+
+        public EveryHalfHour copy() {
+            return new EveryHalfHour();
         }
     }
 }

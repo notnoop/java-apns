@@ -56,6 +56,13 @@ public interface ReconnectPolicy {
     public void reconnected();
 
     /**
+     * Returns a deep copy of this reconnection policy, if needed.
+     *
+     * Subclasses may return this instance if the object is immutable.
+     */
+    public ReconnectPolicy copy();
+
+    /**
      * Types of the library provided reconnection policies.
      *
      * This should capture most of the commonly used cases.

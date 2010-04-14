@@ -1,5 +1,6 @@
 .DS_Store
 .#*
+*.swp
 bin
 
 target
@@ -10,3 +11,4 @@ release.properties
 .project
 .classpath
 .settings
+tags
