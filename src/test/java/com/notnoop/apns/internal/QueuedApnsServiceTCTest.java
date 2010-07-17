@@ -5,8 +5,8 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
-import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.apns.internal.QueuedApnsServiceTest.ConnectionStub;
 
 public class QueuedApnsServiceTCTest {
@@ -17,7 +17,7 @@ public class QueuedApnsServiceTCTest {
         service.push(notification);
     }
 
-    ApnsNotification notification = new ApnsNotification("2342", "{}");
+    SimpleApnsNotification notification = new SimpleApnsNotification("2342", "{}");
 
     @Test
     public void pushEvantually() {

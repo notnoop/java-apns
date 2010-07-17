@@ -270,8 +270,8 @@ public class PayloadBuilderTest {
         String deviceToken = Utilities.encodeHex(dtBytes);
         PayloadBuilder builder = new PayloadBuilder().alertBody("test");
 
-        ApnsNotification fromString = new ApnsNotification(deviceToken, builder.build());
-        ApnsNotification fromBytes = new ApnsNotification(dtBytes, Utilities.toUTF8Bytes(builder.build()));
+        SimpleApnsNotification fromString = new SimpleApnsNotification(deviceToken, builder.build());
+        SimpleApnsNotification fromBytes = new SimpleApnsNotification(dtBytes, Utilities.toUTF8Bytes(builder.build()));
 
         String expected = "{\"aps\":{\"alert\":\"test\"}}";
         int actualPacketLength = 1 + 2 + dtBytes.length + 2 + /* payload length = */ Utilities.toUTF8Bytes(expected).length;

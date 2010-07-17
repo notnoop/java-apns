@@ -10,10 +10,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.Ignore;
 
-import com.notnoop.apns.ApnsNotification;
+import com.notnoop.apns.SimpleApnsNotification;
+
 
 public class ApnsConnectionTest {
-    ApnsNotification msg = new ApnsNotification ("a87d8878d878a79", "{\"aps\":{}}");
+    SimpleApnsNotification msg = new SimpleApnsNotification ("a87d8878d878a79", "{\"aps\":{}}");
 
     @Test
     public void simpleSocket() {

@@ -4,16 +4,16 @@ import org.junit.*;
 import static org.junit.Assert.*;
 
 import com.notnoop.apns.APNS;
-import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.apns.utils.ApnsServerStub;
 import static com.notnoop.apns.utils.FixedCertificates.*;
 
 public class ApnsConnectionTest {
     ApnsServerStub server;
 
-    static ApnsNotification msg1 = new ApnsNotification ("a87d8878d878a79", "{\"aps\":{}}");
-    static ApnsNotification msg2 = new ApnsNotification ("a87d8878d878a88", "{\"aps\":{}}");
+    static SimpleApnsNotification msg1 = new SimpleApnsNotification ("a87d8878d878a79", "{\"aps\":{}}");
+    static SimpleApnsNotification msg2 = new SimpleApnsNotification ("a87d8878d878a88", "{\"aps\":{}}");
 
     @Before
     public void startup() {

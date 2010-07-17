@@ -1,5 +1,5 @@
 /*
- * Copyright 2009, Mahmood Ali.
+ * Copyright 2010, Mahmood Ali.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,60 +30,38 @@
  */
 package com.notnoop.apns;
 
-import java.util.Arrays;
-
-import com.notnoop.apns.internal.Utilities;
-
 /**
  * Represents an APNS notification to be sent to Apple service.
  */
-public class ApnsNotification {
-
-    private final static byte COMMAND = 0;
-    private final byte[] deviceToken;
-    private final byte[] payload;
-
-    /**
-     * Constructs an instance of {@code ApnsNotification}.
-     *
-     * The message encodes the payload with a {@code UTF-8} encoding.
-     *
-     * @param dtoken    The Hex of the device token of the destination phone
-     * @param payload   The payload message to be sent
-     */
-    public ApnsNotification(String dtoken, String payload) {
-        this.deviceToken = Utilities.decodeHex(dtoken);
-        this.payload = Utilities.toUTF8Bytes(payload);
-    }
-
-    /**
-     * Constructs an instance of {@code ApnsNotification}.
-     *
-     * @param dtoken    The binary representation of the destination device token
-     * @param payload   The binary representation of the payload to be sent
-     */
-    public ApnsNotification(byte[] dtoken, byte[] payload) {
-        this.deviceToken = Utilities.copyOf(dtoken);
-        this.payload = Utilities.copyOf(payload);
-    }
+public interface ApnsNotification {
 
     /**
      * Returns the binary representation of the device token.
-     *
      */
-    public byte[] getDeviceToken() {
-        return Utilities.copyOf(deviceToken);
-    }
+    public byte[] getDeviceToken();
 
     /**
      * Returns the binary representation of the payload.
      *
      */
-    public byte[] getPayload() {
-        return Utilities.copyOf(payload);
-    }
+    public byte[] getPayload();
 
-    private byte[] marshall = null;
+    /**
+     * Returns the identifier of the current message.  The
+     * identifier is an application generated identifier.
+     *
+     * @return the notification identifier
+     */
+    public int getIdentifier();
+
+    /**
+     * Returns the expiry date of the notification, a fixed UNIX
+     * epoch date expressed in seconds
+     *
+     * @return the expiry date of the notification
+     */
+    public int getExpiry();
+
     /**
      * Returns the binary representation of the message as expected by the
      * APNS server.
@@ -91,38 +69,5 @@ public class ApnsNotification {
      * The returned array can be used to sent directly to the APNS server
      * (on the wire/socket) without any modification.
      */
-    public byte[] marshall() {
-        if (marshall == null)
-            marshall = Utilities.marshall(COMMAND, deviceToken, payload);
-        return marshall;
-    }
-
-    /**
-     * Returns the length of the message in bytes as it is encoded on the wire.
-     *
-     * Apple require the message to be of length 255 bytes or less.
-     *
-     * @return length of encoded message in bytes
-     */
-    public int length() {
-        int length = 1 + 2 + deviceToken.length + 2 + payload.length;
-        assert marshall().length == length;
-        return length;
-    }
-
-    @Override
-    public int hashCode() {
-        return 21
-               + 31 * Arrays.hashCode(deviceToken)
-               + 31 * Arrays.hashCode(payload);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof ApnsNotification))
-            return false;
-        ApnsNotification o = (ApnsNotification)obj;
-        return Arrays.equals(this.deviceToken, o.deviceToken)
-                && Arrays.equals(this.payload, o.payload);
-    }
+    public byte[] marshall();
 }

@@ -3,12 +3,12 @@ package com.notnoop.apns.internal;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 
-import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.SimpleApnsNotification;
 
 public class ApnsServiceImplTest {
 
-    ApnsNotification notification = new ApnsNotification("2342", "{}");
+    SimpleApnsNotification notification = new SimpleApnsNotification("2342", "{}");
 
     @Test
     public void pushEvantually() {

@@ -36,6 +36,7 @@ import java.util.Map;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 
 abstract class AbstractApnsService implements ApnsService {
@@ -46,24 +47,24 @@ abstract class AbstractApnsService implements ApnsService {
     }
 
     public void push(String deviceToken, String payload) throws NetworkIOException {
-        push(new ApnsNotification(deviceToken, payload));
+        push(new SimpleApnsNotification(deviceToken, payload));
     }
 
     public void push(byte[] deviceToken, byte[] payload) throws NetworkIOException {
-        push(new ApnsNotification(deviceToken, payload));
+        push(new SimpleApnsNotification(deviceToken, payload));
     }
 
     public void push(Collection<String> deviceTokens, String payload) throws NetworkIOException {
         byte[] messageBytes = Utilities.toUTF8Bytes(payload);
         for (String deviceToken : deviceTokens) {
             byte[] dtbytes = Utilities.decodeHex(deviceToken);
-            push(new ApnsNotification(dtbytes, messageBytes));
+            push(new SimpleApnsNotification(dtbytes, messageBytes));
         }
     }
 
     public void push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException {
         for (byte[] deviceToken : deviceTokens) {
-            push(new ApnsNotification(deviceToken, payload));
+            push(new SimpleApnsNotification(deviceToken, payload));
         }
     }
 

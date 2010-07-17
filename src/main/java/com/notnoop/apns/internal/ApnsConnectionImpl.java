@@ -43,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ReconnectPolicy;
+import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 
 public class ApnsConnectionImpl implements ApnsConnection {
@@ -154,7 +155,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     public void testConnection() throws NetworkIOException {
         ApnsConnectionImpl testConnection = new ApnsConnectionImpl(factory, host, port, reconnectPolicy.copy(), ApnsDelegate.EMPTY);
-        testConnection.sendMessage(new ApnsNotification(new byte[] {0}, new byte[]{0}));
+        testConnection.sendMessage(new SimpleApnsNotification(new byte[] {0}, new byte[]{0}));
         testConnection.close();
     }
 }

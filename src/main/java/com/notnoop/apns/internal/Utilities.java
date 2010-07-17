@@ -105,13 +105,13 @@ public class Utilities {
 
     private static final Pattern pattern = Pattern.compile("[ -]");
     public static byte[] decodeHex(String deviceToken) {
-     String hex = pattern.matcher(deviceToken).replaceAll("");
+        String hex = pattern.matcher(deviceToken).replaceAll("");
 
-     byte[] bts = new byte[hex.length() / 2];
-     for (int i = 0; i < bts.length; i++) {
-         bts[i] = (byte) (charval(hex.charAt(2*i)) * 16 + charval(hex.charAt(2*i + 1)));
-     }
-     return bts;
+        byte[] bts = new byte[hex.length() / 2];
+        for (int i = 0; i < bts.length; i++) {
+            bts[i] = (byte) (charval(hex.charAt(2*i)) * 16 + charval(hex.charAt(2*i + 1)));
+        }
+        return bts;
     }
 
     private static int charval(char a) {
@@ -128,78 +128,97 @@ public class Utilities {
     private static final char base[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
     public static String encodeHex(byte[] bytes) {
-     char[] chars = new char[bytes.length * 2];
+        char[] chars = new char[bytes.length * 2];
 
-     for (int i = 0; i < bytes.length; ++i) {
-         int b = ((int)bytes[i]) & 0xFF;
-         chars[2 * i] = base[b >>> 4];
-         chars[2 * i + 1] = base[b & 0xF];
-     }
+        for (int i = 0; i < bytes.length; ++i) {
+            int b = ((int)bytes[i]) & 0xFF;
+            chars[2 * i] = base[b >>> 4];
+            chars[2 * i + 1] = base[b & 0xF];
+        }
 
-     return new String(chars);
+        return new String(chars);
     }
 
     public static byte[] toUTF8Bytes(String s) {
-     try {
-         return s.getBytes("UTF-8");
-     } catch (UnsupportedEncodingException e) {
-         throw new RuntimeException(e);
-     }
+        try {
+            return s.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static byte[] marshall(byte command, byte[] deviceToken, byte[] payload) {
-     ByteArrayOutputStream boas = new ByteArrayOutputStream();
-     DataOutputStream dos = new DataOutputStream(boas);
+        ByteArrayOutputStream boas = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(boas);
 
-     try {
-         dos.writeByte(command);
-         dos.writeShort(deviceToken.length);
-         dos.write(deviceToken);
-         dos.writeShort(payload.length);
-         dos.write(payload);
-         return boas.toByteArray();
-     } catch (IOException e) {
-         throw new AssertionError();
-     }
+        try {
+            dos.writeByte(command);
+            dos.writeShort(deviceToken.length);
+            dos.write(deviceToken);
+            dos.writeShort(payload.length);
+            dos.write(payload);
+            return boas.toByteArray();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
+    }
+
+    public static byte[] marshallEnhanced(byte command, int identifier,
+            int expiryTime, byte[] deviceToken, byte[] payload) {
+        ByteArrayOutputStream boas = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(boas);
+
+        try {
+            dos.writeByte(command);
+            dos.writeInt(identifier);
+            dos.writeInt(expiryTime);
+            dos.writeShort(deviceToken.length);
+            dos.write(deviceToken);
+            dos.writeShort(payload.length);
+            dos.write(payload);
+            return boas.toByteArray();
+        } catch (IOException e) {
+            throw new AssertionError();
+        }
     }
 
     public static Map<byte[], Integer> parseFeedbackStreamRaw(InputStream in) {
-     Map<byte[], Integer> result = new HashMap<byte[], Integer>();
+        Map<byte[], Integer> result = new HashMap<byte[], Integer>();
 
-     DataInputStream data = new DataInputStream(in);
+        DataInputStream data = new DataInputStream(in);
 
-     while (true) {
-         try {
-          int time = data.readInt();
-          int dtLength = data.readUnsignedShort();
-          byte[] deviceToken = new byte[dtLength];
-          data.readFully(deviceToken);
+        while (true) {
+            try {
+                int time = data.readInt();
+                int dtLength = data.readUnsignedShort();
+                byte[] deviceToken = new byte[dtLength];
+                data.readFully(deviceToken);
 
-          result.put(deviceToken, time);
-         } catch (EOFException e) {
-          break;
-         } catch (IOException e) {
-          throw new RuntimeException(e);
-         }
-     }
+                result.put(deviceToken, time);
+            } catch (EOFException e) {
+                break;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
-     return result;
+        return result;
     }
 
     public static Map<String, Date> parseFeedbackStream(InputStream in) {
-     Map<String, Date> result = new HashMap<String, Date>();
+        Map<String, Date> result = new HashMap<String, Date>();
 
-     Map<byte[], Integer> raw = parseFeedbackStreamRaw(in);
-     for (Map.Entry<byte[], Integer> entry : raw.entrySet()) {
-         byte[] dtArray = entry.getKey();
-         int time = entry.getValue(); // in seconds
+        Map<byte[], Integer> raw = parseFeedbackStreamRaw(in);
+        for (Map.Entry<byte[], Integer> entry : raw.entrySet()) {
+            byte[] dtArray = entry.getKey();
+            int time = entry.getValue(); // in seconds
 
-         Date date = new Date(time * 1000L);    // in ms
-         String dtString = encodeHex(dtArray);
-         result.put(dtString, date);
-     }
+            Date date = new Date(time * 1000L);    // in ms
+            String dtString = encodeHex(dtArray);
+            result.put(dtString, date);
+        }
 
-     return result;
+        return result;
     }
 
     public static void close(Closeable closeable) {
@@ -240,7 +259,7 @@ public class Utilities {
             throw new IllegalArgumentException(from + " > " + to);
         byte[] copy = new byte[newLength];
         System.arraycopy(original, from, copy, 0,
-                         Math.min(original.length - from, newLength));
+                Math.min(original.length - from, newLength));
         return copy;
     }
 
@@ -255,5 +274,4 @@ public class Utilities {
         else
             throw new RuntimeException(e);
     }
-
 }

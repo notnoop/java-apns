@@ -1,19 +1,19 @@
-package com.notnoop.apns;
+package com.notnoop.apns.internal;
 
 import static org.junit.Assert.*;
 
 import org.junit.experimental.theories.*;
 import org.junit.runner.RunWith;
 
-import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.PayloadBuilder;
+import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.apns.internal.Utilities;
 
 import static com.notnoop.apns.PayloadBuilder.*;
 import static com.notnoop.apns.internal.Utilities.*;
 
 @RunWith(Theories.class)
-public class ApnsNotificationTest {
+public class SimpleApnsNotificationTest {
 
     // Device Tokens
     @DataPoints public static String[] deviceTokens =
@@ -32,20 +32,20 @@ public class ApnsNotificationTest {
 
     @Theory
     public void lengthConsistency(String deviceToken, PayloadBuilder payload) {
-        ApnsNotification msg = new ApnsNotification(deviceToken, payload.build());
+        SimpleApnsNotification msg = new SimpleApnsNotification(deviceToken, payload.build());
         assertEquals(msg.marshall().length, msg.length());
     }
 
     @Theory
     public void commandIsZero(String deviceToken, PayloadBuilder payload) {
-        ApnsNotification msg = new ApnsNotification(deviceToken, payload.build());
+        SimpleApnsNotification msg = new SimpleApnsNotification(deviceToken, payload.build());
         byte[] bytes = msg.marshall();
         assertEquals(0, /*command part*/ bytes[0]);
     }
 
     @Theory
     public void deviceTokenPart(String deviceToken, PayloadBuilder payload) {
-        ApnsNotification msg = new ApnsNotification(deviceToken, payload.build());
+        SimpleApnsNotification msg = new SimpleApnsNotification(deviceToken, payload.build());
         byte[] bytes = msg.marshall();
 
         byte[] dt = decodeHex(deviceToken);
@@ -58,7 +58,7 @@ public class ApnsNotificationTest {
     @Theory
     public void payloadPart(String deviceToken, PayloadBuilder payload) {
         String payloadString = payload.build();
-        ApnsNotification msg = new ApnsNotification(deviceToken, payloadString);
+        SimpleApnsNotification msg = new SimpleApnsNotification(deviceToken, payloadString);
         byte[] bytes = msg.marshall();
 
         byte[] pl = toUTF8Bytes(payloadString);
@@ -74,7 +74,7 @@ public class ApnsNotificationTest {
     @Theory
     public void allPartsLength(String deviceToken, PayloadBuilder payload) {
         String payloadString = payload.build();
-        ApnsNotification msg = new ApnsNotification(deviceToken, payloadString);
+        SimpleApnsNotification msg = new SimpleApnsNotification(deviceToken, payloadString);
         byte[] bytes = msg.marshall();
 
         int expectedLength = 1
