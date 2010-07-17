@@ -179,6 +179,18 @@ public final class PayloadBuilder {
     }
 
     /**
+     * Sets the launch image file for the push notification
+     *
+     * @param launchImage   the filename of the image file in the
+     *      application bundle.
+     * @return  this
+     */
+    public PayloadBuilder launchImage(String launchImage) {
+        customAlert.put("launch-image", launchImage);
+        return this;
+    }
+
+    /**
      * Sets any application-specific custom fields.  The values
      * are presented to the application and the iPhone doesn't
      * display them automatically.
@@ -230,7 +242,7 @@ public final class PayloadBuilder {
     public PayloadBuilder resizeAlertBody(int payloadLength) {
         return resizeAlertBody(payloadLength, "");
     }
-    
+
     /**
      * Shrinks the alert message body so that the resulting payload
      * message fits within the passed expected payload length.
@@ -252,35 +264,35 @@ public final class PayloadBuilder {
 
         // now we are sure that truncation is required
         String body = (String)aps.get("alert");
-        
+
         int charsToChopOff = currLength - payloadLength;
-        
+
         // since we are going to attach the postfix, chop off extra chars to account for the postfix
         charsToChopOff = charsToChopOff + postfix.length();
-        
+
         // max we can chop off is the whole string
         if(charsToChopOff > body.length()) {
             charsToChopOff = body.length();
         }
-        
+
         // chop off the last part of the string
         body = body.substring(0, body.length() - charsToChopOff);
-        
+
         // attach the postfix
         body = body + postfix;
-        
+
         // set it back
         aps.put("alert", body);
-        
+
         // calculate the length again
         currLength = length();
-        
+
         if(currLength > payloadLength) {
             // string is still too long, just remove the body as the body is anyway not the cause
             // OR the postfix might be too long
             aps.remove("alert");
         }
-        
+
         return this;
     }
 
@@ -315,7 +327,7 @@ public final class PayloadBuilder {
     public PayloadBuilder shrinkBody(String postfix) {
         return resizeAlertBody(Utilities.MAX_PAYLOAD_LENGTH, postfix);
     }
-    
+
     /**
      * Returns the JSON String representation of the payload
      * according to Apple APNS specification

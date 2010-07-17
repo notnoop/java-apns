@@ -181,6 +181,26 @@ public class PayloadBuilderTest {
     }
 
     @Test
+    public void alertWithImageOnly() {
+        PayloadBuilder builder = new PayloadBuilder();
+        builder.launchImage("/test");
+
+        String expected = "{\"aps\":{\"alert\":{\"launch-image\":\"/test\"}}}";
+        String actual = builder.toString();
+        assertEqualsJson(expected, actual);
+    }
+
+    @Test
+    public void alertWithImageAndText() {
+        PayloadBuilder builder = new PayloadBuilder();
+        builder.launchImage("/test").alertBody("hello");
+
+        String expected = "{\"aps\":{\"alert\":{\"launch-image\":\"/test\",\"body\":\"hello\"}}}";
+        String actual = builder.toString();
+        assertEqualsJson(expected, actual);
+    }
+
+    @Test
     public void emptyApsWithFields() {
         PayloadBuilder builder = new PayloadBuilder();
         builder.customField("achme2", new int[] { 5, 8 } );
