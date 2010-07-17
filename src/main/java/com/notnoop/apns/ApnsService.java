@@ -65,6 +65,8 @@ public interface ApnsService {
      */
     void push(String deviceToken, String payload) throws NetworkIOException;
 
+    void push(String deviceToken, String payload, Date expiry) throws NetworkIOException;
+
     /**
      * Sends a push notification with the provided {@code payload} to the
      * iPhone of {@code deviceToken}.
@@ -80,6 +82,8 @@ public interface ApnsService {
      */
     void push(byte[] deviceToken, byte[] payload) throws NetworkIOException;
 
+    void push(byte[] deviceToken, byte[] payload, int expiry) throws NetworkIOException;
+
     /**
      * Sends a bulk push notification with the provided
      * {@code payload} to iPhone of {@code deviceToken}s set.
@@ -94,6 +98,7 @@ public interface ApnsService {
      *      attempting to send the message
      */
     void push(Collection<String> deviceTokens, String payload) throws NetworkIOException;
+    void push(Collection<String> deviceTokens, String payload, Date expiry) throws NetworkIOException;
 
     /**
      * Sends a bulk push notification with the provided
@@ -109,6 +114,7 @@ public interface ApnsService {
      *      attempting to send the message
      */
     void push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException;
+    void push(Collection<byte[]> deviceTokens, byte[] payload, int expiry) throws NetworkIOException;
 
     /**
      * Sends the provided notification {@code message} to the desired

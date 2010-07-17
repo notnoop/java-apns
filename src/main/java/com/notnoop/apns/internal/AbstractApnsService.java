@@ -1,5 +1,5 @@
 /*
- * Copyright 2009, Mahmood Ali.
+ * Copyright 2010, Mahmood Ali.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import java.util.Map;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 
@@ -50,8 +51,16 @@ abstract class AbstractApnsService implements ApnsService {
         push(new SimpleApnsNotification(deviceToken, payload));
     }
 
+    public void push(String deviceToken, String payload, Date expiry) throws NetworkIOException {
+        push(new EnhancedApnsNotification(1, (int)(expiry.getTime() / 1000), deviceToken, payload));
+    }
+
     public void push(byte[] deviceToken, byte[] payload) throws NetworkIOException {
         push(new SimpleApnsNotification(deviceToken, payload));
+    }
+
+    public void push(byte[] deviceToken, byte[] payload, int expiry) throws NetworkIOException {
+        push(new EnhancedApnsNotification(1, expiry, deviceToken, payload));
     }
 
     public void push(Collection<String> deviceTokens, String payload) throws NetworkIOException {
@@ -62,9 +71,24 @@ abstract class AbstractApnsService implements ApnsService {
         }
     }
 
+    public void push(Collection<String> deviceTokens, String payload, Date expiry) throws NetworkIOException {
+        byte[] messageBytes = Utilities.toUTF8Bytes(payload);
+        for (String deviceToken : deviceTokens) {
+            byte[] dtbytes = Utilities.decodeHex(deviceToken);
+            push(new EnhancedApnsNotification(1,
+                    (int)(expiry.getTime() / 1000), dtbytes, messageBytes));
+        }
+    }
+
     public void push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException {
         for (byte[] deviceToken : deviceTokens) {
             push(new SimpleApnsNotification(deviceToken, payload));
+        }
+    }
+
+    public void push(Collection<byte[]> deviceTokens, byte[] payload, int expiry) throws NetworkIOException {
+        for (byte[] deviceToken : deviceTokens) {
+            push(new EnhancedApnsNotification(1, expiry, deviceToken, payload));
         }
     }
 
