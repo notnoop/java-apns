@@ -209,6 +209,23 @@ public final class PayloadBuilder {
     }
 
     /**
+     * Set any application-specific custom fields.  These values
+     * are presented to the application and the iPhone doesn't
+     * display them automatically.
+     *
+     * This method *adds* the custom fields in the map to the
+     * payload, and subsequent calls add but doesn't reset the
+     * custom fields.
+     *
+     * @param map   the custom map
+     * @return  this
+     */
+    public PayloadBuilder customFields(Map<String, ? extends Object> values) {
+        root.putAll(values);
+        return this;
+    }
+
+    /**
      * Returns the length of payload bytes once marshaled to bytes
      *
      * @return the length of the payload
