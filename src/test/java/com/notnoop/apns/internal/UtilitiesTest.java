@@ -44,4 +44,16 @@ public class UtilitiesTest {
 
         Assert.assertEquals(encodedHex.toLowerCase(), encoded.toLowerCase());
     }
+
+    @Test
+    public void testParsingBytes() {
+        Assert.assertEquals(0xFF00FF00, Utilities.parseBytes(0xFF, 0, 0xFF, 0));
+        Assert.assertEquals(0x00FF00FF, Utilities.parseBytes(0, 0xFF, 0, 0xFF));
+        Assert.assertEquals(0xDEADBEEF, Utilities.parseBytes(0xDE, 0xAD, 0xBE, 0xEF));
+        Assert.assertEquals(0x0EADBEEF, Utilities.parseBytes(0x0E, 0xAD, 0xBE, 0xEF));
+        
+        Assert.assertTrue(Utilities.parseBytes(0xF0, 0,0,0) < 0);
+        Assert.assertTrue(Utilities.parseBytes(0x80, 0,0,0) < 0);
+        Assert.assertTrue(Utilities.parseBytes(0x70, 0,0,0) > 0);
+    }
 }

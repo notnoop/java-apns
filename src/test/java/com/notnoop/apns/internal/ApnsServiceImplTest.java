@@ -4,11 +4,12 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 import com.notnoop.apns.ApnsService;
-import com.notnoop.apns.SimpleApnsNotification;
+import com.notnoop.apns.EnhancedApnsNotification;
 
 public class ApnsServiceImplTest {
 
-    SimpleApnsNotification notification = new SimpleApnsNotification("2342", "{}");
+    EnhancedApnsNotification notification = new EnhancedApnsNotification(1,
+            EnhancedApnsNotification.MAXIMUM_EXPIRY, "2342", "{}");
 
     @Test
     public void pushEvantually() {

@@ -81,6 +81,7 @@ public class ApnsServiceBuilder {
     private boolean isNonBlocking = false;
     private ApnsDelegate delegate = ApnsDelegate.EMPTY;
     private Socket proxySocket = null;
+    private boolean errorDetection = true;
 
     /**
      * Constructs a new instance of {@code ApnsServiceBuilder}
@@ -341,6 +342,21 @@ public class ApnsServiceBuilder {
     }
 
     /**
+     * Disables the enhanced error detection, enabled by the
+     * enhanced push notification interface.  Error detection is
+     * enabled by default.
+     * 
+     * This setting is desired when the application shouldn't spawn
+     * new threads.
+     * 
+     * @return  this
+     */
+    public ApnsServiceBuilder withNoErrorDetection() {
+        this.errorDetection = true;
+        return this;
+    }
+
+    /**
      * Returns a fully initialized instance of {@link ApnsService},
      * according to the requested settings.
      *
@@ -356,7 +372,7 @@ public class ApnsServiceBuilder {
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
         } else {
-            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, proxySocket, reconnectPolicy, delegate);
+            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, proxySocket, reconnectPolicy, delegate, errorDetection);
             if (pooledMax != 1) {
                 conn = new ApnsPooledConnection(conn, pooledMax);
             }

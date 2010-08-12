@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 
@@ -21,7 +22,8 @@ public class QueuedApnsServiceTest {
         service.push(notification);
     }
 
-    SimpleApnsNotification notification = new SimpleApnsNotification("2342", "{}");
+    EnhancedApnsNotification notification = new EnhancedApnsNotification(1,
+            EnhancedApnsNotification.MAXIMUM_EXPIRY, "2342", "{}");
 
     @Test
     public void pushEvantually() {

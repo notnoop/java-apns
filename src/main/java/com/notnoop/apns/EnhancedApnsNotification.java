@@ -31,9 +31,9 @@
 package com.notnoop.apns;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import com.notnoop.apns.internal.Utilities;
-
 
 /**
  * Represents an APNS notification to be sent to Apple service.
@@ -45,6 +45,16 @@ public class EnhancedApnsNotification implements ApnsNotification {
     private final int expiry;
     private final byte[] deviceToken;
     private final byte[] payload;
+
+    /**
+     * The infinite future for the purposes of Apple expiry date
+     */
+    public final static int MAXIMUM_EXPIRY = Integer.MAX_VALUE;
+
+    /**
+     * The infinite future for the purposes of Apple expiry date
+     */
+    public final static Date MAXIMUM_DATE = new Date(Integer.MAX_VALUE * 1000L);
 
     /**
      * Constructs an instance of {@code ApnsNotification}.

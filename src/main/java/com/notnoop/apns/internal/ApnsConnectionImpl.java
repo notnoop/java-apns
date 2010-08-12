@@ -31,6 +31,7 @@
 package com.notnoop.apns.internal;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
@@ -42,6 +43,7 @@ import org.slf4j.LoggerFactory;
 
 import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
+import com.notnoop.apns.DeliveryError;
 import com.notnoop.apns.ReconnectPolicy;
 import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
@@ -55,6 +57,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final Socket underlyingSocket;
     private final ReconnectPolicy reconnectPolicy;
     private final ApnsDelegate delegate;
+    private final boolean errorDetection;
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port) {
         this(factory, host, port, new ReconnectPolicies.Never(), ApnsDelegate.EMPTY);
@@ -63,18 +66,19 @@ public class ApnsConnectionImpl implements ApnsConnection {
     public ApnsConnectionImpl(SocketFactory factory, String host,
             int port, ReconnectPolicy reconnectPolicy,
             ApnsDelegate delegate) {
-        this(factory, host, port, null, reconnectPolicy, delegate);
+        this(factory, host, port, null, reconnectPolicy, delegate, false);
     }
 
     public ApnsConnectionImpl(SocketFactory factory, String host,
             int port, Socket underlyingSocket,
-            ReconnectPolicy reconnectPolicy, ApnsDelegate delegate) {
+            ReconnectPolicy reconnectPolicy, ApnsDelegate delegate, boolean errorDetection) {
         this.factory = factory;
         this.host = host;
         this.port = port;
         this.reconnectPolicy = reconnectPolicy;
         this.delegate = delegate == null ? ApnsDelegate.EMPTY : delegate;
         this.underlyingSocket = underlyingSocket;
+        this.errorDetection = errorDetection;
     }
 
 
@@ -87,6 +91,32 @@ public class ApnsConnectionImpl implements ApnsConnection {
         }
     }
 
+    private void monitorSocket(final Socket socket) {
+        class MonitoringThread extends Thread {
+            @Override public void run() {
+                try {
+                    InputStream in = socket.getInputStream();
+
+                    final int expectedSize = 6;
+                    byte[] bytes = new byte[expectedSize];
+                    while (in.read(bytes) == expectedSize) {
+                        int command = bytes[0] & 0xFF;
+                        assert command == 8;
+                        int statusCode = bytes[1] & 0xFF;
+                        DeliveryError e = DeliveryError.ofCode(statusCode);
+
+                        int id = Utilities.parseBytes(bytes[2], bytes[3], bytes[4], bytes[5]);
+                        delegate.connectionClosed(e, id);
+                    }
+                } catch (Exception e) {
+                    logger.warn("Exception while waiting for error code", e);
+                }
+            };
+        }
+        Thread t = new MonitoringThread();
+        t.setDaemon(true);
+        t.start();
+    }
 
     // This method is only called from sendMessage.  sendMessage
     // has the required logic for retrying
@@ -104,6 +134,10 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 } else {
                     underlyingSocket.connect(new InetSocketAddress(host, port));
                     socket = ((SSLSocketFactory)factory).createSocket(underlyingSocket, host, port, false);
+                }
+
+                if (errorDetection) {
+                    monitorSocket(socket);
                 }
                 reconnectPolicy.reconnected();
                 logger.debug("Made a new connection to APNS");

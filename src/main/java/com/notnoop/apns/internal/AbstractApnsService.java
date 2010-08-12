@@ -33,41 +33,42 @@ package com.notnoop.apns.internal;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.EnhancedApnsNotification;
-import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 
 abstract class AbstractApnsService implements ApnsService {
     private ApnsFeedbackConnection feedback;
+    private AtomicInteger c = new AtomicInteger();
 
     public AbstractApnsService(ApnsFeedbackConnection feedback) {
         this.feedback = feedback;
     }
 
     public void push(String deviceToken, String payload) throws NetworkIOException {
-        push(new SimpleApnsNotification(deviceToken, payload));
+        push(new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, deviceToken, payload));
     }
 
     public void push(String deviceToken, String payload, Date expiry) throws NetworkIOException {
-        push(new EnhancedApnsNotification(1, (int)(expiry.getTime() / 1000), deviceToken, payload));
+        push(new EnhancedApnsNotification(c.incrementAndGet(), (int)(expiry.getTime() / 1000), deviceToken, payload));
     }
 
     public void push(byte[] deviceToken, byte[] payload) throws NetworkIOException {
-        push(new SimpleApnsNotification(deviceToken, payload));
+        push(new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, deviceToken, payload));
     }
 
     public void push(byte[] deviceToken, byte[] payload, int expiry) throws NetworkIOException {
-        push(new EnhancedApnsNotification(1, expiry, deviceToken, payload));
+        push(new EnhancedApnsNotification(c.incrementAndGet(), expiry, deviceToken, payload));
     }
 
     public void push(Collection<String> deviceTokens, String payload) throws NetworkIOException {
         byte[] messageBytes = Utilities.toUTF8Bytes(payload);
         for (String deviceToken : deviceTokens) {
             byte[] dtbytes = Utilities.decodeHex(deviceToken);
-            push(new SimpleApnsNotification(dtbytes, messageBytes));
+            push(new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, dtbytes, messageBytes));
         }
     }
 
@@ -75,20 +76,20 @@ abstract class AbstractApnsService implements ApnsService {
         byte[] messageBytes = Utilities.toUTF8Bytes(payload);
         for (String deviceToken : deviceTokens) {
             byte[] dtbytes = Utilities.decodeHex(deviceToken);
-            push(new EnhancedApnsNotification(1,
+            push(new EnhancedApnsNotification(c.incrementAndGet(),
                     (int)(expiry.getTime() / 1000), dtbytes, messageBytes));
         }
     }
 
     public void push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException {
         for (byte[] deviceToken : deviceTokens) {
-            push(new SimpleApnsNotification(deviceToken, payload));
+            push(new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, deviceToken, payload));
         }
     }
 
     public void push(Collection<byte[]> deviceTokens, byte[] payload, int expiry) throws NetworkIOException {
         for (byte[] deviceToken : deviceTokens) {
-            push(new EnhancedApnsNotification(1, expiry, deviceToken, payload));
+            push(new EnhancedApnsNotification(c.incrementAndGet(), expiry, deviceToken, payload));
         }
     }
 

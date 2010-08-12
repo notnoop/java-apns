@@ -31,38 +31,52 @@
 package com.notnoop.apns;
 
 /**
- * A delegate that gets notified of the status of notification
- * delivery to the Apple Server.
- *
- * The delegate doesn't get notified when the notification actually
- * arrives at the phone.
+ * Errors in delivery that may get reported by Apple APN servers
  */
-public interface ApnsDelegate {
+public enum DeliveryError {
     /**
-     * Called when message was successfully sent to the Apple
-     * servers
+     * Connection closed without any error.
      *
-     * @param message   the notification that was sent
+     * This may occur if the APN service faces an invalid simple
+     * APNS notification while running in enhanced mode
      */
-    public void messageSent(ApnsNotification message);
+    NO_ERROR(0),
+    PROCESSING_ERROR(1),
+    MISSING_DEVICE_TOKEN(2),
+    MISSING_TOPIC(3),
+    MISSING_PAYLOAD(4),
+    INVALID_TOKEN_SIZE(5),
+    INVALID_TOPIC_SIZE(6),
+    INVALID_PAYLOAD_SIZE(7),
+    INVALID_TOKEN(8),
+
+    NONE(255);
+
+    private final byte code;
+    DeliveryError(int code) {
+        this.code = (byte)code;
+    }
+
+    /** The status code as specified by Apple */
+    public int code() {
+        return code;
+    }
 
     /**
-     * Called when the delivery of the message failed for any
-     * reason
+     * Returns the appropriate {@code DeliveryError} enum
+     * corresponding to the Apple provided status code
      *
-     * @param message   the notification that was attempted to be sent
-     * @param e     the cause and description of the failure
+     * @param code  status code provided by Apple
+     * @return  the appropriate DeliveryError
+     * @throws IllegalArgumentException if no appropriate
+     *          DeliveryError
      */
-    public void messageSendFailed(ApnsNotification message, Throwable e);
+    public static DeliveryError ofCode(int code) {
+        for (DeliveryError e : DeliveryError.values()) {
+            if (e.code == code)
+                return e;
+        }
 
-    public void connectionClosed(DeliveryError e, int messageIdentifier);
-
-    /**
-     * A NOOP delegate that does nothing!
-     */
-    public final static ApnsDelegate EMPTY = new ApnsDelegate() {
-        public void messageSent(ApnsNotification message) {}
-        public void messageSendFailed(ApnsNotification message, Throwable e) {}
-        public void connectionClosed(DeliveryError e, int messageIdentifier) {}
-    };
+        throw new IllegalArgumentException("Invalid code: " + code);
+    }
 }

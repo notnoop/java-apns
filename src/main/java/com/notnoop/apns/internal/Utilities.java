@@ -274,4 +274,11 @@ public class Utilities {
         else
             throw new RuntimeException(e);
     }
+
+    public static int parseBytes(int b1, int b2, int b3, int b4) {
+        return  ((b1 << 3 * 8) & 0xFF000000)
+              | ((b2 << 2 * 8) & 0x00FF0000)
+              | ((b3 << 1 * 8) & 0x0000FF00)
+              | ((b4 << 0 * 8) & 0x000000FF);
+    }
 }
