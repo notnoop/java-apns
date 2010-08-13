@@ -13,6 +13,7 @@ Features:
 --------------
   *  Easy to use, high performance APNS Service API
   *  Supports Apple Feedback service
+  *  Support Enhanced Apple Push Notification
   *  Easy to use with Apple certificates
   *  Easy to extend and reuse
   *  Easy to integrate with dependency injection frameworks
