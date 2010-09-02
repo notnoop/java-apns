@@ -345,14 +345,14 @@ public class ApnsServiceBuilder {
      * Disables the enhanced error detection, enabled by the
      * enhanced push notification interface.  Error detection is
      * enabled by default.
-     * 
+     *
      * This setting is desired when the application shouldn't spawn
      * new threads.
-     * 
+     *
      * @return  this
      */
     public ApnsServiceBuilder withNoErrorDetection() {
-        this.errorDetection = true;
+        this.errorDetection = false;
         return this;
     }
 
