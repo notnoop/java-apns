@@ -63,4 +63,4 @@ localizable alert:
                 .localizedArguments("Jenna", "Frank")
                 .actionKey("Play").build();
 
-    service.push(token, payload.toString());
+    service.push(token, payload);

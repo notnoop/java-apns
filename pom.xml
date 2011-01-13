@@ -5,6 +5,13 @@
     <version>0.1.6-SNAPSHOT</version>
     <name>Java Apple Push Notification Service Library</name>
 
+    <!-- Inherit the Sonatype OSS deployment configuration -->
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>5</version>
+    </parent>
+
     <scm>
         <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
         <developerConnection>scm:git:git@github.com:notnoop/java-apns.git</developerConnection>
@@ -152,7 +159,7 @@
     <licenses>
         <license>
             <name>New BSD License</name>
-            <url>${basedir}/LICENSE</url>
+            <url>http://www.opensource.org/licenses/bsd-license.php</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -203,4 +210,5 @@
             <name>Mahmood Ali</name>
         </developer>
     </developers>
+
 </project>
