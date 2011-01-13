@@ -6,13 +6,11 @@
     <name>Java Apple Push Notification Service Library</name>
 
     <!-- Inherit the Sonatype OSS deployment configuration -->
-    <!--
     <parent>
         <groupId>org.sonatype.oss</groupId>
         <artifactId>oss-parent</artifactId>
         <version>5</version>
     </parent>
-    -->
 
     <scm>
         <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
