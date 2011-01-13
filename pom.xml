@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.notnoop.apns</groupId>
     <artifactId>apns</artifactId>
-    <version>0.1.7-SNAPSHOT</version>
+    <version>0.1.6-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Java Apple Push Notification Service Library</name>
 
@@ -95,6 +95,7 @@
         </plugins>
     </build>
 
+    <!--
     <distributionManagement>
         <site>
             <id>gh-pages</id>
@@ -105,6 +106,7 @@
             <url>file:${project.basedir}/target/deploy/repo</url>
         </repository>
     </distributionManagement>
+    -->
 
     <dependencies>
         <dependency>
