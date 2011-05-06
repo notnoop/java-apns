@@ -64,3 +64,7 @@ localizable alert:
                 .actionKey("Play").build();
 
     service.push(token, payload);
+
+Contact
+---------------
+Support mailing list: http://groups.google.com/group/java-apns-discuss
