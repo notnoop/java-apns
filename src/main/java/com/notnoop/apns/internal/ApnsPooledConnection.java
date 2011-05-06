@@ -21,10 +21,14 @@ public class ApnsPooledConnection implements ApnsConnection {
     private final ConcurrentLinkedQueue<ApnsConnection> prototypes;
 
     public ApnsPooledConnection(ApnsConnection prototype, int max) {
+        this(prototype, max, Executors.newFixedThreadPool(max));
+    }
+
+    public ApnsPooledConnection(ApnsConnection prototype, int max, ExecutorService executors) {
         this.prototype = prototype;
         this.max = max;
 
-        executors = Executors.newFixedThreadPool(max);
+        this.executors = executors;
         this.prototypes = new ConcurrentLinkedQueue<ApnsConnection>();
     }
 
@@ -46,6 +50,8 @@ public class ApnsPooledConnection implements ApnsConnection {
     }
 
     public ApnsConnection copy() {
+        // TODO: Should copy executor properly.... What should copy do
+        // really?!
         return new ApnsPooledConnection(prototype, max);
     }
 

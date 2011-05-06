@@ -37,6 +37,9 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -75,6 +78,7 @@ public class ApnsServiceBuilder {
     private String feedbackHost;
     private int feedbackPort;
     private int pooledMax = 1;
+    private ExecutorService executor = null;
 
     private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
     private boolean isQueued = false;
@@ -303,7 +307,24 @@ public class ApnsServiceBuilder {
      * connections.
      */
     public ApnsServiceBuilder asPool(int maxConnections) {
+        return asPool(Executors.newFixedThreadPool(maxConnections), maxConnections);
+    }
+
+    /**
+     * Constructs a pool of connections to the notification servers.
+     *
+     * Apple servers recommend using a pooled connection up to
+     * 15 concurrent persistent connections to the gateways.
+     *
+     * Note: This option has no effect when using non-blocking
+     * connections.
+     *
+     * Note: The maxConnections here is used as a hint to how many connections
+     * get created.
+     */
+    public ApnsServiceBuilder asPool(ExecutorService executor, int maxConnections) {
         this.pooledMax = maxConnections;
+        this.executor = executor;
         return this;
     }
 
@@ -374,7 +395,7 @@ public class ApnsServiceBuilder {
         } else {
             ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, proxySocket, reconnectPolicy, delegate, errorDetection);
             if (pooledMax != 1) {
-                conn = new ApnsPooledConnection(conn, pooledMax);
+                conn = new ApnsPooledConnection(conn, pooledMax, executor);
             }
 
             service = new ApnsServiceImpl(conn, feedback);
