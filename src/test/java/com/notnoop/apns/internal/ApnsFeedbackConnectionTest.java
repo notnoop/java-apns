@@ -40,14 +40,14 @@ public class ApnsFeedbackConnectionTest {
     @Test
     public void connectionParsedOne() {
         SocketFactory sf = MockingUtils.mockSocketFactory(null, simpleStream);
-        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, "localhost", 80);
+        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, null, "localhost", 80);
         checkParsedSimple(connection.getInactiveDevices());
     }
 
     @Test
     public void connectionParsedThree() {
         SocketFactory sf = MockingUtils.mockSocketFactory(null, threeStream);
-        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, "localhost", 80);
+        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, null, "localhost", 80);
         checkParsedThree(connection.getInactiveDevices());
     }
 
@@ -55,7 +55,7 @@ public class ApnsFeedbackConnectionTest {
     @Test
     public void feedbackWithclosedSocket() {
         SocketFactory sf = mockClosedThenOpenSocket(null, simpleStream, true, 1);
-        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, "localhost", 80);
+        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, null, "localhost", 80);
         connection.DELAY_IN_MS = 0;
         checkParsedSimple(connection.getInactiveDevices());
     }
@@ -63,7 +63,7 @@ public class ApnsFeedbackConnectionTest {
     @Test
     public void feedbackWitherrorOnce() {
         SocketFactory sf = mockClosedThenOpenSocket(null, simpleStream, true, 2);
-        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, "localhost", 80);
+        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, null, "localhost", 80);
         connection.DELAY_IN_MS = 0;
         checkParsedSimple(connection.getInactiveDevices());
     }
@@ -74,7 +74,7 @@ public class ApnsFeedbackConnectionTest {
     @Test(expected = Exception.class)
     public void feedbackWitherrorTwice() {
         SocketFactory sf = mockClosedThenOpenSocket(null, simpleStream, true, 3);
-        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, "localhost", 80);
+        ApnsFeedbackConnection connection = new ApnsFeedbackConnection(sf, null, "localhost", 80);
         connection.DELAY_IN_MS = 0;
         checkParsedSimple(connection.getInactiveDevices());
     }

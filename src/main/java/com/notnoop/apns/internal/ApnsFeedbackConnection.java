@@ -32,11 +32,14 @@ package com.notnoop.apns.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.Socket;
 import java.util.Date;
 import java.util.Map;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +50,13 @@ public class ApnsFeedbackConnection {
     private static final Logger logger = LoggerFactory.getLogger(ApnsFeedbackConnection.class);
 
     private final SocketFactory factory;
+    private final Proxy socksProxy;
     private final String host;
     private final int port;
 
-    public ApnsFeedbackConnection(SocketFactory factory, String host, int port) {
+    public ApnsFeedbackConnection(SocketFactory factory, Proxy socksProxy, String host, int port) {
         this.factory = factory;
+        this.socksProxy = socksProxy;
         this.host = host;
         this.port = port;
     }
@@ -82,7 +87,15 @@ public class ApnsFeedbackConnection {
     public Map<String, Date> getInactiveDevicesImpl() throws IOException {
         Socket socket = null;
         try {
-            socket = factory.createSocket(host, port);
+            if (socksProxy == null) {
+                socket = factory.createSocket(host, port);
+            } else {
+            	Socket underlyingSocket = new Socket(socksProxy);
+            	underlyingSocket.connect(new InetSocketAddress(host, port));
+            	
+                socket = ((SSLSocketFactory)factory).createSocket(underlyingSocket, host, port, false);
+            }
+            
             InputStream stream = socket.getInputStream();
             return Utilities.parseFeedbackStream(stream);
         } finally {
