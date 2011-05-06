@@ -141,3 +141,11 @@ div.clear hr{
   margin: 0px;
   padding: 0px;
 }
+#navcolumn img.imageLink, .imageLink {
+  padding-left: 0px;
+  padding-bottom: 0px;
+  padding-top: 0px;
+  padding-right: 2px;
+  border: 0px;
+  margin: 0px;
+}
