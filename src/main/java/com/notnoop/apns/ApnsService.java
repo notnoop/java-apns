@@ -63,9 +63,9 @@ public interface ApnsService {
      * @throws NetworkIOException if a network error occured while
      *      attempting to send the message
      */
-    void push(String deviceToken, String payload) throws NetworkIOException;
+    ApnsNotification push(String deviceToken, String payload) throws NetworkIOException;
 
-    void push(String deviceToken, String payload, Date expiry) throws NetworkIOException;
+    EnhancedApnsNotification push(String deviceToken, String payload, Date expiry) throws NetworkIOException;
 
     /**
      * Sends a push notification with the provided {@code payload} to the
@@ -80,25 +80,9 @@ public interface ApnsService {
      * @throws NetworkIOException if a network error occurred while
      *      attempting to send the message
      */
-    void push(byte[] deviceToken, byte[] payload) throws NetworkIOException;
+    ApnsNotification push(byte[] deviceToken, byte[] payload) throws NetworkIOException;
 
-    void push(byte[] deviceToken, byte[] payload, int expiry) throws NetworkIOException;
-
-    /**
-     * Sends a bulk push notification with the provided
-     * {@code payload} to iPhone of {@code deviceToken}s set.
-     *
-     * The payload needs to be a valid JSON object, otherwise it may fail
-     * silently.  It is recommended to use {@link PayloadBuilder} to create
-     * one.
-     *
-     * @param deviceTokens   the destination iPhone device tokens
-     * @param payload       The payload message
-     * @throws NetworkIOException if a network error occurred while
-     *      attempting to send the message
-     */
-    void push(Collection<String> deviceTokens, String payload) throws NetworkIOException;
-    void push(Collection<String> deviceTokens, String payload, Date expiry) throws NetworkIOException;
+    EnhancedApnsNotification push(byte[] deviceToken, byte[] payload, int expiry) throws NetworkIOException;
 
     /**
      * Sends a bulk push notification with the provided
@@ -113,8 +97,24 @@ public interface ApnsService {
      * @throws NetworkIOException if a network error occurred while
      *      attempting to send the message
      */
-    void push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException;
-    void push(Collection<byte[]> deviceTokens, byte[] payload, int expiry) throws NetworkIOException;
+    Collection<? extends ApnsNotification> push(Collection<String> deviceTokens, String payload) throws NetworkIOException;
+    Collection<? extends EnhancedApnsNotification> push(Collection<String> deviceTokens, String payload, Date expiry) throws NetworkIOException;
+
+    /**
+     * Sends a bulk push notification with the provided
+     * {@code payload} to iPhone of {@code deviceToken}s set.
+     *
+     * The payload needs to be a valid JSON object, otherwise it may fail
+     * silently.  It is recommended to use {@link PayloadBuilder} to create
+     * one.
+     *
+     * @param deviceTokens   the destination iPhone device tokens
+     * @param payload       The payload message
+     * @throws NetworkIOException if a network error occurred while
+     *      attempting to send the message
+     */
+    Collection<? extends ApnsNotification> push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException;
+    Collection<? extends EnhancedApnsNotification> push(Collection<byte[]> deviceTokens, byte[] payload, int expiry) throws NetworkIOException;
 
     /**
      * Sends the provided notification {@code message} to the desired
