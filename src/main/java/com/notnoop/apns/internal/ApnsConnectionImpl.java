@@ -184,7 +184,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     }
 
     public ApnsConnectionImpl copy() {
-        return new ApnsConnectionImpl(factory, host, port, reconnectPolicy.copy(), delegate);
+        return new ApnsConnectionImpl(factory, host, port, null, reconnectPolicy.copy(), delegate, errorDetection);
     }
 
     public void testConnection() throws NetworkIOException {
