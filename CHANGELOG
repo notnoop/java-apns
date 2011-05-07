@@ -1,0 +1,28 @@
+Changelog of java-apns
+
+Version 0.2.0 - TBD
+  - Have ApnsService.push return sent messages
+  - Add changelog
+
+Version 0.1.6 - Jan 13, 2011
+  - Publish maven artifacts to central maven repo
+  - Fix a bug cause error detection not to be disabled
+
+Version 0.1.5 - Aug 13, 2010
+  - Add support for enhanced push notification
+  - Enable error detection for dropped connections
+  - Rely on slf4j as dependency instead of logback
+  - Support launch images in notifications
+
+Version 0.1.4 - Apr 14, 2010
+  - Support SOCKS proxies
+  - Add better options for shrinking long alert messages (e.g. insert "...")
+  - Fix a bug related to reconnection policy in pooled connections
+
+Version 0.1.3 - Feb 5, 2010
+  - Add an ApnsService.testConnection for testing setups and connections
+  - Add ApnsService delegate interface to monitor progress
+  - Add better more descriptive Exceptions
+
+Version 0.1.2 and older
+  Distance past...
