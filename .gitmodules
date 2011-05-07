@@ -1,7 +1,0 @@
-[submodule "site"]
-	path = site
-	url = git@github.com:notnoop/java-apns.git
-
-[submodule "repo"]
-        path = repo
-        url = git@github.com:notnoop/m2-repo.git
