@@ -32,7 +32,9 @@ package com.notnoop.apns.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.Socket;
 
 import javax.net.SocketFactory;
@@ -54,7 +56,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final SocketFactory factory;
     private final String host;
     private final int port;
-    private final Socket underlyingSocket;
+    private final Proxy socksProxy;
     private final ReconnectPolicy reconnectPolicy;
     private final ApnsDelegate delegate;
     private final boolean errorDetection;
@@ -70,14 +72,15 @@ public class ApnsConnectionImpl implements ApnsConnection {
     }
 
     public ApnsConnectionImpl(SocketFactory factory, String host,
-            int port, Socket underlyingSocket,
+            int port, Proxy socksProxy,
             ReconnectPolicy reconnectPolicy, ApnsDelegate delegate, boolean errorDetection) {
         this.factory = factory;
         this.host = host;
         this.port = port;
         this.reconnectPolicy = reconnectPolicy;
         this.delegate = delegate == null ? ApnsDelegate.EMPTY : delegate;
-        this.underlyingSocket = underlyingSocket;
+        this.underlyingSocket = new Socket(socksProxy);
+        this.socksProxy = socksProxy;
         this.errorDetection = errorDetection;
     }
 
@@ -121,6 +124,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     // This method is only called from sendMessage.  sendMessage
     // has the required logic for retrying
     private Socket socket;
+    private Socket underlyingSocket;
     private synchronized Socket socket() throws NetworkIOException {
         if (reconnectPolicy.shouldReconnect()) {
             Utilities.close(socket);
@@ -132,7 +136,14 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 if (underlyingSocket == null) {
                     socket = factory.createSocket(host, port);
                 } else {
-                    underlyingSocket.connect(new InetSocketAddress(host, port));
+                	if(underlyingSocket.isClosed()) {
+                		Utilities.close(underlyingSocket);
+                		underlyingSocket = new Socket(socksProxy);
+                	}
+                	if(!underlyingSocket.isConnected()) {
+                		underlyingSocket.connect(new InetSocketAddress(host, port));
+                	}
+                	
                     socket = ((SSLSocketFactory)factory).createSocket(underlyingSocket, host, port, false);
                 }
 
