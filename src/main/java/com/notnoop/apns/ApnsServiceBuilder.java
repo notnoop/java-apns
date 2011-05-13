@@ -84,7 +84,7 @@ public class ApnsServiceBuilder {
     private boolean isQueued = false;
     private boolean isNonBlocking = false;
     private ApnsDelegate delegate = ApnsDelegate.EMPTY;
-    private Socket proxySocket = null;
+    private Proxy proxy = null;
     private boolean errorDetection = true;
 
     /**
@@ -282,19 +282,24 @@ public class ApnsServiceBuilder {
      * @return  this
      */
     public ApnsServiceBuilder withProxy(Proxy proxy) {
-        return withProxySocket(new Socket(proxy));
+        this.proxy = proxy;
+        return this;
     }
 
     /**
-     * Specify the socket to be used as unlying socket to connect
+     * Specify the socket to be used as underlying socket to connect
      * to the APN service.
      *
+     * This assumes that the socket connects to a SOCKS proxy.
+     *
+     * @deprecated use {@link ApnsServiceBuilder#withProxy(Proxy)} instead
      * @param proxySocket   the underlying socket for connections
      * @return  this
      */
+    @Deprecated
     public ApnsServiceBuilder withProxySocket(Socket proxySocket) {
-        this.proxySocket = proxySocket;
-        return this;
+        return this.withProxy(new Proxy(Proxy.Type.SOCKS,
+                proxySocket.getRemoteSocketAddress()));
     }
 
     /**
@@ -393,7 +398,7 @@ public class ApnsServiceBuilder {
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
         } else {
-            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, proxySocket, reconnectPolicy, delegate, errorDetection);
+            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, proxy, reconnectPolicy, delegate, errorDetection);
             if (pooledMax != 1) {
                 conn = new ApnsPooledConnection(conn, pooledMax, executor);
             }
