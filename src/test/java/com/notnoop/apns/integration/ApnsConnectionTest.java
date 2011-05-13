@@ -58,6 +58,7 @@ public class ApnsConnectionTest {
     public void sendOneMina() throws InterruptedException {
         server.stopAt(msg1.length());
 
+        @SuppressWarnings("deprecation")
         ApnsService service =
             APNS.newService().withCert(clientCertPath(), CLIENT_PASSWD)
             .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)

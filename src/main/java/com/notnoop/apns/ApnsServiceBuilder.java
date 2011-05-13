@@ -348,8 +348,11 @@ public class ApnsServiceBuilder {
      * Constructs non-blocking queues and sockets connections
      * to send the iPhone notifications.
      *
+     * @deprecated this lacks many of the features that the library supports,
+     *        such as auto-reconnection upon failure.
      * @return  this
      */
+    @Deprecated
     public ApnsServiceBuilder asNonBlocking() {
         this.isNonBlocking = true;
         return this;
