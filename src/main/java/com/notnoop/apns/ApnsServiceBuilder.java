@@ -393,7 +393,7 @@ public class ApnsServiceBuilder {
         ApnsService service;
 
         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
-        ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort);
+        ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy);
 
         if (isNonBlocking) {
             service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
