@@ -147,6 +147,33 @@ public class Utilities {
         }
     }
 
+    /**
+     * Truncate a UTF-8 string to at most the specified number of bytes. The resulting string may actually be shorter than specified,
+     * since it will not be truncated in the middle of a multi-byte character. The input must be a UTF-8 string as
+     * produced by the JDK's <a href="http://java.sun.com/javase/6/docs/api/java/io/DataInput.html#modified-utf-8">modified
+     * UTF-8 encoding</a>.
+     * 
+     * @param s the UTF-8 string to truncate
+     * @param n the maximum length (in bytes) of the truncated string
+     * @return the number of bytes the truncated string
+     */
+    public static int truncateUTF8(byte[] s, int n)
+    {
+        if (s.length <= n) {
+            return s.length;
+        }
+        if (n < 0) {
+            throw new IllegalArgumentException("length cannot be negative");
+        }
+        while (n >= 0 && (s[n] & 0xc0) == 0x80) {
+            n--;
+        }
+        if (n < 0) {
+            throw new IllegalArgumentException("invalid UTF-8");
+        }
+        return n;
+    }
+
     public static byte[] marshall(byte command, byte[] deviceToken, byte[] payload) {
         ByteArrayOutputStream boas = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(boas);

@@ -30,6 +30,7 @@
  */
 package com.notnoop.apns;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -280,26 +281,30 @@ public final class PayloadBuilder {
         }
 
         // now we are sure that truncation is required
-        String body = (String)aps.get("alert");
+        byte[] body = Utilities.toUTF8Bytes((String)aps.get("alert"));
 
-        int charsToChopOff = currLength - payloadLength;
+        int bytesToChopOff = currLength - payloadLength;
 
         // since we are going to attach the postfix, chop off extra chars to account for the postfix
-        charsToChopOff = charsToChopOff + postfix.length();
+        bytesToChopOff = bytesToChopOff + Utilities.toUTF8Bytes(postfix).length;
 
         // max we can chop off is the whole string
-        if(charsToChopOff > body.length()) {
-            charsToChopOff = body.length();
+        if(bytesToChopOff > body.length) {
+            bytesToChopOff = body.length;
         }
 
         // chop off the last part of the string
-        body = body.substring(0, body.length() - charsToChopOff);
-
-        // attach the postfix
-        body = body + postfix;
+        int n = Utilities.truncateUTF8(body, body.length - bytesToChopOff);
+        String s;
+        try {
+            s = new String(body, 0, n, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        s += postfix;
 
         // set it back
-        aps.put("alert", body);
+        aps.put("alert", s);
 
         // calculate the length again
         currLength = length();
