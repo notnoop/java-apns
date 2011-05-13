@@ -282,21 +282,10 @@ public final class PayloadBuilder {
         // now we are sure that truncation is required
         String body = (String)aps.get("alert");
 
-        int charsToChopOff = currLength - payloadLength;
-
-        // since we are going to attach the postfix, chop off extra chars to account for the postfix
-        charsToChopOff = charsToChopOff + postfix.length();
-
-        // max we can chop off is the whole string
-        if(charsToChopOff > body.length()) {
-            charsToChopOff = body.length();
-        }
-
-        // chop off the last part of the string
-        body = body.substring(0, body.length() - charsToChopOff);
-
-        // attach the postfix
-        body = body + postfix;
+        int acceptableSize = Utilities.toUTF8Bytes(body).length
+                - (currLength - payloadLength
+                        + Utilities.toUTF8Bytes(postfix).length);
+        body = Utilities.truncateWhenUTF8(body, acceptableSize) + postfix;
 
         // set it back
         aps.put("alert", body);
@@ -305,8 +294,8 @@ public final class PayloadBuilder {
         currLength = length();
 
         if(currLength > payloadLength) {
-            // string is still too long, just remove the body as the body is anyway not the cause
-            // OR the postfix might be too long
+            // string is still too long, just remove the body as the body is
+            // anyway not the cause OR the postfix might be too long
             aps.remove("alert");
         }
 
