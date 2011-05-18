@@ -198,6 +198,24 @@ public class ApnsServiceBuilder {
     }
 
     /**
+     * Specify to use Apple servers as iPhone gateway and feedback servers.
+     *
+     * If the passed {@code isProduction} is true, then it connects to the
+     * production servers, otherwise, it connects to the sandbox servers
+     *
+     * @param isProduction  determines which Apple servers should be used:
+     *               production or sandbox
+     * @return this
+     */
+    public ApnsServiceBuilder withAppleDestination(boolean isProduction) {
+        if (isProduction) {
+            return withProductionDestination();
+        } else {
+            return withSandboxDestination();
+        }
+    }
+
+    /**
      * Specify to use the Apple sandbox servers as iPhone gateway
      * and feedback servers.
      *
