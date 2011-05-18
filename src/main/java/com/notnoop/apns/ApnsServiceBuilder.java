@@ -82,7 +82,6 @@ public class ApnsServiceBuilder {
 
     private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
     private boolean isQueued = false;
-    private boolean isNonBlocking = false;
     private ApnsDelegate delegate = ApnsDelegate.EMPTY;
     private Proxy proxy = null;
     private boolean errorDetection = true;
@@ -345,20 +344,6 @@ public class ApnsServiceBuilder {
     }
 
     /**
-     * Constructs non-blocking queues and sockets connections
-     * to send the iPhone notifications.
-     *
-     * @deprecated this lacks many of the features that the library supports,
-     *        such as auto-reconnection upon failure.
-     * @return  this
-     */
-    @Deprecated
-    public ApnsServiceBuilder asNonBlocking() {
-        this.isNonBlocking = true;
-        return this;
-    }
-
-    /**
      * Sets the delegate of the service, that gets notified of the
      * status of message delivery.
      *
@@ -398,19 +383,15 @@ public class ApnsServiceBuilder {
         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
         ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy);
 
-        if (isNonBlocking) {
-            service = new MinaAdaptor(sslContext, gatewayHost, gatewaPort, feedback);
-        } else {
-            ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, proxy, reconnectPolicy, delegate, errorDetection);
-            if (pooledMax != 1) {
-                conn = new ApnsPooledConnection(conn, pooledMax, executor);
-            }
+        ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, proxy, reconnectPolicy, delegate, errorDetection);
+        if (pooledMax != 1) {
+            conn = new ApnsPooledConnection(conn, pooledMax, executor);
+        }
 
-            service = new ApnsServiceImpl(conn, feedback);
+        service = new ApnsServiceImpl(conn, feedback);
 
-            if (isQueued) {
-                service = new QueuedApnsService(service);
-            }
+        if (isQueued) {
+            service = new QueuedApnsService(service);
         }
 
         service.start();
