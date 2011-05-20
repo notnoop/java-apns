@@ -52,22 +52,4 @@ public class ApnsConnectionTest {
 
         assertArrayEquals(msg1.marshall(), server.received.toByteArray());
     }
-
-    @Test(timeout = 2000)
-    @Ignore
-    public void sendOneMina() throws InterruptedException {
-        server.stopAt(msg1.length());
-
-        @SuppressWarnings("deprecation")
-        ApnsService service =
-            APNS.newService().withCert(clientCertPath(), CLIENT_PASSWD)
-            .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
-            .asNonBlocking()
-            .build();
-
-        service.push(msg1);
-        server.messages.acquire();
-
-        assertArrayEquals(msg1.marshall(), server.received.toByteArray());
-    }
 }
