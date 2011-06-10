@@ -410,4 +410,14 @@ public class PayloadBuilderTest {
             throw new IllegalStateException(e);
         }
     }
+
+    @Test
+    public void supportsMDM() {
+        String mdm = APNS.newPayload().mdm("213").toString();
+
+        String expected = "{\"mdm\":\"213\"}";
+        assertEqualsJson(expected, mdm);
+    }
+
+
 }

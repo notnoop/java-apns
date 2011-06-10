@@ -208,6 +208,10 @@ public final class PayloadBuilder {
         return this;
     }
 
+    public PayloadBuilder mdm(String s) {
+        return customField("mdm", s);
+    }
+
     /**
      * Set any application-specific custom fields.  These values
      * are presented to the application and the iPhone doesn't
@@ -341,15 +345,17 @@ public final class PayloadBuilder {
      * @return  the String representation as expected by Apple
      */
     public String build() {
-        if (!(customAlert.isEmpty()
-                || customAlert.equals(aps.get("alert")))) {
-            if (aps.containsKey("alert")) {
-                String alertBody = (String)aps.get("alert");
-                customAlert.put("body", alertBody);
+        if (!root.containsKey("mdm")) {
+            if (!(customAlert.isEmpty()
+                    || customAlert.equals(aps.get("alert")))) {
+                if (aps.containsKey("alert")) {
+                    String alertBody = (String)aps.get("alert");
+                    customAlert.put("body", alertBody);
+                }
+                aps.put("alert", customAlert);
             }
-            aps.put("alert", customAlert);
+            root.put("aps", aps);
         }
-        root.put("aps", aps);
         try {
             return mapper.writeValueAsString(root);
         } catch (Exception e) {
