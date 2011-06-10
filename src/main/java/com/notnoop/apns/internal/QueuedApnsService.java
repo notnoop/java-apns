@@ -32,6 +32,7 @@ package com.notnoop.apns.internal;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -43,7 +44,7 @@ public class QueuedApnsService extends AbstractApnsService {
 
     private ApnsService service;
     private BlockingQueue<ApnsNotification> queue;
-    private volatile boolean started = false;
+    private AtomicBoolean started = new AtomicBoolean(false);
 
     public QueuedApnsService(ApnsService service) {
         super(null);
@@ -54,8 +55,9 @@ public class QueuedApnsService extends AbstractApnsService {
 
     @Override
     public void push(ApnsNotification msg) {
-        if (!started)
+        if (!started.get()) {
             throw new IllegalStateException("service hasn't be started or was closed");
+        }
         queue.add(msg);
     }
 
@@ -63,10 +65,14 @@ public class QueuedApnsService extends AbstractApnsService {
     private volatile boolean shouldContinue;
 
     public void start() {
-        started = true;
+        if (started.getAndSet(true)) {
+            // I prefer if we throw a runtime IllegalStateException here,
+            // but I want to maintain semantic backward compatibility.
+            // So it is returning immediately here
+            return;
+        }
+
         service.start();
-        if (thread != null)
-            stop();
         shouldContinue = true;
         thread = new Thread() {
             public void run() {
@@ -83,7 +89,7 @@ public class QueuedApnsService extends AbstractApnsService {
     }
 
     public void stop() {
-        started = false;
+        started.set(false);
         shouldContinue = false;
         thread.interrupt();
         service.stop();
