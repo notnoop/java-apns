@@ -101,6 +101,13 @@ public class ApnsServiceBuilder {
      * needs to be encrypted using the SunX509 algorithm.  Both
      * of these settings are the default.
      *
+     * This library does not support password-less p12 certificates, due to a
+     * Oracle Java library <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6415637">
+     * Bug 6415637</a>.  There are three workarounds: use a password-protected
+     * certificate, use a different boot Java SDK implementation, or constract
+     * the `SSLContext` yourself!  Needless to say, the password-protected
+     * certificate is most recommended option.
+     *
      * @param fileName  the path to the certificate
      * @param password  the password of the keystore
      * @return  this
@@ -131,6 +138,13 @@ public class ApnsServiceBuilder {
      * needs to be encrypted using the SunX509 algorithm.  Both
      * of these settings are the default.
      *
+     * This library does not support password-less p12 certificates, due to a
+     * Oracle Java library <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6415637">
+     * Bug 6415637</a>.  There are three workarounds: use a password-protected
+     * certificate, use a different boot Java SDK implementation, or constract
+     * the `SSLContext` yourself!  Needless to say, the password-protected
+     * certificate is most recommended option.
+     *
      * @param stream    the keystore represented as input stream
      * @param password  the password of the keystore
      * @return  this
@@ -139,6 +153,11 @@ public class ApnsServiceBuilder {
      */
     public ApnsServiceBuilder withCert(InputStream stream, String password)
     throws InvalidSSLConfig {
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Passwords must be specified." +
+                    "Oracle Java SDK does not support passwordless p12 certificates");
+        }
+
         return withSSLContext(
                 newSSLContext(stream, password,
                         KEYSTORE_TYPE, KEY_ALGORITHM));
