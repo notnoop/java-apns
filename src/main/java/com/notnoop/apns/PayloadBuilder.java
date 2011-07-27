@@ -142,6 +142,19 @@ public final class PayloadBuilder {
     }
 
     /**
+     * Sets the notification type to be a 'newstand' notification.
+     *
+     * A Newstand Notification targets the Newstands app so that the app
+     * updates the subscription info and content.
+     *
+     * @return this
+     */
+    public PayloadBuilder forNewsstand() {
+        aps.put("content-available", 1);
+        return this;
+    }
+
+    /**
      * Set the notification localized key for the alert body
      * message.
      *

@@ -419,5 +419,13 @@ public class PayloadBuilderTest {
         assertEqualsJson(expected, mdm);
     }
 
+    @Test
+    public void supportsNewsstand() {
+        String news = APNS.newPayload().forNewsstand().toString();
+
+        String expected = "{\"aps\":{\"content-available\":1}}";
+        assertEqualsJson(expected, news);
+    }
+
 
 }
