@@ -67,7 +67,7 @@ public final class PayloadBuilder {
      * @return  this
      */
     public PayloadBuilder alertBody(String alert) {
-        aps.put("alert", alert);
+        customAlert.put("body", alert);
         return this;
     }
 
@@ -297,7 +297,7 @@ public final class PayloadBuilder {
         }
 
         // now we are sure that truncation is required
-        String body = (String)aps.get("alert");
+        String body = (String)customAlert.get("body");
 
         int acceptableSize = Utilities.toUTF8Bytes(body).length
                 - (currLength - payloadLength
@@ -305,7 +305,7 @@ public final class PayloadBuilder {
         body = Utilities.truncateWhenUTF8(body, acceptableSize) + postfix;
 
         // set it back
-        aps.put("alert", body);
+        customAlert.put("body", body);
 
         // calculate the length again
         currLength = length();
@@ -313,7 +313,7 @@ public final class PayloadBuilder {
         if(currLength > payloadLength) {
             // string is still too long, just remove the body as the body is
             // anyway not the cause OR the postfix might be too long
-            aps.remove("alert");
+            customAlert.remove("body");
         }
 
         return this;
@@ -359,20 +359,29 @@ public final class PayloadBuilder {
      */
     public String build() {
         if (!root.containsKey("mdm")) {
-            if (!(customAlert.isEmpty()
-                    || customAlert.equals(aps.get("alert")))) {
-                if (aps.containsKey("alert")) {
-                    String alertBody = (String)aps.get("alert");
-                    customAlert.put("body", alertBody);
-                }
-                aps.put("alert", customAlert);
-            }
+            insertCustomAlert();
             root.put("aps", aps);
         }
         try {
             return mapper.writeValueAsString(root);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void insertCustomAlert() {
+        switch (customAlert.size()) {
+            case 0:
+                aps.remove("alert");
+                break;
+            case 1:
+                if (customAlert.containsKey("body")) {
+                    aps.put("alert", customAlert.get("body"));
+                    break;
+                }
+                // else follow through
+            default:
+                aps.put("alert", customAlert);
         }
     }
 

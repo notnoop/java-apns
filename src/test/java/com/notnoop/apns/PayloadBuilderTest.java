@@ -427,5 +427,42 @@ public class PayloadBuilderTest {
         assertEqualsJson(expected, news);
     }
 
+    @Test
+    public void tooLongWithCustomFields() {
+        PayloadBuilder builder = new PayloadBuilder();
+        builder.alertBody("12345678");
+
+        builder.customField("ache1", "what");
+        builder.customField("ache2", 2);
+
+        String s1 = builder.toString();
+        assertThat(s1, containsString("12345678"));
+        String s2 = builder.toString();
+        assertThat(s2, containsString("12345678"));
+
+        assertEqualsJson(s1, s2);
+    }
+
+    @Test
+    public void trimWorksWithLongFields() {
+        PayloadBuilder builder = new PayloadBuilder();
+        String toolong =
+                "1234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890";
+
+        builder.alertBody(toolong);
+        builder.actionKey("OK");
+
+        String s1 = builder.toString();
+        builder.shrinkBody();
+
+        String s2 = builder.toString();
+        assertThat(s2, containsString("12345678"));
+    }
+
 
 }
