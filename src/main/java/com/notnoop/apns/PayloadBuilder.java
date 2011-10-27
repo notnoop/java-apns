@@ -74,12 +74,18 @@ public final class PayloadBuilder {
     /**
      * Sets the alert sound to be played.
      *
+     * Passing {@code null} disables the notification sound.
+     *
      * @param sound the file name or song name to be played
      *              when receiving the notification
      * @return  this
      */
     public PayloadBuilder sound(String sound) {
-        aps.put("sound", sound);
+        if (sound != null) {
+            aps.put("sound", sound);
+        } else {
+            aps.remove("sound");
+        }
         return this;
     }
 
