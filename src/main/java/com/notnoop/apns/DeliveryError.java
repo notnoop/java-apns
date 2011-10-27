@@ -50,7 +50,8 @@ public enum DeliveryError {
     INVALID_PAYLOAD_SIZE(7),
     INVALID_TOKEN(8),
 
-    NONE(255);
+    NONE(255),
+    UNKNOWN(254);
 
     private final byte code;
     DeliveryError(int code) {
@@ -68,8 +69,6 @@ public enum DeliveryError {
      *
      * @param code  status code provided by Apple
      * @return  the appropriate DeliveryError
-     * @throws IllegalArgumentException if no appropriate
-     *          DeliveryError
      */
     public static DeliveryError ofCode(int code) {
         for (DeliveryError e : DeliveryError.values()) {
@@ -77,6 +76,6 @@ public enum DeliveryError {
                 return e;
         }
 
-        throw new IllegalArgumentException("Invalid code: " + code);
+        return UNKNOWN;
     }
 }
