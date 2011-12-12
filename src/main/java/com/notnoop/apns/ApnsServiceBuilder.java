@@ -153,7 +153,7 @@ public class ApnsServiceBuilder {
      */
     public ApnsServiceBuilder withCert(InputStream stream, String password)
     throws InvalidSSLConfig {
-        if (password == null || password.isEmpty()) {
+        if (password == null || password.length() == 0) {
             throw new IllegalArgumentException("Passwords must be specified." +
                     "Oracle Java SDK does not support passwordless p12 certificates");
         }
