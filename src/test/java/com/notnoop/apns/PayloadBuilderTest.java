@@ -465,4 +465,23 @@ public class PayloadBuilderTest {
     }
 
 
+    @Test
+    public void utf8Encoding() {
+        String str = "esemény";
+
+        PayloadBuilder builder = new PayloadBuilder();
+        String s1 = builder.alertBody(str).toString();
+
+        assertThat(s1, containsString(str));
+    }
+
+    @Test
+    public void utf8EncodingEscaped() {
+        String str = "esem\u00E9ny";
+
+        PayloadBuilder builder = new PayloadBuilder();
+        String s1 = builder.alertBody(str).toString();
+
+        assertThat(s1, containsString(str));
+    }
 }

@@ -56,4 +56,16 @@ public class UtilitiesTest {
         Assert.assertTrue(Utilities.parseBytes(0x80, 0,0,0) < 0);
         Assert.assertTrue(Utilities.parseBytes(0x70, 0,0,0) > 0);
     }
+
+    @Test
+    public void testEncodingUTF8() {
+        String m = "esemény";
+
+        byte[] expected = {
+                'e', 's', 'e', 'm', (byte)0x00C3, (byte)0x00A9, 'n', 'y'
+        };
+
+        Assert.assertArrayEquals(expected, Utilities.toUTF8Bytes(m));
+
+    }
 }
