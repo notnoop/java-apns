@@ -96,7 +96,7 @@ public class Utilities {
 
             // Get the SSLContext to help create SSLSocketFactory
             SSLContext sslc = SSLContext.getInstance("TLS");
-            sslc.init(kmf.getKeyManagers(), null, null);
+            sslc.init(kmf.getKeyManagers(), tmf, null);
             return sslc;
         } catch (Exception e) {
             throw new InvalidSSLConfig(e);
