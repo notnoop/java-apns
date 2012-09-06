@@ -61,11 +61,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final ApnsDelegate delegate;
     private final boolean errorDetection;
 
-    // proxySocket should be reinitialized at every reconnection, to protect
-    // any stale connection issues.  This field is only needed so we can
-    // close the connection properly
-    private Socket proxySocket;
-
     public ApnsConnectionImpl(SocketFactory factory, String host, int port) {
         this(factory, host, port, new ReconnectPolicies.Never(), ApnsDelegate.EMPTY);
     }
@@ -86,14 +81,11 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this.delegate = delegate == null ? ApnsDelegate.EMPTY : delegate;
         this.proxy = proxy;
         this.errorDetection = errorDetection;
-
-        this.proxySocket = null;
     }
 
 
     public synchronized void close() {
         Utilities.close(socket);
-        Utilities.close(proxySocket);
     }
 
     private void monitorSocket(final Socket socket) {
@@ -102,6 +94,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 try {
                     InputStream in = socket.getInputStream();
 
+                    // TODO(jwilson): this should readFully()
                     final int expectedSize = 6;
                     byte[] bytes = new byte[expectedSize];
                     while (in.read(bytes) == expectedSize) {
@@ -116,7 +109,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 } catch (Exception e) {
                     logger.warn("Exception while waiting for error code", e);
                 }
-            };
+            }
         }
         Thread t = new MonitoringThread();
         t.setDaemon(true);
@@ -129,7 +122,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private synchronized Socket socket() throws NetworkIOException {
         if (reconnectPolicy.shouldReconnect()) {
             Utilities.close(socket);
-            Utilities.close(proxySocket);
             socket = null;
         }
 
@@ -137,13 +129,22 @@ public class ApnsConnectionImpl implements ApnsConnection {
             try {
                 if (proxy == null) {
                     socket = factory.createSocket(host, port);
+                } else if (proxy.type() == Proxy.Type.HTTP) {
+                    TlsTunnelBuilder tunnelBuilder = new TlsTunnelBuilder();
+                    socket = tunnelBuilder.build((SSLSocketFactory) factory, proxy, host, port);
                 } else {
-                    // always start a new proxy connection
-                    Utilities.close(proxySocket);
-
-                    proxySocket = new Socket(proxy);
-                    proxySocket.connect(new InetSocketAddress(host, port));
-                    socket = ((SSLSocketFactory)factory).createSocket(proxySocket, host, port, false);
+                    boolean success = false;
+                    Socket proxySocket = null;
+                    try {
+                        proxySocket = new Socket(proxy);
+                        proxySocket.connect(new InetSocketAddress(host, port));
+                        socket = ((SSLSocketFactory)factory).createSocket(proxySocket, host, port, false);
+                        success = true;
+                    } finally {
+                        if (!success) {
+                            Utilities.close(proxySocket);
+                        }
+                    }
                 }
 
                 if (errorDetection) {
