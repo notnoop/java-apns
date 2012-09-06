@@ -59,7 +59,7 @@ public class UtilitiesTest {
 
     @Test
     public void testEncodingUTF8() {
-        String m = "esemény";
+        String m = "esem√©ny";
 
         byte[] expected = {
                 'e', 's', 'e', 'm', (byte)0x00C3, (byte)0x00A9, 'n', 'y'
