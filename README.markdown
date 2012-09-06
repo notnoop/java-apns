@@ -1,3 +1,18 @@
+This is a Fork!
+---------------
+
+This is Square's fork of [notnoop/java-apns][1].
+
+What's different in this fork:
+
+* Nothing at the moment.
+
+  [1]: https://github.com/notnoop/java-apns
+
+
+Introduction
+------------
+
 java-apns is a Java client for Apple Push Notification service (APNs).
 The library aims to provide a highly scalable interface to the Apple
 server, while still being simple and modular.
