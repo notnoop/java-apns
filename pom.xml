@@ -97,7 +97,38 @@
                     <downloadJavadocs>true</downloadJavadocs>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.springsource.bundlor</groupId>
+                <artifactId>com.springsource.bundlor.maven</artifactId>
+            </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.springsource.bundlor</groupId>
+                    <artifactId>com.springsource.bundlor.maven</artifactId>
+                    <version>1.0.0.RELEASE</version>
+                    <executions>
+                        <execution>
+                            <id>bundlor</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>bundlor</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <bundleSymbolicName>${project.groupId}.${project.artifactId}</bundleSymbolicName>
+                        <bundleVersion>${project.version}</bundleVersion>
+                        <failOnWarnings>true</failOnWarnings>
+                        <!-- Set the input path explicitly to ensure that it is never set to the target/generated-classes of the cobertua plugin. 
+                            These classes contain references to cobertura classes and will mess up the generated manifest. If the default for inputPath is used, it will 
+                            use target/generated-classes if other plugins run custom builds that include cobertura. If the path is set explicitly it will always be target/classes. -->
+                        <inputPath>${project.build.outputDirectory}</inputPath>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <!--
@@ -149,6 +180,12 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
+<!--         <dependency>
+            <groupId>org.eclipse.virgo.bundlor</groupId>
+            <artifactId>org.eclipse.virgo.bundlor.maven</artifactId>
+            <version>1.1.1.RELEASE</version>
+            <scope>compile</scope>
+        </dependency> -->
     </dependencies>
 
     <!-- Site Generation -->
