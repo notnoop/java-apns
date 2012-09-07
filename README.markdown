@@ -3,11 +3,13 @@ This is a Fork!
 
 This is Square's fork of [notnoop/java-apns][1].
 
-What's different in this fork:
+What's new in this fork:
 
-* Nothing at the moment.
+* Support for [Proxy.Type.HTTP][2] using [RFC 2817][3].
 
   [1]: https://github.com/notnoop/java-apns
+  [2]: http://docs.oracle.com/javase/6/docs/api/java/net/Proxy.html
+  [3]: http://www.ietf.org/rfc/rfc2817.txt
 
 
 Introduction
