@@ -1,3 +1,19 @@
+* branch master ![Build Status](https://secure.travis-ci.org/froh42/java-apns.png?branch=master)
+* branch kitchensink ![Build Status](https://secure.travis-ci.org/froh42/java-apns.png?branch=kitchensink)
+
+
+
+This is a Fork!
+---------------
+
+This is Froh's fork of [notnoop/java-apns][1].
+
+  [1]: https://github.com/notnoop/java-apns
+
+
+Introduction
+------------
+
 java-apns is a Java client for Apple Push Notification service (APNs).
 The library aims to provide a highly scalable interface to the Apple
 server, while still being simple and modular.
