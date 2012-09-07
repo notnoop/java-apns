@@ -1,3 +1,8 @@
+* branch master ![Build Status](https://secure.travis-ci.org/froh42/java-apns.png?branch=master)
+* branch kitchensink ![Build Status](https://secure.travis-ci.org/froh42/java-apns.png?branch=kitchensink)
+
+
+
 This is a Fork!
 ---------------
 
