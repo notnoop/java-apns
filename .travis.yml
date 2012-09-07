@@ -1,1 +1,8 @@
-language: java
+language: Java
+
+# blacklist
+branches:
+  except:
+    - master
+
+# master currently does not work anyways, so don't build it.
