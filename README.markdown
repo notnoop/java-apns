@@ -3,17 +3,7 @@ This is a Fork!
 
 This is Froh's fork of [notnoop/java-apns][1].
 
-
   [1]: https://github.com/notnoop/java-apns
-
-
-
-
-
-
-
-
-
 
 
 Introduction
