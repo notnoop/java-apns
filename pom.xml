@@ -239,6 +239,14 @@
       </plugins>
     </reporting>
 
+    <pluginRepositories>
+        <pluginRepository>
+            <id>com.springsource.repository.bundles.release</id>
+            <name>SpringSource Enterprise Bundle Repository</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <issueManagement>
         <system>Github</system>
         <url>http://github.com/notnoop/java-apns/issues</url>
