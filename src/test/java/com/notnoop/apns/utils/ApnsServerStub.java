@@ -92,8 +92,8 @@ public class ApnsServerStub {
                 in.close();
                 out.close();
             } catch(Throwable e) {
-                try { in.close(); } catch (Exception _) {}
-                try { out.close(); } catch (Exception _) {}
+                try { if (in != null) in.close(); } catch (Exception _) {}
+                try { if (out != null) out.close(); } catch (Exception _) {}
                 messages.release();
             }
         }

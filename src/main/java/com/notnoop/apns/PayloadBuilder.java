@@ -34,10 +34,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.notnoop.apns.internal.Utilities;
-
 import org.codehaus.jackson.map.ObjectMapper;
+import com.notnoop.apns.internal.Utilities;
 
 /**
  * Represents a builder for constructing Payload requests, as
@@ -54,9 +52,9 @@ public final class PayloadBuilder {
      * Constructs a new instance of {@code PayloadBuilder}
      */
     PayloadBuilder() {
-        this.root = new HashMap<String, Object>();
-        this.aps = new HashMap<String, Object>();
-        this.customAlert = new HashMap<String, Object>();
+        root = new HashMap<String, Object>();
+        aps = new HashMap<String, Object>();
+        customAlert = new HashMap<String, Object>();
     }
 
     /**
@@ -66,7 +64,7 @@ public final class PayloadBuilder {
      * @param alert the text to appear to the user
      * @return  this
      */
-    public PayloadBuilder alertBody(String alert) {
+    public PayloadBuilder alertBody(final String alert) {
         customAlert.put("body", alert);
         return this;
     }
@@ -80,7 +78,7 @@ public final class PayloadBuilder {
      *              when receiving the notification
      * @return  this
      */
-    public PayloadBuilder sound(String sound) {
+    public PayloadBuilder sound(final String sound) {
         if (sound != null) {
             aps.put("sound", sound);
         } else {
@@ -100,7 +98,7 @@ public final class PayloadBuilder {
      * @param badge the badge number to be displayed
      * @return  this
      */
-    public PayloadBuilder badge(int badge) {
+    public PayloadBuilder badge(final int badge) {
         aps.put("badge", badge);
         return this;
     }
@@ -131,7 +129,7 @@ public final class PayloadBuilder {
      * @param actionKey the title of the additional button
      * @return  this
      */
-    public PayloadBuilder actionKey(String actionKey) {
+    public PayloadBuilder actionKey(final String actionKey) {
         customAlert.put("action-loc-key", actionKey);
         return this;
     }
@@ -167,7 +165,7 @@ public final class PayloadBuilder {
      * @param key   the localizable message body key
      * @return  this
      */
-    public PayloadBuilder localizedKey(String key) {
+    public PayloadBuilder localizedKey(final String key) {
         customAlert.put("loc-key", key);
         return this;
     }
@@ -180,7 +178,7 @@ public final class PayloadBuilder {
      * @param arguments the arguments to the localized alert message
      * @return  this
      */
-    public PayloadBuilder localizedArguments(Collection<String> arguments) {
+    public PayloadBuilder localizedArguments(final Collection<String> arguments) {
         customAlert.put("loc-args", arguments);
         return this;
     }
@@ -193,7 +191,7 @@ public final class PayloadBuilder {
      * @param arguments the arguments to the localized alert message
      * @return  this
      */
-    public PayloadBuilder localizedArguments(String... arguments) {
+    public PayloadBuilder localizedArguments(final String... arguments) {
         return localizedArguments(Arrays.asList(arguments));
     }
 
@@ -204,7 +202,7 @@ public final class PayloadBuilder {
      *      application bundle.
      * @return  this
      */
-    public PayloadBuilder launchImage(String launchImage) {
+    public PayloadBuilder launchImage(final String launchImage) {
         customAlert.put("launch-image", launchImage);
         return this;
     }
@@ -222,12 +220,12 @@ public final class PayloadBuilder {
      * @param value the custom field value
      * @return  this
      */
-    public PayloadBuilder customField(String key, Object value) {
+    public PayloadBuilder customField(final String key, final Object value) {
         root.put(key, value);
         return this;
     }
 
-    public PayloadBuilder mdm(String s) {
+    public PayloadBuilder mdm(final String s) {
         return customField("mdm", s);
     }
 
@@ -243,7 +241,7 @@ public final class PayloadBuilder {
      * @param map   the custom map
      * @return  this
      */
-    public PayloadBuilder customFields(Map<String, ? extends Object> values) {
+    public PayloadBuilder customFields(final Map<String, ? extends Object> values) {
         root.putAll(values);
         return this;
     }
@@ -254,7 +252,7 @@ public final class PayloadBuilder {
      * @return the length of the payload
      */
     public int length() {
-        return this.copy().buildBytes().length;
+        return copy().buildBytes().length;
     }
 
     /**
@@ -264,7 +262,7 @@ public final class PayloadBuilder {
      * @return true if the result payload is too long
      */
     public boolean isTooLong() {
-        return this.length() > Utilities.MAX_PAYLOAD_LENGTH;
+        return length() > Utilities.MAX_PAYLOAD_LENGTH;
     }
 
     /**
@@ -279,7 +277,7 @@ public final class PayloadBuilder {
      * @param payloadLength the expected max size of the payload
      * @return  this
      */
-    public PayloadBuilder resizeAlertBody(int payloadLength) {
+    public PayloadBuilder resizeAlertBody(final int payloadLength) {
         return resizeAlertBody(payloadLength, "");
     }
 
@@ -296,7 +294,7 @@ public final class PayloadBuilder {
      * @param postfix for the truncated body, e.g. "..."
      * @return  this
      */
-    public PayloadBuilder resizeAlertBody(int payloadLength, String postfix) {
+    public PayloadBuilder resizeAlertBody(final int payloadLength, final String postfix) {
         int currLength = length();
         if (currLength <= payloadLength) {
             return this;
@@ -305,7 +303,7 @@ public final class PayloadBuilder {
         // now we are sure that truncation is required
         String body = (String)customAlert.get("body");
 
-        int acceptableSize = Utilities.toUTF8Bytes(body).length
+        final int acceptableSize = Utilities.toUTF8Bytes(body).length
                 - (currLength - payloadLength
                         + Utilities.toUTF8Bytes(postfix).length);
         body = Utilities.truncateWhenUTF8(body, acceptableSize) + postfix;
@@ -353,7 +351,7 @@ public final class PayloadBuilder {
      *
      * @return  this
      */
-    public PayloadBuilder shrinkBody(String postfix) {
+    public PayloadBuilder shrinkBody(final String postfix) {
         return resizeAlertBody(Utilities.MAX_PAYLOAD_LENGTH, postfix);
     }
 
@@ -370,7 +368,7 @@ public final class PayloadBuilder {
         }
         try {
             return mapper.writeValueAsString(root);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -386,6 +384,7 @@ public final class PayloadBuilder {
                     break;
                 }
                 // else follow through
+                //$FALL-THROUGH$
             default:
                 aps.put("alert", customAlert);
         }
@@ -403,12 +402,12 @@ public final class PayloadBuilder {
 
     @Override
     public String toString() {
-        return this.build();
+        return build();
     }
 
-    private PayloadBuilder(Map<String, Object> root,
-            Map<String, Object> aps,
-            Map<String, Object> customAlert) {
+    private PayloadBuilder(final Map<String, Object> root,
+            final Map<String, Object> aps,
+            final Map<String, Object> customAlert) {
         this.root = new HashMap<String, Object>(root);
         this.aps = new HashMap<String, Object>(aps);
         this.customAlert = new HashMap<String, Object>(customAlert);
@@ -420,7 +419,7 @@ public final class PayloadBuilder {
      * @return a copy of this builder
      */
     public PayloadBuilder copy() {
-        return new PayloadBuilder(this.root, this.aps, this.customAlert);
+        return new PayloadBuilder(root, aps, customAlert);
     }
 
     /**

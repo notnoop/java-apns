@@ -37,13 +37,10 @@ import java.net.Proxy;
 import java.net.Socket;
 import java.util.Date;
 import java.util.Map;
-
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.notnoop.exceptions.NetworkIOException;
 
 public class ApnsFeedbackConnection {
@@ -54,12 +51,12 @@ public class ApnsFeedbackConnection {
     private final int port;
     private final Proxy proxy;
 
-    public ApnsFeedbackConnection(SocketFactory factory, String host, int port) {
+    public ApnsFeedbackConnection(final SocketFactory factory, final String host, final int port) {
         this(factory, host, port, null);
     }
 
-    public ApnsFeedbackConnection(SocketFactory factory, String host, int port,
-            Proxy proxy) {
+    public ApnsFeedbackConnection(final SocketFactory factory, final String host, final int port,
+            final Proxy proxy) {
         this.factory = factory;
         this.host = host;
         this.port = port;
@@ -74,11 +71,11 @@ public class ApnsFeedbackConnection {
         while (true) {
             try {
                 attempts++;
-                Map<String, Date> result = getInactiveDevicesImpl();
+                final Map<String, Date> result = getInactiveDevicesImpl();
 
                 attempts = 0;
                 return result;
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 logger.warn("Failed to retreive invalid devices", e);
                 if (attempts >= RETRIES) {
                     logger.error("Couldn't get feedback connection", e);
@@ -94,14 +91,14 @@ public class ApnsFeedbackConnection {
         Socket socket = null;
         try {
             if (proxy == null) {
-                proxySocket = null;
+                // can only be null: proxySocket = null;
                 socket = factory.createSocket(host, port);
             } else {
                 proxySocket = new Socket(proxy);
                 proxySocket.connect(new InetSocketAddress(host, port));
                 socket = ((SSLSocketFactory)factory).createSocket(proxySocket, host, port, false);
             }
-            InputStream stream = socket.getInputStream();
+            final InputStream stream = socket.getInputStream();
             return Utilities.parseFeedbackStream(stream);
         } finally {
             Utilities.close(socket);
