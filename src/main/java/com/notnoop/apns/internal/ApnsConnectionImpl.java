@@ -179,15 +179,18 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 break;
             } catch (Exception e) {
                 if (attempts >= RETRIES) {
-                    logger.error("Couldn't send message " + m, e);
+                    logger.error("Couldn't send message after "+RETRIES+" retries." + m, e);
                     delegate.messageSendFailed(m, e);
                     Utilities.wrapAndThrowAsRuntimeException(e);
                 }
-                logger.warn("Failed to send message " + m + "... trying again", e);
                 // The first failure might be due to closed connection
                 // don't delay quite yet
-                if (attempts != 1)
+                if (attempts != 1) {
+                    // Do not spam the log files when the APNS server closed the socket (due to a
+                    // bad token, for example), only log when on the second retry.
+                    logger.info("Failed to send message " + m + "... trying again after delay", e);
                     Utilities.sleep(DELAY_IN_MS);
+                }
                 Utilities.close(socket);
                 socket = null;
             }
