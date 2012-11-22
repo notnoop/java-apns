@@ -186,6 +186,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 attempts = 0;
                 break;
             } catch (Exception e) {
+                Utilities.close(socket);
+                socket = null;
                 if (attempts >= RETRIES) {
                     logger.error("Couldn't send message after "+RETRIES+" retries." + m, e);
                     delegate.messageSendFailed(m, e);
@@ -199,8 +201,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     logger.info("Failed to send message " + m + "... trying again after delay", e);
                     Utilities.sleep(DELAY_IN_MS);
                 }
-                Utilities.close(socket);
-                socket = null;
             }
         }
     }
