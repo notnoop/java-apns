@@ -38,7 +38,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Array;
 import java.net.Socket;
 import java.security.KeyStore;
 import java.util.Date;

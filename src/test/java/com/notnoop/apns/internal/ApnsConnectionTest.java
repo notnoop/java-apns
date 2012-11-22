@@ -60,5 +60,6 @@ public class ApnsConnectionTest {
         connection.DELAY_IN_MS = 0;
         connection.sendMessage(msg);
         Assert.assertArrayEquals(msg.marshall(), baos.toByteArray());
+        connection.close();
     }
 }
