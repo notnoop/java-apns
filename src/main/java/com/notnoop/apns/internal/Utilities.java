@@ -38,6 +38,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.Socket;
 import java.security.KeyStore;
 import java.util.Date;
@@ -93,7 +94,7 @@ public class Utilities {
 
             // Get the SSLContext to help create SSLSocketFactory
             final SSLContext sslc = SSLContext.getInstance("TLS");
-            sslc.init(kmf.getKeyManagers(), null, null);
+            sslc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
             return sslc;
         } catch (final Exception e) {
             throw new InvalidSSLConfig(e);
