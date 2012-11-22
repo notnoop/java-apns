@@ -99,7 +99,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     byte[] bytes = new byte[expectedSize];
                     while (in.read(bytes) == expectedSize) {
                         int command = bytes[0] & 0xFF;
-                        assert command == 8;
+                        if (command != 8) {
+                            throw new IOException("Unexpected command byte "+command);
+                        }
                         int statusCode = bytes[1] & 0xFF;
                         DeliveryError e = DeliveryError.ofCode(statusCode);
 
