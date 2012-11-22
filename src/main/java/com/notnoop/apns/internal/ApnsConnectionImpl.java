@@ -107,7 +107,13 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         delegate.connectionClosed(e, id);
                     }
                 } catch (Exception e) {
-                    logger.warn("Exception while waiting for error code", e);
+                    // An exception when reading the error code is non-critical, it will cause another retry
+                    // sending the message. Other than providing a more stable network connection to the APNS
+                    // server we can't do much about it - so let's not spam the application's error log.
+                    logger.info("Exception while waiting for error code", e);
+                    delegate.connectionClosed(DeliveryError.UNKNOWN, -1);
+                } finally {
+                    close();
                 }
             }
         }
