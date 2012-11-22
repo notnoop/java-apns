@@ -12,3 +12,4 @@ release.properties
 .classpath
 .settings
 tags
+MainClass.java
