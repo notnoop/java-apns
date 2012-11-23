@@ -87,9 +87,10 @@ public class Utilities {
             final KeyManagerFactory kmf = KeyManagerFactory.getInstance(ksAlgorithm);
             kmf.init(ks, password.toCharArray());
 
-            // Get a TrustManagerFactory and init with KeyStore
+            // Get a TrustManagerFactory with the DEFAULT KEYSTORE, so we have all
+            // the certificates in cacerts trusted
             final TrustManagerFactory tmf = TrustManagerFactory.getInstance(ksAlgorithm);
-            tmf.init(ks);
+            tmf.init((KeyStore)null);
 
             // Get the SSLContext to help create SSLSocketFactory
             final SSLContext sslc = SSLContext.getInstance("TLS");
