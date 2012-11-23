@@ -23,7 +23,7 @@ public class FixedCertificates {
 
     public static SSLContext serverContext() {
         try {
-            System.setProperty("javax.net.ssl.trustStore", ClassLoader.getSystemResource(CLIENT_STORE).getPath());
+            //System.setProperty("javax.net.ssl.trustStore", ClassLoader.getSystemResource(CLIENT_STORE).getPath());
             InputStream stream = ClassLoader.getSystemResourceAsStream(SERVER_STORE);
             SSLContext context = Utilities.newSSLContext(stream, SERVER_PASSWD, "PKCS12", "sunx509");
 
