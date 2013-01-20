@@ -15,12 +15,11 @@ import com.notnoop.exceptions.NetworkIOException;
 
 public class QueuedApnsServiceTest {
 
-    @Test(expected=IllegalStateException.class)
+    @Test(expected = IllegalStateException.class)
     public void sendWithoutStarting() {
         QueuedApnsService service = new QueuedApnsService(null);
         service.push(notification);
     }
-
     EnhancedApnsNotification notification = new EnhancedApnsNotification(1,
             EnhancedApnsNotification.MAXIMUM_EXPIRY, "2342", "{}");
 
@@ -51,7 +50,7 @@ public class QueuedApnsServiceTest {
         final int delay = 10000;
         ConnectionStub connection = spy(new ConnectionStub(delay, 2));
         QueuedApnsService queued =
-            new QueuedApnsService(new ApnsServiceImpl(connection, null));
+                new QueuedApnsService(new ApnsServiceImpl(connection, null));
         queued.start();
         long time1 = System.currentTimeMillis();
         queued.push(notification);
@@ -74,14 +73,14 @@ public class QueuedApnsServiceTest {
     }
 
     static class ConnectionStub implements ApnsConnection {
+
         Semaphore semaphor;
         int delay;
 
         public ConnectionStub(int delay, int expectedCalls) {
-            this.semaphor = new Semaphore(1-expectedCalls);
+            this.semaphor = new Semaphore(1 - expectedCalls);
             this.delay = delay;
         }
-
         volatile boolean stop;
 
         public synchronized void sendMessage(ApnsNotification m) {
@@ -98,7 +97,17 @@ public class QueuedApnsServiceTest {
             throw new RuntimeException("Not implemented");
         }
 
-        public void close() throws IOException {}
-        public void testConnection() throws NetworkIOException {}
+        public void close() throws IOException {
+        }
+
+        public void testConnection() throws NetworkIOException {
+        }
+
+        public void setCacheLength(int cacheLength) {
+        }
+
+        public int getCacheLength() {
+            return -1;
+        }
     }
 }

@@ -168,4 +168,5 @@ public interface ApnsService {
      *      or the service cannot send notifications for now
      */
     void testConnection() throws NetworkIOException;
+    
 }

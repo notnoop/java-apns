@@ -31,38 +31,59 @@
 package com.notnoop.apns;
 
 /**
- * A delegate that gets notified of the status of notification
- * delivery to the Apple Server.
+ * A delegate that gets notified of the status of notification delivery to the
+ * Apple Server.
  *
- * The delegate doesn't get notified when the notification actually
- * arrives at the phone.
+ * The delegate doesn't get notified when the notification actually arrives at
+ * the phone.
  */
 public interface ApnsDelegate {
-    /**
-     * Called when message was successfully sent to the Apple
-     * servers
-     *
-     * @param message   the notification that was sent
-     */
-    public void messageSent(ApnsNotification message);
 
     /**
-     * Called when the delivery of the message failed for any
-     * reason
+     * Called when message was successfully sent to the Apple servers
      *
-     * @param message   the notification that was attempted to be sent
-     * @param e     the cause and description of the failure
+     * @param message the notification that was sent
+     * @param resent whether the notfication was resent after an error
+     */
+    public void messageSent(ApnsNotification message, boolean resent);
+
+    /**
+     * Called when the delivery of the message failed for any reason
+     *
+     * If message is null, then your notification has been rejected by Apple but
+     * it has been removed from the cache so it is not possible to identify
+     * which notification caused the error. In this case subsequent
+     * notifications may be lost. If this happens you should consider increasing
+     * your cacheLength value to prevent data loss.
+     *
+     * @param message the notification that was attempted to be sent
+     * @param e the cause and description of the failure
      */
     public void messageSendFailed(ApnsNotification message, Throwable e);
 
     public void connectionClosed(DeliveryError e, int messageIdentifier);
 
+    public void cacheLengthExceeded(int newCacheLength);
+    
+    public void notificationsResent(int resendCount);
+    
     /**
      * A NOOP delegate that does nothing!
      */
     public final static ApnsDelegate EMPTY = new ApnsDelegate() {
-        public void messageSent(ApnsNotification message) {}
-        public void messageSendFailed(ApnsNotification message, Throwable e) {}
-        public void connectionClosed(DeliveryError e, int messageIdentifier) {}
+        public void messageSent(ApnsNotification message, boolean resent) {
+        }
+
+        public void messageSendFailed(ApnsNotification message, Throwable e) {
+        }
+
+        public void connectionClosed(DeliveryError e, int messageIdentifier) {
+        }
+
+        public void cacheLengthExceeded(int newCacheLength) {
+        }
+
+        public void notificationsResent(int resendCount) {
+        }
     };
 }
