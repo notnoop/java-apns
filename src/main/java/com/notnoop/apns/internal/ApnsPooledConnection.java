@@ -71,4 +71,14 @@ public class ApnsPooledConnection implements ApnsConnection {
     public void testConnection() {
         prototype.testConnection();
     }
+
+    public synchronized void setCacheLength(int cacheLength) {  
+        for (ApnsConnection conn : prototypes) {
+            conn.setCacheLength(cacheLength);
+        }
+    }
+
+    public int getCacheLength() {
+        return prototypes.peek().getCacheLength();
+    }
 }

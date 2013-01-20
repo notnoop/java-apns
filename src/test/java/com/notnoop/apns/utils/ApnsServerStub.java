@@ -3,8 +3,10 @@ package com.notnoop.apns.utils;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ServerSocketFactory;
 
@@ -17,15 +19,15 @@ public class ApnsServerStub {
         server.start();
         return server;
     }
-
-
     public final ByteArrayOutputStream received;
     public final ByteArrayOutputStream toSend;
     public final Semaphore messages = new Semaphore(0);
     private final Semaphore startUp = new Semaphore(0);
-
+    private final Semaphore gatewayOutLock = new Semaphore(0);
+    public final Semaphore waitForError = new Semaphore(1);
     private final ServerSocketFactory sslFactory;
     private final int gatewayPort, feedbackPort;
+    private OutputStream gatewayOutputStream = null;
 
     public ApnsServerStub(ServerSocketFactory sslFactory,
             int gatewayPort, int feedbackPort) {
@@ -36,7 +38,6 @@ public class ApnsServerStub {
         this.received = new ByteArrayOutputStream();
         this.toSend = new ByteArrayOutputStream();
     }
-
     Thread gatewayThread, feedbackThread;
     ServerSocket gatewaySocket, feedbackSocket;
 
@@ -52,13 +53,36 @@ public class ApnsServerStub {
     public void stop() {
         try {
             gatewaySocket.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        try {
             feedbackSocket.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        try { gatewayThread.stop(); } catch (Exception e) { }
-        try { feedbackThread.stop(); } catch (Exception e) { }
+        try {
+            gatewayThread.stop();
+        } catch (Exception e) {
+        }
+        try {
+            feedbackThread.stop();
+        } catch (Exception e) {
+        }
+    }
+
+    public void sendError(int err, int id) {
+        ByteBuffer buf = ByteBuffer.allocate(6);
+        buf.put((byte) 8).put((byte) err).putInt(id);
+        try {
+            gatewayOutLock.acquire();
+            gatewayOutputStream.write(buf.array());
+            gatewayOutputStream.flush();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     private class GatewayRunner implements Runnable {
@@ -72,7 +96,6 @@ public class ApnsServerStub {
             }
 
             InputStream in = null;
-            OutputStream out = null;
             try {
                 // Listen for connections
                 startUp.release();
@@ -80,7 +103,8 @@ public class ApnsServerStub {
 
                 // Create streams to securely send and receive data to the client
                 in = socket.getInputStream();
-                out = socket.getOutputStream();
+                gatewayOutputStream = socket.getOutputStream();
+                gatewayOutLock.release();
 
                 // Read from in and write to out...
                 byte[] read = readFully(in);
@@ -88,12 +112,24 @@ public class ApnsServerStub {
                 messages.release();
 
 
+                waitForError.acquire();
+                
                 // Close the socket
                 in.close();
-                out.close();
-            } catch(Throwable e) {
-                try { if (in != null) in.close(); } catch (Exception _) {}
-                try { if (out != null) out.close(); } catch (Exception _) {}
+                gatewayOutputStream.close();
+            } catch (Throwable e) {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (Exception _) {
+                }
+                try {
+                    if (gatewayOutputStream != null) {
+                        gatewayOutputStream.close();
+                    }
+                } catch (Exception _) {
+                }
                 messages.release();
             }
         }
@@ -125,12 +161,11 @@ public class ApnsServerStub {
                 // Close the socket
                 in.close();
                 out.close();
-            } catch(IOException e) {
+            } catch (IOException e) {
             }
             messages.release();
         }
     }
-
     AtomicInteger readLen = new AtomicInteger();
 
     public void stopAt(int length) {
@@ -148,6 +183,7 @@ public class ApnsServerStub {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
 
         return stream.toByteArray();
     }

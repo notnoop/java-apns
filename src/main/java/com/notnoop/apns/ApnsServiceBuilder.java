@@ -78,6 +78,8 @@ public class ApnsServiceBuilder {
     private String feedbackHost;
     private int feedbackPort;
     private int pooledMax = 1;
+    private int cacheLength = ApnsConnection.DEFAULT_CACHE_LENGTH;
+    private boolean autoAdjustCacheLength = true;
     private ExecutorService executor = null;
 
     private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
@@ -273,6 +275,18 @@ public class ApnsServiceBuilder {
         this.reconnectPolicy = rp;
         return this;
     }
+    
+    /**
+     * Specify if the notification cache should auto adjust.
+     * Default is true
+     * 
+     * @param autoAdjustCacheLength 
+     * @return this
+     */
+    public ApnsServiceBuilder withAutoAdjustCacheLength(boolean autoAdjustCacheLength) {
+        this.autoAdjustCacheLength = autoAdjustCacheLength;
+        return this;
+    }
 
     /**
      * Specify the reconnection policy for the socket connection.
@@ -319,6 +333,18 @@ public class ApnsServiceBuilder {
      */
     public ApnsServiceBuilder withProxy(Proxy proxy) {
         this.proxy = proxy;
+        return this;
+    }
+    
+    /**
+     * Specity the number of notifications to cache for error purposes.
+     * Default is 100
+     * 
+     * @param cacheLength  Number of notifications to cache for error purposes
+     * @return  this
+     */
+    public ApnsServiceBuilder withCacheLength(int cacheLength) {
+        this.cacheLength = cacheLength;
         return this;
     }
 
@@ -420,7 +446,9 @@ public class ApnsServiceBuilder {
         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
         ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy);
 
-        ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, gatewaPort, proxy, reconnectPolicy, delegate, errorDetection);
+        ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, 
+                gatewaPort, proxy, reconnectPolicy, 
+                delegate, errorDetection, cacheLength, autoAdjustCacheLength);
         if (pooledMax != 1) {
             conn = new ApnsPooledConnection(conn, pooledMax, executor);
         }

@@ -41,11 +41,16 @@ import com.notnoop.apns.internal.Utilities;
 public class EnhancedApnsNotification implements ApnsNotification {
 
     private final static byte COMMAND = 1;
+    private static int nextId = 0;
     private final int identifier;
     private final int expiry;
     private final byte[] deviceToken;
     private final byte[] payload;
 
+    public static int INCREMENT_ID() {
+        return ++nextId;
+    }
+    
     /**
      * The infinite future for the purposes of Apple expiry date
      */
