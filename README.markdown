@@ -24,7 +24,7 @@ connections or JSON library if necessary.
 
 Links: [Installation](http://wiki.github.com/notnoop/java-apns/installation)
 - [Javadocs](http://notnoop.github.com/java-apns/apidocs/index.html)
-- [Changelog](https://github.com/notnoop/java-apns/blob/master/CHANGELOG)
+- [Changelog](java-apns/blob/master/CHANGELOG)
 
 Features:
 --------------
@@ -37,7 +37,7 @@ Features:
   *  Easy to integrate with dependency injection frameworks
   *  Easy to setup custom notification payloads
   *  Supports connection pooling
-
+  *  Supports re-transmission of Notifications after error
 
 Sample Code
 ----------------
@@ -82,6 +82,27 @@ localizable alert:
                 .actionKey("Play").build();
 
     service.push(token, payload);
+
+
+Enhanced Notification Format
+----------------
+
+You can use the enhanced notification format to get feetback from Apple about notifications that were unable to be processed.
+
+     String payload = APNS.newPayload()
+                .badge(3)
+                .customField("secret", "what do you think?");
+                .localizedKey("GAME_PLAY_REQUEST_FORMAT")
+                .localizedArguments("Jenna", "Frank")
+                .actionKey("Play").build();
+     
+     EnhancedApnsNotification notification = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID() /* Next ID */, 
+         new Date().getTime() + 60 * 60 /* Expire in one hour */, 
+         token /* Device Token */, 
+         payload);
+
+     service.push(notification);
+ 
 
 License
 ----------------
