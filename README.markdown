@@ -24,7 +24,7 @@ connections or JSON library if necessary.
 
 Links: [Installation](http://wiki.github.com/notnoop/java-apns/installation)
 - [Javadocs](http://notnoop.github.com/java-apns/apidocs/index.html)
-- [Changelog](https://github.com/notnoop/java-apns/blob/master/CHANGELOG)
+- [Changelog](blob/master/CHANGELOG)
 
 Features:
 --------------
