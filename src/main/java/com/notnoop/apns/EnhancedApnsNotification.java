@@ -166,4 +166,12 @@ public class EnhancedApnsNotification implements ApnsNotification {
                 && Arrays.equals(this.payload, o.payload));
     }
 
+    @Override
+    public String toString() {
+        String payloadString = "???";
+        try {
+            payloadString = new String(payload, "UTF-8");
+        } catch (Exception _) {}        
+        return "Message(Id="+identifier+"; Token="+Utilities.encodeHex(deviceToken)+"; Payload="+payloadString+")";
+    }
 }

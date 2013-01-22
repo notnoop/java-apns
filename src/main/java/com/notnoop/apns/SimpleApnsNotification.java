@@ -134,4 +134,13 @@ public class SimpleApnsNotification implements ApnsNotification {
     public int getExpiry() {
         return -1;
     }
+    
+    @Override
+    public String toString() {
+        String payloadString = "???";
+        try {
+            payloadString = new String(payload, "UTF-8");
+        } catch (Exception _) {}        
+        return "Message(Token="+Utilities.encodeHex(deviceToken)+"; Payload="+payloadString+")";
+    }
 }
