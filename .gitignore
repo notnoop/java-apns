@@ -2,12 +2,9 @@
 .#*
 *.sw?
 bin
-
 target
 release.properties
-
 *~
-
 .project
 .classpath
 .settings
