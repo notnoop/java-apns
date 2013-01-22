@@ -2,8 +2,14 @@ Changelog of java-apns
 
 Version 0.2.2 - Jan 20, 2013
   - ApnsConnection resend unsent notifications after error
-
-Version 0.2.0 - TBD
+  - Do not stop QueuedApnsService on unsuccessfull attempt to submit a message
+  - Continuous integration builds on travis ci
+  - Support Proxy.Type.HTTP.
+  - Do not log error messages for retries when sending a message, rather 
+    log one when we can't send a message at all.
+  - When there is an error (error packet or exception in parsing error packet) 
+    close the socket instead of wating for APNS to close it.
+  - java-apns now is an osgi bundle
   - Have ApnsService.push return sent messages
   - Add changelog
 

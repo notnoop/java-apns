@@ -1,15 +1,10 @@
 * branch master ![Build Status](https://secure.travis-ci.org/froh42/java-apns.png?branch=master)
 * branch kitchensink ![Build Status](https://secure.travis-ci.org/froh42/java-apns.png?branch=kitchensink)
 
-
-
 This is a Fork!
 ---------------
 
-This is Froh's fork of [notnoop/java-apns][1].
-
-  [1]: https://github.com/notnoop/java-apns
-
+This is Froh's fork of [notnoop/java-apns](https://github.com/notnoop/java-apns). The [Changelog](java-apns/blob/master/CHANGELOG) lists the details what changed.
 
 Introduction
 ------------
