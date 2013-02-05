@@ -37,7 +37,7 @@ package com.notnoop.apns;
  * {@code ApnsNotification} payload.
  *
  */
-public class APNS {
+public final class APNS {
 
     private APNS() { throw new AssertionError("Uninstantiable class"); }
 
