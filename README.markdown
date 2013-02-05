@@ -4,7 +4,7 @@
 This is a Fork!
 ---------------
 
-This is Froh's fork of [notnoop/java-apns](https://github.com/notnoop/java-apns). The [Changelog](java-apns/blob/master/CHANGELOG) lists the details what changed.
+This is Froh's fork of [notnoop/java-apns](https://github.com/notnoop/java-apns). The [Changelog](CHANGELOG) lists the details what changed.
 
 Introduction
 ------------

@@ -1,5 +1,9 @@
 Changelog of java-apns
 
+Version x.x.x - -------
+  - Make APNS class final
+
+
 Version 0.2.2 - Jan 20, 2013
   - ApnsConnection resend unsent notifications after error
   - Do not stop QueuedApnsService on unsuccessfull attempt to submit a message
