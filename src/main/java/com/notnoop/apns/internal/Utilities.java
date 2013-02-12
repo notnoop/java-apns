@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 import com.notnoop.exceptions.InvalidSSLConfig;
 import com.notnoop.exceptions.NetworkIOException;
 
-public class Utilities {
+public final class Utilities {
     private static Logger logger = LoggerFactory.getLogger(Utilities.class);
 
     public static final String SANDBOX_GATEWAY_HOST = "gateway.sandbox.push.apple.com";
@@ -70,6 +70,7 @@ public class Utilities {
 
     public static final int MAX_PAYLOAD_LENGTH = 256;
 
+    private Utilities() { throw new AssertionError("Uninstantiable class"); }
 
     public static SSLSocketFactory newSSLSocketFactory(final InputStream cert, final String password,
          final String ksType, final String ksAlgorithm) throws InvalidSSLConfig {
