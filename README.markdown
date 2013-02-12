@@ -4,7 +4,10 @@
 This is a Fork!
 ---------------
 
-This is Froh's fork of [notnoop/java-apns](https://github.com/notnoop/java-apns). The [Changelog](CHANGELOG) lists the details what changed.
+This is one of the forks of [notnoop/java-apns](https://github.com/notnoop/java-apns). It currently is underway to become a new unified and maintained fork of java-apns under [java-apns/java-apns](https://github.com/java-apns/java-apns).
+
+Differences up to notnoop's last version are maintained in 
+[The Changelog](CHANGELOG).
 
 Introduction
 ------------
