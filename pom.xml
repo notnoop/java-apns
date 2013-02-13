@@ -16,9 +16,9 @@
     </parent>
 
     <scm>
-        <connection>scm:git:git://github.com/froh42/java-apns.git</connection>
-        <developerConnection>scm:git:git@github.com:froh42/java-apns.git</developerConnection>
-        <url>http://github.com/froh42/java-apns</url>
+        <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
+        <developerConnection>scm:git:git@github.com:notnoop/java-apns.git</developerConnection>
+        <url>http://github.com/notnoop/java-apns</url>
     </scm>
 
     <properties>
@@ -136,8 +136,8 @@
                         <bundleSymbolicName>${project.groupId}.${project.artifactId}</bundleSymbolicName>
                         <bundleVersion>${project.version}</bundleVersion>
                         <failOnWarnings>true</failOnWarnings>
-                        <!-- Set the input path explicitly to ensure that it is never set to the target/generated-classes of the cobertua plugin. 
-                            These classes contain references to cobertura classes and will mess up the generated manifest. If the default for inputPath is used, it will 
+                        <!-- Set the input path explicitly to ensure that it is never set to the target/generated-classes of the cobertua plugin.
+                            These classes contain references to cobertura classes and will mess up the generated manifest. If the default for inputPath is used, it will
                             use target/generated-classes if other plugins run custom builds that include cobertura. If the path is set explicitly it will always be target/classes. -->
                         <inputPath>${project.build.outputDirectory}</inputPath>
                     </configuration>
@@ -199,7 +199,7 @@
             <artifactId>org.eclipse.virgo.bundlor.maven</artifactId>
             <version>1.1.1.RELEASE</version>
             <scope>compile</scope>
-        </dependency> -->        
+        </dependency> -->
     </dependencies>
 
     <!-- Site Generation -->

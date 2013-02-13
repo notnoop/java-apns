@@ -1,13 +1,5 @@
 Build status: [![Build Status](https://travis-ci.org/java-apns/java-apns.png?branch=master)](https://travis-ci.org/java-apns/java-apns)
 
-This is a Fork!
----------------
-
-As notnoop is missing in action this is a maintained fork of [notnoop/java-apns](https://github.com/notnoop/java-apns). It unites changes and fixes from a number of java-apns forks.
-
-Differences up to notnoop's last version are maintained in 
-[The Changelog](CHANGELOG).
-
 Introduction
 ------------
 
@@ -92,14 +84,14 @@ You can use the enhanced notification format to get feetback from Apple about no
                 .localizedKey("GAME_PLAY_REQUEST_FORMAT")
                 .localizedArguments("Jenna", "Frank")
                 .actionKey("Play").build();
-     
-     EnhancedApnsNotification notification = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID() /* Next ID */, 
-         new Date().getTime() + 60 * 60 /* Expire in one hour */, 
-         token /* Device Token */, 
+
+     EnhancedApnsNotification notification = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID() /* Next ID */,
+         new Date().getTime() + 60 * 60 /* Expire in one hour */,
+         token /* Device Token */,
          payload);
 
      service.push(notification);
- 
+
 
 License
 ----------------
