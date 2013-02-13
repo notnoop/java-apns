@@ -37,13 +37,13 @@ public class ApnsConnectionCacheTest {
         server.stop();
         server = null;
     }
-    
-    
+
+
     /**
      * Test1 to make sure that after rejected notification
      * in-flight notifications are re-transmitted
-     * 
-     * @throws InterruptedException 
+     *
+     * @throws InterruptedException
      */
     @Test(timeout = 5000)
     public void handleReTransmissionError5Good1Bad7Good() throws InterruptedException {
@@ -89,7 +89,7 @@ public class ApnsConnectionCacheTest {
         for (int i = 0; i < 5; ++i) {
             service.push(eMsg1);
         }
-        
+
 
         service.push(eMsg2);
 
@@ -98,12 +98,12 @@ public class ApnsConnectionCacheTest {
         }
 
         server.sendError(8, eMsg2.getIdentifier());
-        
+
         server.waitForError.release();
         server.messages.acquire();
 
         sync.await();
-        
+
         Assert.assertEquals(EXPECTED_RESEND_COUNT, numResent.get());
         Assert.assertEquals(EXPECTED_SEND_COUNT, numSent.get());
 
@@ -112,8 +112,8 @@ public class ApnsConnectionCacheTest {
     /**
      * Test2 to make sure that after rejected notification
      * in-flight notifications are re-transmitted
-     * 
-     * @throws InterruptedException 
+     *
+     * @throws InterruptedException
      */
     @Test(timeout = 5000)
     public void handleReTransmissionError1Good1Bad2Good() throws InterruptedException {
@@ -158,7 +158,7 @@ public class ApnsConnectionCacheTest {
         service.push(eMsg2);
         service.push(eMsg1);
         service.push(msg2);
-        
+
         server.sendError(8, eMsg2.getIdentifier());
         server.waitForError.release();
         server.messages.acquire();
@@ -172,8 +172,8 @@ public class ApnsConnectionCacheTest {
 
     /**
      * Test to make sure single rejected notifications are returned
-     * 
-     * @throws InterruptedException 
+     *
+     * @throws InterruptedException
      */
     @Test(timeout = 5000)
     public void handleReTransmissionError1Bad() throws InterruptedException {
@@ -210,7 +210,7 @@ public class ApnsConnectionCacheTest {
                 .build();
         server.stopAt(eMsg1.length());
         service.push(eMsg1);
-        
+
         server.sendError(8, eMsg1.getIdentifier());
         server.waitForError.release();
         server.messages.acquire();
@@ -219,14 +219,14 @@ public class ApnsConnectionCacheTest {
 
         Assert.assertEquals(EXPECTED_ERROR_COUNT, numError.get());
     }
-    
+
     /**
      * Test to make sure that after rejected notification
      * in-flight notifications are re-transmitted with a queued connection
-     * 
-     * @throws InterruptedException 
+     *
+     * @throws InterruptedException
      */
-    @Test(timeout = 5000)
+    @Test(timeout = 10000)
     public void handleTransmissionErrorInQueuedConnection() throws InterruptedException {
         server = new ApnsServerStub(
                 FixedCertificates.serverContext().getServerSocketFactory(),
@@ -265,7 +265,7 @@ public class ApnsConnectionCacheTest {
             }
         })
                 .build();
-        server.stopAt(eMsg3.length() * 50 + msg1.length() * 3 
+        server.stopAt(eMsg3.length() * 50 + msg1.length() * 3
                 + eMsg2.length() * 2 + eMsg1.length() * 85);
         for (int i = 0; i < 50; ++i) {
             service.push(eMsg3);
@@ -277,7 +277,7 @@ public class ApnsConnectionCacheTest {
         for (int i = 0; i < 85; ++i) {
             service.push(eMsg1);
         }
-        
+
         server.sendError(8, eMsg2.getIdentifier());
         server.waitForError.release();
         server.messages.acquire();
@@ -288,7 +288,7 @@ public class ApnsConnectionCacheTest {
     }
 
     /**
-     * Test to make sure that if the cache length is violated we get 
+     * Test to make sure that if the cache length is violated we get
      * a notification
      *
      * @throws InterruptedException
@@ -345,9 +345,9 @@ public class ApnsConnectionCacheTest {
         server.messages.acquire();
 
         sync.await();
-        
-        
+
+
         Assert.assertTrue(ORIGINAL_CACHE_LENGTH < modifiedCacheLength.get());
     }
-    
+
 }
