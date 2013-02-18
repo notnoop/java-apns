@@ -6,8 +6,8 @@ import static org.junit.matchers.JUnitMatchers.*;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notnoop.apns.internal.Utilities;
 
 public class PayloadBuilderTest {
