@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>de.et42</groupId>
     <artifactId>apns</artifactId>
-    <version>0.2.2</version>
+    <version>0.2.3.build-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Java Apple Push Notification Service Library</name>
 
