@@ -7,7 +7,7 @@ import static org.hamcrest.core.StringContains.containsString;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import com.notnoop.apns.PayloadBuilder;
 import com.notnoop.apns.internal.Utilities;
