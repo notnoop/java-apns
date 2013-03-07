@@ -1,8 +1,12 @@
 Changelog of java-apns
 
-Version x.x.x - -------
+Version 0.2.3.build-SNAPSHOT - (in progress)
   - Make APNS class final
-
+  - Batch APNS
+    - https://github.com/froh42/java-apns/pull/14
+  - Update dependencies
+    - https://github.com/notnoop/java-apns/pull/85 
+    - https://github.com/notnoop/java-apns/pull/84
 
 Version 0.2.2 - Jan 20, 2013
   - ApnsConnection resend unsent notifications after error
