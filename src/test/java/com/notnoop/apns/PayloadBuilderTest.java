@@ -1,13 +1,15 @@
 package com.notnoop.apns;
 
-import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
-import static org.junit.matchers.JUnitMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringContains.containsString;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
+import com.notnoop.apns.PayloadBuilder;
 import com.notnoop.apns.internal.Utilities;
 
 public class PayloadBuilderTest {
