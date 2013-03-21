@@ -91,13 +91,16 @@ public class ApnsFeedbackConnection {
         Socket socket = null;
         try {
             if (proxy == null) {
-                // can only be null: proxySocket = null;
                 socket = factory.createSocket(host, port);
+            } else if (proxy.type() == Proxy.Type.HTTP) {
+                TlsTunnelBuilder tunnelBuilder = new TlsTunnelBuilder();
+                socket = tunnelBuilder.build((SSLSocketFactory) factory, proxy, host, port);
             } else {
                 proxySocket = new Socket(proxy);
                 proxySocket.connect(new InetSocketAddress(host, port));
-                socket = ((SSLSocketFactory)factory).createSocket(proxySocket, host, port, false);
+                socket = ((SSLSocketFactory) factory).createSocket(proxySocket, host, port, false);
             }
+            
             final InputStream stream = socket.getInputStream();
             return Utilities.parseFeedbackStream(stream);
         } finally {
