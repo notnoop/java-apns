@@ -70,20 +70,5 @@ public interface ApnsDelegate {
     /**
      * A NOOP delegate that does nothing!
      */
-    public final static ApnsDelegate EMPTY = new ApnsDelegate() {
-        public void messageSent(ApnsNotification message, boolean resent) {
-        }
-
-        public void messageSendFailed(ApnsNotification message, Throwable e) {
-        }
-
-        public void connectionClosed(DeliveryError e, int messageIdentifier) {
-        }
-
-        public void cacheLengthExceeded(int newCacheLength) {
-        }
-
-        public void notificationsResent(int resendCount) {
-        }
-    };
+    public final static ApnsDelegate EMPTY = new ApnsDelegateAdapter();
 }

@@ -37,6 +37,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 
+import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -162,16 +163,44 @@ public class ApnsServiceBuilder {
      */
     public ApnsServiceBuilder withCert(InputStream stream, String password)
     throws InvalidSSLConfig {
-        if (password == null || password.length() == 0) {
-            throw new IllegalArgumentException("Passwords must be specified." +
-                    "Oracle Java SDK does not support passwordless p12 certificates");
-        }
-
+        assertPasswordNotEmpty(password);
         return withSSLContext(
                 newSSLContext(stream, password,
                         KEYSTORE_TYPE, KEY_ALGORITHM));
     }
 
+    /**
+     * Specify the certificate used to connect to Apple APNS
+     * servers.  This relies on a keystore (*.p12)
+     * containing the certificate, along with the given password.
+     *
+     * This library does not support password-less p12 certificates, due to a
+     * Oracle Java library <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6415637">
+     * Bug 6415637</a>.  There are three workarounds: use a password-protected
+     * certificate, use a different boot Java SDK implementation, or constract
+     * the `SSLContext` yourself!  Needless to say, the password-protected
+     * certificate is most recommended option.
+     *
+     * @param stream    the keystore 
+     * @param password  the password of the keystore
+     * @return  this
+     * @throws InvalidSSLConfig if stream is invalid Keystore
+     *  or the password is invalid
+     */
+    public ApnsServiceBuilder withCert(KeyStore keyStore, String password)
+    throws InvalidSSLConfig {
+        assertPasswordNotEmpty(password);
+        return withSSLContext(
+                newSSLContext(keyStore, password, KEY_ALGORITHM));
+    }
+    
+	private void assertPasswordNotEmpty(String password) {
+		if (password == null || password.length() == 0) {
+            throw new IllegalArgumentException("Passwords must be specified." +
+                    "Oracle Java SDK does not support passwordless p12 certificates");
+        }
+	}
+    
     /**
      * Specify the SSLContext that should be used to initiate the
      * connection to Apple Server.
