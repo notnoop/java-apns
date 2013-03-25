@@ -61,6 +61,9 @@ public class ApnsServerSocket extends AbstractApnsServerSocket {
 		} catch (IOException ioe) {
 			writeResponse(socket, identifier, 8, 1);
 			throw ioe;
+		} catch (Exception expt) {
+			writeResponse(socket, identifier, 8, 1);
+			throw new IOException("Failed to handle socket", expt);
 		}
 	}
 
