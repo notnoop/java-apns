@@ -11,6 +11,10 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 
+/**
+ * Represents the Apple server. This allows testing outside of the Apple
+ * servers. Sub-classes should implement the specific handing of new socket connections.
+ */
 public abstract class AbstractApnsServerSocket {
 	private final SSLServerSocket serverSocket;
 	private final ExecutorService executorService;
@@ -27,6 +31,9 @@ public abstract class AbstractApnsServerSocket {
 		this.exceptionDelegate = exceptionDelegate;
 	}
 
+	/**
+	 * Start the server accept process. This method is non-blocking.
+	 */
 	public final void start() {
 		new Thread(new Runnable() {
 			@Override
@@ -48,6 +55,9 @@ public abstract class AbstractApnsServerSocket {
 		}
 	}
 
+	/**
+	 * Stops the server socket. This method is blocking.
+	 */
 	public final void stop() {
 		try {
 			serverSocket.close();

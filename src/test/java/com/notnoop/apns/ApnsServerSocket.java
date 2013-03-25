@@ -9,8 +9,9 @@ import java.net.Socket;
 
 import javax.net.ssl.SSLContext;
 
-import com.notnoop.apns.internal.Utilities;
-
+/**
+ * Represents the Apple APNS server.  This allows testing outside of the Apple servers.
+ */
 public class ApnsServerSocket extends AbstractApnsServerSocket {
 	private final ApnsRequestDelegate requestDelegate;
 
@@ -43,14 +44,18 @@ public class ApnsServerSocket extends AbstractApnsServerSocket {
 
 			int deviceTokenLength = dataInputStream.readShort();
 			byte[] deviceTokenBytes = toArray(inputStream, deviceTokenLength);
-			String deviceToken = Utilities.encodeHex(deviceTokenBytes);
 
 			int payloadLength = dataInputStream.readShort();
 			byte[] payloadBytes = toArray(inputStream, payloadLength);
-			String payload = new String(payloadBytes, "UTF-8");
 
-			ApnsRequest message = new ApnsRequest(identifier, expiry,
-					deviceToken, payload);
+			ApnsNotification message;
+			if (enhancedFormat) {
+				message = new EnhancedApnsNotification(identifier, expiry,
+						deviceTokenBytes, payloadBytes);
+			} else {
+				message = new SimpleApnsNotification(deviceTokenBytes,
+						payloadBytes);
+			}
 			requestDelegate.messageReceived(message);
 			writeResponse(socket, identifier, 0, 0);
 		} catch (IOException ioe) {
