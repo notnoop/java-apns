@@ -8,12 +8,14 @@ import java.util.Map;
  */
 public interface ApnsRequestDelegate {
 
+
     /**
      * Called when message was successfully received
      *
      * @param message the notification that was received.
+     * @throws Exception
      */
-    void messageReceived(ApnsNotification message);
+    void messageReceived(ApnsNotification message) throws Exception;
 
 
     /**
