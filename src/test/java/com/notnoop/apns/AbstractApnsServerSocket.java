@@ -3,8 +3,6 @@ package com.notnoop.apns;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
@@ -13,7 +11,8 @@ import javax.net.ssl.SSLServerSocketFactory;
 
 /**
  * Represents the Apple server. This allows testing outside of the Apple
- * servers. Sub-classes should implement the specific handing of new socket connections.
+ * servers. Sub-classes should implement the specific handing of new socket
+ * connections.
  */
 public abstract class AbstractApnsServerSocket {
 	private final SSLServerSocket serverSocket;
@@ -21,13 +20,13 @@ public abstract class AbstractApnsServerSocket {
 	private final ApnsServerExceptionDelegate exceptionDelegate;
 
 	public AbstractApnsServerSocket(SSLContext sslContext, int port,
+			ExecutorService executorService,
 			ApnsServerExceptionDelegate exceptionDelegate) throws IOException {
 		SSLServerSocketFactory serverSocketFactory = sslContext
 				.getServerSocketFactory();
 		serverSocket = (SSLServerSocket) serverSocketFactory
 				.createServerSocket(port);
-		executorService = new ThreadPoolExecutor(20, Integer.MAX_VALUE, 60L,
-				TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+		this.executorService = executorService;
 		this.exceptionDelegate = exceptionDelegate;
 	}
 

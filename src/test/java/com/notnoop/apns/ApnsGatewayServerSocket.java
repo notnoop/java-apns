@@ -6,26 +6,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
 
 import javax.net.ssl.SSLContext;
 
 /**
- * Represents the Apple APNS server.  This allows testing outside of the Apple servers.
+ * Represents the Apple APNS server. This allows testing outside of the Apple
+ * servers.
  */
-public class ApnsServerSocket extends AbstractApnsServerSocket {
-	private final ApnsRequestDelegate requestDelegate;
+public class ApnsGatewayServerSocket extends AbstractApnsServerSocket {
+	private final ApnsServerService apnsServerService;
 
-	public ApnsServerSocket(SSLContext sslContext,
-			ApnsRequestDelegate requestDelegate,
+	public ApnsGatewayServerSocket(SSLContext sslContext, int port,
+			ExecutorService executorService, ApnsServerService apnsServerService,
 			ApnsServerExceptionDelegate exceptionDelegate) throws IOException {
-		this(sslContext, 2195, requestDelegate, exceptionDelegate);
-	}
-
-	public ApnsServerSocket(SSLContext sslContext, int port,
-			ApnsRequestDelegate requestDelegate,
-			ApnsServerExceptionDelegate exceptionDelegate) throws IOException {
-		super(sslContext, port, exceptionDelegate);
-		this.requestDelegate = requestDelegate;
+		super(sslContext, port, executorService, exceptionDelegate);
+		this.apnsServerService = apnsServerService;
 	}
 
 	@Override
@@ -56,7 +52,7 @@ public class ApnsServerSocket extends AbstractApnsServerSocket {
 				message = new SimpleApnsNotification(deviceTokenBytes,
 						payloadBytes);
 			}
-			requestDelegate.messageReceived(message);
+			apnsServerService.messageReceived(message);
 			writeResponse(socket, identifier, 0, 0);
 		} catch (IOException ioe) {
 			writeResponse(socket, identifier, 8, 1);

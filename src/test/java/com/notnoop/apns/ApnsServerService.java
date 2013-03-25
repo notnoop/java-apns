@@ -1,12 +1,13 @@
 package com.notnoop.apns;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
 /**
  * A delegate that gets notified of the delivery of messages.
  */
-public interface ApnsRequestDelegate {
+public interface ApnsServerService {
 
 
     /**
@@ -24,4 +25,15 @@ public interface ApnsRequestDelegate {
      * @return a map of inactive devices.
      */
     Map<byte[], Date> getInactiveDevices();
+    
+    public static final ApnsServerService EMPTY = new ApnsServerService() {
+		@Override
+		public void messageReceived(ApnsNotification message) throws Exception {
+		}
+		
+		@Override
+		public Map<byte[], Date> getInactiveDevices() {
+			return Collections.emptyMap();
+		}
+	};
 }

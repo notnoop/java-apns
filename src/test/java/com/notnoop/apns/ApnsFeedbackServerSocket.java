@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
 
 import javax.net.ssl.SSLContext;
 
@@ -14,18 +15,12 @@ import javax.net.ssl.SSLContext;
  * Apple servers.
  */
 public class ApnsFeedbackServerSocket extends AbstractApnsServerSocket {
-	private final ApnsRequestDelegate requestDelegate;
-
-	public ApnsFeedbackServerSocket(SSLContext sslContext,
-			ApnsRequestDelegate requestDelegate,
-			ApnsServerExceptionDelegate exceptionDelegate) throws IOException {
-		this(sslContext, 2196, requestDelegate, exceptionDelegate);
-	}
+	private final ApnsServerService requestDelegate;
 
 	public ApnsFeedbackServerSocket(SSLContext sslContext, int port,
-			ApnsRequestDelegate requestDelegate,
+			ExecutorService executorService, ApnsServerService requestDelegate,
 			ApnsServerExceptionDelegate exceptionDelegate) throws IOException {
-		super(sslContext, port, exceptionDelegate);
+		super(sslContext, port, executorService, exceptionDelegate);
 		this.requestDelegate = requestDelegate;
 	}
 

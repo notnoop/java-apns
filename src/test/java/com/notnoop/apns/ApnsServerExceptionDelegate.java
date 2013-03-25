@@ -6,4 +6,10 @@ package com.notnoop.apns;
 public interface ApnsServerExceptionDelegate {
 	
 	void handleRequestFailed(Throwable thr);
+	
+	public static final ApnsServerExceptionDelegate EMPTY = new ApnsServerExceptionDelegate() {
+		@Override
+		public void handleRequestFailed(Throwable thr) {
+		}
+	};
 }
