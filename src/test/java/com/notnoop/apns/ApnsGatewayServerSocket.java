@@ -1,5 +1,6 @@
 package com.notnoop.apns;
 
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -9,6 +10,8 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 
 import javax.net.ssl.SSLContext;
+
+import sun.java2d.pipe.BufferedPaints;
 
 /**
  * Represents the Apple APNS server. This allows testing outside of the Apple
@@ -36,7 +39,7 @@ public class ApnsGatewayServerSocket extends AbstractApnsServerSocket {
 				if (read == -1) {
 					break;
 				}
-				
+
 				boolean enhancedFormat = read == 1;
 				int expiry = 0;
 				if (enhancedFormat) {
@@ -73,16 +76,15 @@ public class ApnsGatewayServerSocket extends AbstractApnsServerSocket {
 	private void writeResponse(Socket socket, int identifier, int command,
 			int status) {
 		try {
-			OutputStream outputStream = socket.getOutputStream();
-			DataOutputStream dataOutputStream = new DataOutputStream(
-					outputStream);
+			BufferedOutputStream bos = new BufferedOutputStream(
+					socket.getOutputStream());
+			DataOutputStream dataOutputStream = new DataOutputStream(bos);
 			dataOutputStream.writeByte(command);
 			dataOutputStream.writeByte(status);
 			dataOutputStream.writeInt(identifier);
 			dataOutputStream.flush();
 		} catch (IOException ioe) {
-			ioe.printStackTrace();
-			// failed to write response
+			// if we can't write a response, nothing we can do
 		}
 	}
 
