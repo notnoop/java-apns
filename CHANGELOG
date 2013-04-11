@@ -1,12 +1,16 @@
 Changelog of java-apns
 
-Version 0.2.3.build-SNAPSHOT - (in progress)
-  - Make APNS class final
-  - Batch APNS
-    - https://github.com/froh42/java-apns/pull/14
-  - Update dependencies
-    - https://github.com/notnoop/java-apns/pull/85 
-    - https://github.com/notnoop/java-apns/pull/84
+Version 0.2.4.build-SNAPSHOT - (in progress)
+  - Performance testing java-apns (#95)
+
+Version 0.2.3 - Mar 30, 2013
+  - return back to com.notnoop.apns group id (#91)
+
+  - Add NOOP delegate adapter and ability to build service with keystore (#93)
+  - Proxy support for Feedback connection (#92)
+  - Make APNS class final    
+  - Batch APNS (#14)
+  - Update dependencies (#85 #84)
 
 Version 0.2.2 - Jan 20, 2013
   - ApnsConnection resend unsent notifications after error
