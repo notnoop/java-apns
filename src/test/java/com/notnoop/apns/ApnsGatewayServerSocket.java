@@ -11,8 +11,6 @@ import java.util.concurrent.ExecutorService;
 
 import javax.net.ssl.SSLContext;
 
-import sun.java2d.pipe.BufferedPaints;
-
 /**
  * Represents the Apple APNS server. This allows testing outside of the Apple
  * servers.
