@@ -56,6 +56,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class ApnsConnectionImpl implements ApnsConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(ApnsConnectionImpl.class);
+    
     private final SocketFactory factory;
     private final String host;
     private final int port;
@@ -75,6 +76,13 @@ public class ApnsConnectionImpl implements ApnsConnection {
             int port, ReconnectPolicy reconnectPolicy,
             ApnsDelegate delegate) {
         this(factory, host, port, null, reconnectPolicy,
+                delegate);
+    }
+    
+    public ApnsConnectionImpl(SocketFactory factory, String host,
+            int port, Proxy proxy, ReconnectPolicy reconnectPolicy,
+            ApnsDelegate delegate) {
+        this(factory, host, port, proxy, reconnectPolicy,
                 delegate, false, ApnsConnection.DEFAULT_CACHE_LENGTH, true);
     }
 
@@ -290,7 +298,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     public void testConnection() throws NetworkIOException {
         ApnsConnectionImpl testConnection = null;
         try {
-            testConnection = new ApnsConnectionImpl(factory, host, port, reconnectPolicy.copy(), ApnsDelegate.EMPTY);
+            testConnection = new ApnsConnectionImpl(factory, host, port, proxy, reconnectPolicy.copy(), delegate);
             testConnection.sendMessage(new SimpleApnsNotification(new byte[]{0}, new byte[]{0}));
         } finally {
             if (testConnection != null) {
