@@ -60,6 +60,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final SocketFactory factory;
     private final String host;
     private final int port;
+    private final int readTimeout;
     private final Proxy proxy;
     private final ReconnectPolicy reconnectPolicy;
     private final ApnsDelegate delegate;
@@ -83,13 +84,13 @@ public class ApnsConnectionImpl implements ApnsConnection {
             int port, Proxy proxy, ReconnectPolicy reconnectPolicy,
             ApnsDelegate delegate) {
         this(factory, host, port, proxy, reconnectPolicy,
-                delegate, false, ApnsConnection.DEFAULT_CACHE_LENGTH, true);
+                delegate, false, ApnsConnection.DEFAULT_CACHE_LENGTH, true, 0);
     }
 
     public ApnsConnectionImpl(SocketFactory factory, String host,
             int port, Proxy proxy,
             ReconnectPolicy reconnectPolicy, ApnsDelegate delegate,
-            boolean errorDetection, int cacheLength, boolean autoAdjustCacheLength) {
+            boolean errorDetection, int cacheLength, boolean autoAdjustCacheLength, int readTimeout) {
         this.factory = factory;
         this.host = host;
         this.port = port;
@@ -99,6 +100,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this.errorDetection = errorDetection;
         this.cacheLength = cacheLength;
         this.autoAdjustCacheLength = autoAdjustCacheLength;
+        this.readTimeout = readTimeout;
         cachedNotifications = new ConcurrentLinkedQueue<ApnsNotification>();
         notificationsBuffer = new ConcurrentLinkedQueue<ApnsNotification>();
     }
@@ -217,7 +219,10 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         }
                     }
                 }
-
+                
+                socket.setSoTimeout(readTimeout);
+                socket.setKeepAlive(true);
+                
                 if (errorDetection) {
                     monitorSocket(socket);
                 }
@@ -292,7 +297,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     public ApnsConnectionImpl copy() {
         return new ApnsConnectionImpl(factory, host, port, proxy, reconnectPolicy.copy(),
-                delegate, errorDetection, cacheLength, autoAdjustCacheLength);
+                delegate, errorDetection, cacheLength, autoAdjustCacheLength, readTimeout);
     }
 
     public void testConnection() throws NetworkIOException {
