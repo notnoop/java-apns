@@ -164,11 +164,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
                             resendSize++;
                             notificationsBuffer.add(cachedNotifications.poll());
                         }
+                        
                         delegate.notificationsResent(resendSize);
-
                         delegate.connectionClosed(e, id);
-
-                        drainBuffer();
                     }
 
                 } catch (Exception e) {
@@ -179,6 +177,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     delegate.connectionClosed(DeliveryError.UNKNOWN, -1);
                 } finally {
                     close();
+                    drainBuffer();
                 }
             }
         }
