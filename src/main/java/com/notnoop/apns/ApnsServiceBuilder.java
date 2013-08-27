@@ -88,7 +88,8 @@ public class ApnsServiceBuilder {
 
     private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
     private boolean isQueued = false;
-    
+	private ThreadFactory threadFactory;
+	
     private boolean isBatched = false;
     private int batchWaitTimeInSec;
     private int batchMaxWaitTimeInSec;
@@ -440,8 +441,22 @@ public class ApnsServiceBuilder {
      * @return  this
      */
     public ApnsServiceBuilder asQueued() {
-        this.isQueued = true;
-        return this;
+        return asQueued(Executors.defaultThreadFactory());
+    }
+
+    /**
+     * Constructs a new thread with a processing queue to process
+     * notification requests.
+     * 
+     * @param threadFactory
+     *            thread factory to use for queued processing
+     *            
+     * @return  this
+     */
+    public ApnsServiceBuilder asQueued(ThreadFactory threadFactory) {
+    	this.isQueued = true;
+    	this.threadFactory = threadFactory;
+    	return this;
     }
     
     /**
@@ -573,7 +588,7 @@ public class ApnsServiceBuilder {
         service = new ApnsServiceImpl(conn, feedback);
 
         if (isQueued) {
-            service = new QueuedApnsService(service);
+            service = new QueuedApnsService(service, feedback, threadFactory);
         }
         
         if (isBatched) {
