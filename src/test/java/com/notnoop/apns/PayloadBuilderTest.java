@@ -482,4 +482,39 @@ public class PayloadBuilderTest {
 
         assertThat(s1, containsString(str));
     }
+    
+    @Test
+    public void slientPingMessage() {
+        final PayloadBuilder builder = new PayloadBuilder();
+        builder.instantDeliveryOrSlientNofitication();
+
+        final String expected = "{\"aps\":{},\"content-available\":1}";
+        final String actual = builder.toString();
+        assertEqualsJson(expected, actual);
+        
+    }
+
+    @Test
+    public void slientPingMessageWithCustomKey() {
+        final PayloadBuilder builder = new PayloadBuilder();
+        
+        builder.instantDeliveryOrSlientNofitication();
+        builder.customField("ache1", "what");
+
+        final String expected = "{\"aps\":{},\"ache1\":\"what\",\"content-available\":1}";
+        final String actual = builder.toString();
+        assertEqualsJson(expected, actual);
+        
+    }
+
+    @Test
+    public void instantMessageWithAlert() {
+        final PayloadBuilder builder = new PayloadBuilder();
+        builder.alertBody("test");
+        builder.instantDeliveryOrSlientNofitication();
+
+        final String expected = "{\"aps\":{\"alert\":\"test\"},\"content-available\":1}";
+        final String actual = builder.toString();
+        assertEqualsJson(expected, actual);
+    }
 }
