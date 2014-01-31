@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>olympus</groupId>
-    <artifactId>apns</artifactId>
+    <artifactId>ios-push-service-apns</artifactId>
     <version>0.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Java Apple Push Notification Service Library</name>
@@ -18,12 +18,12 @@
         <repository>
             <id>olympus.maven.releases</id>
             <name>Olympus Release Repository</name>
-            <url>http://ci.aws.talk.to:8081/nexus/content/repositories/releases</url>
+            <url>http://ci.aws.talk.to:8081/nexus/content/repositories/releases/</url>
         </repository>
         <snapshotRepository>
             <id>olympus.maven.snapshots</id>
             <name>Olympus Snapshot Repository</name>
-            <url>http://ci.aws.talk.to:8081/nexus/content/repositories/snapshots</url>
+            <url>http://ci.aws.talk.to:8081/nexus/content/repositories/snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
