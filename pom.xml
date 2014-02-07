@@ -1,24 +1,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.notnoop.apns</groupId>
-    <artifactId>apns</artifactId>
-    <version>0.2.4-SNAPSHOT</version>
+
+    <groupId>olympus</groupId>
+    <artifactId>ios-push-service-apns</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Java Apple Push Notification Service Library</name>
 
-    <!-- Inherit the Sonatype OSS deployment configuration -->
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>5</version>
-    </parent>
-
     <scm>
-        <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
-        <developerConnection>scm:git:git@github.com:notnoop/java-apns.git</developerConnection>
-        <url>http://github.com/notnoop/java-apns</url>
+        <connection>scm:git:git://github.com/talk-to/java-apns.git</connection>
+        <developerConnection>scm:git:git@github.com:talk-to/java-apns.git</developerConnection>
+        <url>http://github.com/talk-to/java-apns</url>
       <tag>HEAD</tag>
   </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>olympus.maven.releases</id>
+            <name>Olympus Release Repository</name>
+            <url>http://ci.aws.talk.to:8081/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>olympus.maven.snapshots</id>
+            <name>Olympus Snapshot Repository</name>
+            <url>http://ci.aws.talk.to:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -145,25 +153,7 @@
         </pluginManagement>
     </build>
 
-    <!--
-    <distributionManagement>
-        <site>
-            <id>gh-pages</id>
-            <url>file:${project.basedir}/site</url>
-        </site>
-        <repository>
-            <id>notnoop-m2-repository</id>
-            <url>file:${project.basedir}/target/deploy/repo</url>
-        </repository>
-    </distributionManagement>
-    -->
     <dependencies>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.9</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -193,16 +183,8 @@
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
-<!--         <dependency>
-            <groupId>org.eclipse.virgo.bundlor</groupId>
-            <artifactId>org.eclipse.virgo.bundlor.maven</artifactId>
-            <version>1.1.1.RELEASE</version>
-            <scope>compile</scope>
-        </dependency> -->
     </dependencies>
 
-    <!-- Site Generation -->
-    <url>http://notnoop.github.com/java-apns</url>
     <description>
         Library to send Apple Push Notification.
     </description>
@@ -240,14 +222,6 @@
                 <artifactId>maven-clover2-plugin</artifactId>
                 <version>2.3.1</version>
             </plugin>
-
-  		    <!--
-          		<plugin>
-            		<groupId>org.codehaus.mojo</groupId>
-            		<artifactId>findbugs-maven-plugin</artifactId>
-            		<version>2.5.2</version>
-          		</plugin>
-          	-->
         </plugins>
     </reporting>
 
@@ -259,15 +233,10 @@
         </pluginRepository>
     </pluginRepositories>
 
-    <issueManagement>
-        <system>Github</system>
-        <url>http://github.com/notnoop/java-apns/issues</url>
-    </issueManagement>
-
     <developers>
         <developer>
-            <id>notnoop</id>
-            <name>Mahmood Ali</name>
+            <id>hiteshgupta88</id>
+            <name>Hitesh Gupta</name>
         </developer>
     </developers>
 
