@@ -116,60 +116,61 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 try {
                     InputStream in = socket.getInputStream();
 
-                    // TODO(jwilson): this should readFully()
-                    final int expectedSize = 6;
-                    byte[] bytes = new byte[expectedSize];
-                    while (in.read(bytes) == expectedSize) {
+                    // followed jwilson's suggest, read(byte[]) -> readFully(byte[])
+                    byte[] bytes = new byte[6];
+                    in.readFully(bytes); // would be blocked until inputstream got 6 bytes from network cache
 
-                        int command = bytes[0] & 0xFF;
-                        if (command != 8) {
-                            throw new IOException("Unexpected command byte " + command);
-                        }
-                        int statusCode = bytes[1] & 0xFF;
-                        DeliveryError e = DeliveryError.ofCode(statusCode);
+                    // when got apns's error response, we should close the current socket immediately, then will get new Socket when sending next ApnsNotification
+                    close();
 
-                        int id = Utilities.parseBytes(bytes[2], bytes[3], bytes[4], bytes[5]);
-
-                        Queue<ApnsNotification> tempCache = new LinkedList<ApnsNotification>();
-                        ApnsNotification notification = null;
-                        boolean foundNotification = false;
-
-                        while (!cachedNotifications.isEmpty()) {
-                            notification = cachedNotifications.poll();
-
-                            if (notification.getIdentifier() == id) {
-                                foundNotification = true;
-                                break;
-                            }
-                            tempCache.add(notification);
-                        }
-
-                        if (foundNotification) {
-                            delegate.messageSendFailed(notification, new ApnsDeliveryErrorException(e));
-                        } else {
-                            cachedNotifications.addAll(tempCache);
-                            int resendSize = tempCache.size();
-                            logger.warn("Received error for message "
-                                    + "that wasn't in the cache...");
-                            if (autoAdjustCacheLength) {
-                                cacheLength = cacheLength + (resendSize / 2);
-                                delegate.cacheLengthExceeded(cacheLength);
-                            }
-                            delegate.messageSendFailed(null, new ApnsDeliveryErrorException(e));
-                        }
-
-                        int resendSize = 0;
-
-                        while (!cachedNotifications.isEmpty()) {
-                            resendSize++;
-                            notificationsBuffer.add(cachedNotifications.poll());
-                        }
-                        delegate.notificationsResent(resendSize);
-
-                        delegate.connectionClosed(e, id);
-
-                        drainBuffer();
+                    int command = bytes[0] & 0xFF;
+                    if (command != 8) {
+                        throw new IOException("Unexpected command byte " + command);
                     }
+                    int statusCode = bytes[1] & 0xFF;
+                    DeliveryError e = DeliveryError.ofCode(statusCode);
+
+                    int id = Utilities.parseBytes(bytes[2], bytes[3], bytes[4], bytes[5]);
+
+                    Queue<ApnsNotification> tempCache = new LinkedList<ApnsNotification>();
+                    ApnsNotification notification = null;
+                    boolean foundNotification = false;
+
+                    while (!cachedNotifications.isEmpty()) {
+                        notification = cachedNotifications.poll();
+
+                        if (notification.getIdentifier() == id) {
+                            foundNotification = true;
+                            break;
+                        }
+                        tempCache.add(notification);
+                    }
+
+                    if (foundNotification) {
+                        delegate.messageSendFailed(notification, new ApnsDeliveryErrorException(e));
+                    } else {
+                        cachedNotifications.addAll(tempCache);
+                        int resendSize = tempCache.size();
+                        logger.warn("Received error for message "
+                                + "that wasn't in the cache...");
+                        if (autoAdjustCacheLength) {
+                            cacheLength = cacheLength + (resendSize / 2);
+                            delegate.cacheLengthExceeded(cacheLength);
+                        }
+                        delegate.messageSendFailed(null, new ApnsDeliveryErrorException(e));
+                    }
+
+                    int resendSize = 0;
+
+                    while (!cachedNotifications.isEmpty()) {
+                        resendSize++;
+                        notificationsBuffer.add(cachedNotifications.poll());
+                    }
+                    delegate.notificationsResent(resendSize);
+
+                    delegate.connectionClosed(e, id);
+
+                    drainBuffer();
 
                 } catch (Exception e) {
                     // An exception when reading the error code is non-critical, it will cause another retry
