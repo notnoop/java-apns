@@ -79,7 +79,7 @@ public final class TlsTunnelBuilder {
 
     Socket makeTunnel(String host, int port, String proxyUsername, 
             String proxyPassword, InetSocketAddress proxyAddress) throws IOException {
-        if(host == null || port == -1 || host.isEmpty() || proxyAddress == null){
+        if(host == null || port < 0 || host.isEmpty() || proxyAddress == null){
             throw new ProtocolException("Incorrect parameters to build tunnel.");   
         }
         logger.debug("Creating socket for Proxy : " + proxyAddress.getAddress() + ":" + proxyAddress.getPort());
