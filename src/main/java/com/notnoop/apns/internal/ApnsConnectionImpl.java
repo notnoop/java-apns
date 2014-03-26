@@ -1,4 +1,4 @@
-/*
+ /*
  * Copyright 2009, Mahmood Ali.
  * All rights reserved.
  *
@@ -61,6 +61,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final String host;
     private final int port;
     private final int readTimeout;
+    private final int connectTimeout;
     private final Proxy proxy;
     private final ReconnectPolicy reconnectPolicy;
     private final ApnsDelegate delegate;
@@ -84,13 +85,13 @@ public class ApnsConnectionImpl implements ApnsConnection {
             int port, Proxy proxy, ReconnectPolicy reconnectPolicy,
             ApnsDelegate delegate) {
         this(factory, host, port, proxy, reconnectPolicy,
-                delegate, false, ApnsConnection.DEFAULT_CACHE_LENGTH, true, 0);
+                delegate, false, ApnsConnection.DEFAULT_CACHE_LENGTH, true, 0, 0);
     }
 
     public ApnsConnectionImpl(SocketFactory factory, String host,
             int port, Proxy proxy,
             ReconnectPolicy reconnectPolicy, ApnsDelegate delegate,
-            boolean errorDetection, int cacheLength, boolean autoAdjustCacheLength, int readTimeout) {
+            boolean errorDetection, int cacheLength, boolean autoAdjustCacheLength, int readTimeout, int connectTimeout) {
         this.factory = factory;
         this.host = host;
         this.port = port;
@@ -101,6 +102,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this.cacheLength = cacheLength;
         this.autoAdjustCacheLength = autoAdjustCacheLength;
         this.readTimeout = readTimeout;
+        this.connectTimeout = connectTimeout;
         cachedNotifications = new ConcurrentLinkedQueue<ApnsNotification>();
         notificationsBuffer = new ConcurrentLinkedQueue<ApnsNotification>();
     }
@@ -210,7 +212,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     Socket proxySocket = null;
                     try {
                         proxySocket = new Socket(proxy);
-                        proxySocket.connect(new InetSocketAddress(host, port));
+                        proxySocket.connect(new InetSocketAddress(host, port), connectTimeout);
                         socket = ((SSLSocketFactory) factory).createSocket(proxySocket, host, port, false);
                         success = true;
                     } finally {
@@ -297,7 +299,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     public ApnsConnectionImpl copy() {
         return new ApnsConnectionImpl(factory, host, port, proxy, reconnectPolicy.copy(),
-                delegate, errorDetection, cacheLength, autoAdjustCacheLength, readTimeout);
+                delegate, errorDetection, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout);
     }
 
     public void testConnection() throws NetworkIOException {
