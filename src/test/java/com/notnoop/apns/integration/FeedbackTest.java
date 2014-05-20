@@ -3,6 +3,7 @@ package com.notnoop.apns.integration;
 import static com.notnoop.apns.utils.FixedCertificates.*;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import javax.net.ssl.SSLContext;
 
@@ -14,6 +15,9 @@ import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
 import static com.notnoop.apns.internal.ApnsFeedbackParsingUtils.*;
 import com.notnoop.apns.utils.ApnsServerStub;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class FeedbackTest {
 
@@ -43,6 +47,40 @@ public class FeedbackTest {
             .build();
 
         checkParsedSimple(service.getInactiveDevices());
+    }
+    
+    @Test
+    public void simpleFeedbackWithoutTimeout() throws IOException {
+        server.toSend.write(simple);
+        server.toWaitBeforeSend.set(2000);
+        ApnsService service =
+            APNS.newService().withSSLContext(clientContext)
+            .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+            .withFeedbackDestination(TEST_HOST, TEST_FEEDBACK_PORT)
+            .withReadTimeout(3000)
+            .build();
+
+        checkParsedSimple(service.getInactiveDevices());
+    }
+
+    @Test()
+    public void simpleFeedbackWithTimeout() throws IOException {
+        server.toSend.write(simple);
+        server.toWaitBeforeSend.set(5000);
+        ApnsService service =
+            APNS.newService().withSSLContext(clientContext)
+            .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+            .withFeedbackDestination(TEST_HOST, TEST_FEEDBACK_PORT)
+            .withReadTimeout(1000)
+            .build();
+        try {
+            service.getInactiveDevices();
+            fail("RuntimeException expected");
+        }
+        catch(RuntimeException e) {
+            assertEquals("Socket timeout exception expected", 
+                    SocketTimeoutException.class, e.getCause().getClass() );
+        }
     }
 
     @Test

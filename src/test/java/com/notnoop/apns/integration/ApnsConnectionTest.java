@@ -62,5 +62,46 @@ public class ApnsConnectionTest {
 
         assertArrayEquals(msg1.marshall(), server.received.toByteArray());
     }
+    
+    
+    @Test
+    public void sendOneSimpleWithoutTimeout() throws InterruptedException {
+        server = ApnsServerStub.prepareAndStartServer(TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
+        server.toWaitBeforeSend.set(2000);
+        ApnsService service =
+                APNS.newService().withSSLContext(clientContext())
+                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withReadTimeout(5000)
+                .build();
+        server.stopAt(msg1.length());
+        service.push(msg1);
+        server.messages.acquire();
+
+        assertArrayEquals(msg1.marshall(), server.received.toByteArray());
+    }
+    
+    /**
+     * Unlike in the feedback case, push messages won't expose the socket timeout,
+     * as the read is done in a separate monitoring thread.
+     * 
+     * Therefore, normal behavior is expected in this test.
+     * 
+     * @throws InterruptedException
+     */
+    @Test
+    public void sendOneSimpleWithTimeout() throws InterruptedException {
+        server = ApnsServerStub.prepareAndStartServer(TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
+        server.toWaitBeforeSend.set(5000);
+        ApnsService service =
+                APNS.newService().withSSLContext(clientContext())
+                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withReadTimeout(1000)
+                .build();
+        server.stopAt(msg1.length());
+        service.push(msg1);
+        server.messages.acquire();
+
+        assertArrayEquals(msg1.marshall(), server.received.toByteArray());
+    }
 
 }
