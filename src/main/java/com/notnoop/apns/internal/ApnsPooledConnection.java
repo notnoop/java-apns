@@ -1,9 +1,6 @@
 package com.notnoop.apns.internal;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -41,11 +38,21 @@ public class ApnsPooledConnection implements ApnsConnection {
     };
 
     public void sendMessage(final ApnsNotification m) throws NetworkIOException {
-        executors.execute(new Runnable() {
-            public void run() {
+        Future future = executors.submit(new Callable<Void>() {
+            public Void call() throws Exception {
                 uniquePrototype.get().sendMessage(m);
+                return null;
             }
         });
+        try {
+            future.get();
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException ee) {
+            if (ee.getCause() instanceof NetworkIOException) {
+                throw (NetworkIOException) ee.getCause();
+            }
+        }
     }
 
     public ApnsConnection copy() {
