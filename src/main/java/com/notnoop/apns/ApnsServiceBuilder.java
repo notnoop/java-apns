@@ -70,7 +70,7 @@ import static com.notnoop.apns.internal.Utilities.*;
  */
 public class ApnsServiceBuilder {
     private static final String KEYSTORE_TYPE = "PKCS12";
-    private static final String KEY_ALGORITHM = "sunx509";
+    private static final String KEY_ALGORITHM = ((java.security.Security.getProperty("ssl.KeyManagerFactory.algorithm") == null)? "sunx509" : java.security.Security.getProperty("ssl.KeyManagerFactory.algorithm"));
 
     private SSLContext sslContext;
 
