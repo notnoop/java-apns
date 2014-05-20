@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,10 +49,10 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.notnoop.exceptions.InvalidSSLConfig;
 import com.notnoop.exceptions.NetworkIOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Utilities {
     private static Logger logger = LoggerFactory.getLogger(Utilities.class);
@@ -105,7 +106,7 @@ public final class Utilities {
                final SSLContext sslc = SSLContext.getInstance("TLS");
                sslc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
                return sslc;
-           } catch (final Exception e) {
+           } catch (final GeneralSecurityException e) {
                throw new InvalidSSLConfig(e);
            }
        }

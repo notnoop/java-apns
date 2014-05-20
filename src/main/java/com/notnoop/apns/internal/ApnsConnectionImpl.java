@@ -35,13 +35,11 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
-
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.DeliveryError;
@@ -49,9 +47,8 @@ import com.notnoop.apns.ReconnectPolicy;
 import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.exceptions.ApnsDeliveryErrorException;
 import com.notnoop.exceptions.NetworkIOException;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApnsConnectionImpl implements ApnsConnection {
 
@@ -171,7 +168,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         drainBuffer();
                     }
 
-                } catch (Exception e) {
+                } catch (IOException e) {
                     // An exception when reading the error code is non-critical, it will cause another retry
                     // sending the message. Other than providing a more stable network connection to the APNS
                     // server we can't do much about it - so let's not spam the application's error log.
@@ -256,7 +253,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 attempts = 0;
                 drainBuffer();
                 break;
-            } catch (Exception e) {
+            } catch (IOException e) {
                 Utilities.close(socket);
                 socket = null;
                 if (attempts >= RETRIES) {

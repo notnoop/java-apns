@@ -85,7 +85,7 @@ public class BatchApnsService extends AbstractApnsService {
 		public void run() {
 			ApnsConnection newConnection = prototype.copy();
 			try {
-				ApnsNotification msg = null;
+				ApnsNotification msg;
 				while ((msg = batch.poll()) != null) {
 					try {
 						newConnection.sendMessage(msg);

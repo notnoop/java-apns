@@ -11,8 +11,8 @@ public class APNSTest {
 
     @Test
     public void testInstances() {
-        assertThat(APNS.newPayload(), is(PayloadBuilder.class));
-        assertThat(APNS.newService(), is(ApnsServiceBuilder.class));
+        assertThat(APNS.newPayload(), isA(PayloadBuilder.class));
+        assertThat(APNS.newService(), isA(ApnsServiceBuilder.class));
     }
 
     @Test

@@ -1,14 +1,12 @@
 package com.notnoop.apns.internal;
 
-import static org.junit.Assert.*;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Random;
-
-import static org.junit.matchers.JUnitMatchers.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 public class ApnsFeedbackParsingUtils {
     static byte[] pack(byte[]... args) {

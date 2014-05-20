@@ -4,12 +4,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApnsPooledConnection implements ApnsConnection {
     private static final Logger logger = LoggerFactory.getLogger(ApnsPooledConnection.class);
@@ -78,6 +77,7 @@ public class ApnsPooledConnection implements ApnsConnection {
         }
     }
 
+    @SuppressFBWarnings(value = "UG_SYNC_SET_UNSYNC_GET", justification = "prototypes is a MT-safe container")
     public int getCacheLength() {
         return prototypes.peek().getCacheLength();
     }

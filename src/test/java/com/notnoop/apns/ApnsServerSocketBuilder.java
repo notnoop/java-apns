@@ -30,12 +30,6 @@
  */
 package com.notnoop.apns;
 
-import static com.notnoop.apns.internal.Utilities.PRODUCTION_FEEDBACK_PORT;
-import static com.notnoop.apns.internal.Utilities.PRODUCTION_GATEWAY_PORT;
-import static com.notnoop.apns.internal.Utilities.SANDBOX_FEEDBACK_PORT;
-import static com.notnoop.apns.internal.Utilities.SANDBOX_GATEWAY_PORT;
-import static com.notnoop.apns.internal.Utilities.newSSLContext;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -45,12 +39,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.SSLContext;
-
 import com.notnoop.apns.internal.Utilities;
 import com.notnoop.exceptions.InvalidSSLConfig;
 import com.notnoop.exceptions.RuntimeIOException;
+import static com.notnoop.apns.internal.Utilities.*;
 
 /**
  * The class is used to create instances of {@link ApnsService}.
@@ -169,13 +162,10 @@ public class ApnsServerSocketBuilder {
 	 * the `SSLContext` yourself! Needless to say, the password-protected
 	 * certificate is most recommended option.
 	 * 
-	 * @param stream
-	 *            the keystore
-	 * @param password
-	 *            the password of the keystore
+	 * @param keyStore the keystore
+	 * @param password the password of the keystore
 	 * @return this
-	 * @throws InvalidSSLConfig
-	 *             if stream is invalid Keystore or the password is invalid
+	 * @throws InvalidSSLConfig if stream is invalid Keystore or the password is invalid
 	 */
 	public ApnsServerSocketBuilder withCert(KeyStore keyStore, String password)
 			throws InvalidSSLConfig {

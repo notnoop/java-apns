@@ -181,7 +181,7 @@ public class ApnsServiceBuilder {
      * the `SSLContext` yourself!  Needless to say, the password-protected
      * certificate is most recommended option.
      *
-     * @param stream    the keystore 
+     * @param keyStore  the keystore
      * @param password  the password of the keystore
      * @return  this
      * @throws InvalidSSLConfig if stream is invalid Keystore

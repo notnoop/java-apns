@@ -1,13 +1,14 @@
 package com.notnoop.apns.utils;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
 import javax.net.ServerSocketFactory;
 
 public class ApnsServerStub {
@@ -52,25 +53,28 @@ public class ApnsServerStub {
     @SuppressWarnings("deprecation")
     public void stop() {
         try {
-            gatewaySocket.close();
+            if (gatewaySocket != null) {
+                gatewaySocket.close();
+            }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         try {
-            feedbackSocket.close();
+            if (feedbackSocket != null) {
+                feedbackSocket.close();
+            }
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        try {
+
+        if (gatewayThread != null) {
             gatewayThread.stop();
-        } catch (Exception e) {
         }
-        try {
+
+        if (feedbackThread != null) {
             feedbackThread.stop();
-        } catch (Exception e) {
         }
+
     }
 
     public void sendError(int err, int id) {
@@ -122,7 +126,7 @@ public class ApnsServerStub {
                     if (in != null) {
                         in.close();
                     }
-                } catch (Exception _) {
+                } catch (IOException _) {
                 }
                 try {
                     if (gatewayOutputStream != null) {

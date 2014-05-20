@@ -238,7 +238,7 @@ public final class PayloadBuilder {
      * payload, and subsequent calls add but doesn't reset the
      * custom fields.
      *
-     * @param map   the custom map
+     * @param values   the custom map
      * @return  this
      */
     public PayloadBuilder customFields(final Map<String, ? extends Object> values) {

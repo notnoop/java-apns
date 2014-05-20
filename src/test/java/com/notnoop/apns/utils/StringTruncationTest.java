@@ -1,6 +1,6 @@
 package com.notnoop.apns.utils;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.experimental.theories.DataPoints;
 import org.junit.experimental.theories.Theories;

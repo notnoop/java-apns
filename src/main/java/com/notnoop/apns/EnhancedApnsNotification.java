@@ -32,8 +32,8 @@ package com.notnoop.apns;
 
 import java.util.Arrays;
 import java.util.Date;
-
 import com.notnoop.apns.internal.Utilities;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Represents an APNS notification to be sent to Apple service.
@@ -130,7 +130,7 @@ public class EnhancedApnsNotification implements ApnsNotification {
             marshall = Utilities.marshallEnhanced(COMMAND, identifier,
                     expiry, deviceToken, payload);
         }
-        return marshall;
+        return marshall.clone();
     }
 
     /**
@@ -142,7 +142,8 @@ public class EnhancedApnsNotification implements ApnsNotification {
      */
     public int length() {
         int length = 1 + 4 + 4 + 2 + deviceToken.length + 2 + payload.length;
-        assert marshall().length == length;
+        final int marshalledLength = marshall().length;
+        assert marshalledLength == length;
         return length;
     }
 
@@ -167,11 +168,15 @@ public class EnhancedApnsNotification implements ApnsNotification {
     }
 
     @Override
+    @SuppressFBWarnings("DE_MIGHT_IGNORE")
     public String toString() {
-        String payloadString = "???";
+        String payloadString;
         try {
+
             payloadString = new String(payload, "UTF-8");
-        } catch (Exception _) {}        
+        } catch (Exception _) {
+            payloadString = "???";
+        }
         return "Message(Id="+identifier+"; Token="+Utilities.encodeHex(deviceToken)+"; Payload="+payloadString+")";
     }
 }

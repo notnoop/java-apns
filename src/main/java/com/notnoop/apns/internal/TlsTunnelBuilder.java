@@ -40,6 +40,7 @@ import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.Socket;
 import javax.net.ssl.SSLSocketFactory;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Establishes a TLS connection using an HTTP proxy. See <a
@@ -67,6 +68,8 @@ public final class TlsTunnelBuilder {
         }
     }
 
+    @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
+            justification = "use <CR><LF> as according to RFC, not platform-linfeed")
     void makeTunnel(String host, int port, OutputStream out, InputStream in) throws IOException {
         // Send the HTTP CONNECT request.
         String userAgent = "java-apns";

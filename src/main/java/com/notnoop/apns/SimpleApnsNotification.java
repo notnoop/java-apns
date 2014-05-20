@@ -33,6 +33,7 @@ package com.notnoop.apns;
 import java.util.Arrays;
 
 import com.notnoop.apns.internal.Utilities;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 
 /**
@@ -95,7 +96,7 @@ public class SimpleApnsNotification implements ApnsNotification {
     public byte[] marshall() {
         if (marshall == null)
             marshall = Utilities.marshall(COMMAND, deviceToken, payload);
-        return marshall;
+        return marshall.clone();
     }
 
     /**
@@ -107,7 +108,8 @@ public class SimpleApnsNotification implements ApnsNotification {
      */
     public int length() {
         int length = 1 + 2 + deviceToken.length + 2 + payload.length;
-        assert marshall().length == length;
+        final int marshalledLength = marshall().length;
+        assert marshalledLength == length;
         return length;
     }
 
@@ -136,11 +138,14 @@ public class SimpleApnsNotification implements ApnsNotification {
     }
     
     @Override
+    @SuppressFBWarnings("DE_MIGHT_IGNORE")
     public String toString() {
-        String payloadString = "???";
+        String payloadString;
         try {
             payloadString = new String(payload, "UTF-8");
-        } catch (Exception _) {}        
+        } catch (Exception _) {
+            payloadString = "???";
+        }
         return "Message(Token="+Utilities.encodeHex(deviceToken)+"; Payload="+payloadString+")";
     }
 }
