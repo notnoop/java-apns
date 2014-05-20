@@ -20,6 +20,7 @@ public class ApnsServerStub {
         server.start();
         return server;
     }
+    public final AtomicInteger toWaitBeforeSend = new AtomicInteger(0);
     public final ByteArrayOutputStream received;
     public final ByteArrayOutputStream toSend;
     public final Semaphore messages = new Semaphore(0);
@@ -112,6 +113,8 @@ public class ApnsServerStub {
 
                 // Read from in and write to out...
                 byte[] read = readFully(in);
+                
+                waitBeforeSend();
                 received.write(read);
                 messages.release();
 
@@ -159,6 +162,7 @@ public class ApnsServerStub {
                 InputStream in = socket.getInputStream();
                 OutputStream out = socket.getOutputStream();
 
+                waitBeforeSend();
                 // Read from in and write to out...
                 toSend.writeTo(out);
 
@@ -191,4 +195,18 @@ public class ApnsServerStub {
 
         return stream.toByteArray();
     }
+    
+    /**
+     * Introduces a waiting time, used to trigger read timeouts.
+     */
+    private void waitBeforeSend() {
+    	int wait = toWaitBeforeSend.get();
+    	if(wait!=0)
+			try {
+				Thread.sleep(wait);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+    }
+    
 }

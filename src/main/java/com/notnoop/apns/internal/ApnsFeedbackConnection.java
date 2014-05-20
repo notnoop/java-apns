@@ -50,17 +50,26 @@ public class ApnsFeedbackConnection {
     private final String host;
     private final int port;
     private final Proxy proxy;
+    private final int readTimeout;
+    private final int connectTimeout;
 
     public ApnsFeedbackConnection(final SocketFactory factory, final String host, final int port) {
         this(factory, host, port, null);
     }
-
+    
     public ApnsFeedbackConnection(final SocketFactory factory, final String host, final int port,
             final Proxy proxy) {
+    	this(factory, host, port, proxy, 0, 0);
+    }
+
+    public ApnsFeedbackConnection(final SocketFactory factory, final String host, final int port,
+            final Proxy proxy, int readTimeout, int connectTimeout) {
         this.factory = factory;
         this.host = host;
         this.port = port;
         this.proxy = proxy;
+        this.readTimeout = readTimeout;
+        this.connectTimeout = connectTimeout;
     }
 
     int DELAY_IN_MS = 1000;
@@ -97,10 +106,11 @@ public class ApnsFeedbackConnection {
                 socket = tunnelBuilder.build((SSLSocketFactory) factory, proxy, host, port);
             } else {
                 proxySocket = new Socket(proxy);
-                proxySocket.connect(new InetSocketAddress(host, port));
+                proxySocket.connect(new InetSocketAddress(host, port), connectTimeout);
                 socket = ((SSLSocketFactory) factory).createSocket(proxySocket, host, port, false);
             }
-            
+            socket.setSoTimeout(readTimeout);
+            socket.setKeepAlive(true);
             final InputStream stream = socket.getInputStream();
             return Utilities.parseFeedbackStream(stream);
         } finally {
