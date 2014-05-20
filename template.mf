@@ -4,4 +4,5 @@ Import-Template:
  org.slf4j.*;version="0",
  com.fasterxml.jackson.*;version="0",
  javax.net.*;version="0",
- edu.umd.cs.findbugs.annotations.*;version="0"
+ edu.umd.cs.findbugs.annotations.*;version="0",
+ org.apache.*;version="0"

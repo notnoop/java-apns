@@ -97,6 +97,8 @@ public class ApnsServiceBuilder {
     
     private ApnsDelegate delegate = ApnsDelegate.EMPTY;
     private Proxy proxy = null;
+    private String proxyUsername = null;
+    private String proxyPassword = null;
     private boolean errorDetection = true;
 
     /**
@@ -382,6 +384,26 @@ public class ApnsServiceBuilder {
     }
 
     /**
+     * Specify the proxy and the authentication parameters to be used
+     * to establish the connections to Apple Servers.
+     *
+     * <p>Read the <a href="http://java.sun.com/javase/6/docs/technotes/guides/net/proxies.html">
+     * Java Networking and Proxies</a> guide to understand the
+     * proxies complexity.
+     *
+     * @param proxy the proxy object to be used to create connections
+     * @param proxyUsername a String object representing the username of the proxy server
+     * @param proxyPassword a String object representing the password of the proxy server
+     * @return  this
+     */
+    public ApnsServiceBuilder withAuthProxy(Proxy proxy, String proxyUsername, String proxyPassword) {
+        this.proxy = proxy;
+        this.proxyUsername = proxyUsername;
+        this.proxyPassword = proxyPassword;
+        return this;
+    }
+    
+    /**
      * Specify the proxy to be used to establish the connections
      * to Apple Servers
      *
@@ -562,9 +584,10 @@ public class ApnsServiceBuilder {
 
         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
         ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy, readTimeout, connectTimeout);
+        ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy, proxyUsername, proxyPassword);
 
         ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, 
-                gatewaPort, proxy, reconnectPolicy, 
+                gatewaPort, proxy, proxyUsername, proxyPassword, reconnectPolicy, 
                 delegate, errorDetection, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout);
         if (pooledMax != 1) {
             conn = new ApnsPooledConnection(conn, pooledMax, executor);
