@@ -45,6 +45,18 @@ public class PayloadBuilderTest {
     }
 
     @Test
+    public void testSafariAps() {
+        final PayloadBuilder builder = new PayloadBuilder();
+        builder.alertBody("test");
+        builder.alertTitle("Test Title");
+        builder.actionKey("View");
+        builder.urlArgs("arg1", "arg2", "arg3");
+
+        final String expected = "{\"aps\":{\"alert\":{\"body\":\"test\",\"title\":\"Test Title\",\"action-loc-key\":\"View\"},\"url-args\":[\"arg1\",\"arg2\",\"arg3\"]}}";
+        assertEqualsJson(expected, builder.build());
+    }
+
+    @Test
     public void testTwoApsMultipleBuilds() {
         final PayloadBuilder builder = new PayloadBuilder();
         builder.alertBody("test");
