@@ -74,6 +74,9 @@ public class ApnsServiceBuilder {
 
     private SSLContext sslContext;
 
+    private int readTimeout = 0;
+    private int connectTimeout = 0;
+
     private String gatewayHost;
     private int gatewaPort = -1;
 
@@ -216,6 +219,28 @@ public class ApnsServiceBuilder {
     public ApnsServiceBuilder withSSLContext(SSLContext sslContext) {
         this.sslContext = sslContext;
         return this;
+    }
+    
+    /**
+     * Specify the timeout value to be set in new setSoTimeout in created
+     * sockets, for both feedback and push connections, in msecs.
+     * @param readTimeout
+     * @return
+     */
+    public ApnsServiceBuilder withReadTimeout(int readTimeout) {
+    	this.readTimeout = readTimeout;
+    	return this;
+    }
+
+    /**
+     * Specify the timeout value to use for connectionTimeout in created
+     * sockets, for both feedback and push connections, in msecs.
+     * @param connectTimeout
+     * @return
+     */
+    public ApnsServiceBuilder withConnectTimeout(int connectTimeout) {
+    	this.connectTimeout = connectTimeout;
+    	return this;
     }
 
     /**
@@ -536,11 +561,11 @@ public class ApnsServiceBuilder {
         ApnsService service;
 
         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
-        ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy);
+        ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy, readTimeout, connectTimeout);
 
         ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, 
                 gatewaPort, proxy, reconnectPolicy, 
-                delegate, errorDetection, cacheLength, autoAdjustCacheLength);
+                delegate, errorDetection, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout);
         if (pooledMax != 1) {
             conn = new ApnsPooledConnection(conn, pooledMax, executor);
         }
