@@ -70,6 +70,44 @@ public final class PayloadBuilder {
     }
 
     /**
+     * Sets the alert title text, the text the appears to the user,
+     * to the passed value
+     *
+     * @param title the text to appear to the user
+     * @return  this
+     */
+    public PayloadBuilder alertTitle(final String title) {
+        customAlert.put("title", title);
+        return this;
+    }
+
+    /**
+     * Sets the alert action text
+     *
+     * @param action The label of the action button
+     * @return  this
+     */
+    public PayloadBuilder alertAction(final String action) {
+        customAlert.put("action", action);
+        return this;
+    }
+
+    /**
+     * Sets the "url-args" key that are paired with the placeholders
+     * inside the urlFormatString value of your website.json file.
+     * The order of the placeholders in the URL format string determines
+     * the order of the values supplied by the url-args array.
+     *
+     * @param urlArgs the values to be paired with the placeholders inside
+     *                the urlFormatString value of your website.json file.
+     * @return  this
+     */
+    public PayloadBuilder urlArgs(final String... urlArgs){
+        aps.put("url-args", urlArgs);
+        return this;
+    }
+
+    /**
      * Sets the alert sound to be played.
      *
      * Passing {@code null} disables the notification sound.
