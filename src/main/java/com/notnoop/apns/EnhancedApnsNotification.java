@@ -174,7 +174,7 @@ public class EnhancedApnsNotification implements ApnsNotification {
         try {
 
             payloadString = new String(payload, "UTF-8");
-        } catch (Exception _) {
+        } catch (Exception ex) {
             payloadString = "???";
         }
         return "Message(Id="+identifier+"; Token="+Utilities.encodeHex(deviceToken)+"; Payload="+payloadString+")";

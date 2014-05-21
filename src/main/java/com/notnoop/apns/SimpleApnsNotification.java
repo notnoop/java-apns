@@ -143,7 +143,7 @@ public class SimpleApnsNotification implements ApnsNotification {
         String payloadString;
         try {
             payloadString = new String(payload, "UTF-8");
-        } catch (Exception _) {
+        } catch (Exception ex) {
             payloadString = "???";
         }
         return "Message(Token="+Utilities.encodeHex(deviceToken)+"; Payload="+payloadString+")";
