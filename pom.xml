@@ -82,6 +82,9 @@
             <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -160,10 +163,10 @@
                             <dir>${project.build.directory}/findbugs</dir>
                             <outputDir>${project.build.directory}/findbugs</outputDir>
                             <stylesheet>fancy-hist.xsl</stylesheet>    -->
-                            <!--<stylesheet>default.xsl</stylesheet>-->
-                            <!--<stylesheet>plain.xsl</stylesheet>-->
-                            <!--<stylesheet>fancy.xsl</stylesheet>-->
-                            <!--<stylesheet>summary.xsl</stylesheet>--><!--
+            <!--<stylesheet>default.xsl</stylesheet>-->
+            <!--<stylesheet>plain.xsl</stylesheet>-->
+            <!--<stylesheet>fancy.xsl</stylesheet>-->
+            <!--<stylesheet>summary.xsl</stylesheet>--><!--
                             <fileMappers>
                                 <fileMapper
                                         implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
