@@ -116,23 +116,20 @@
                 <groupId>com.springsource.bundlor</groupId>
                 <artifactId>com.springsource.bundlor.maven</artifactId>
             </plugin>
+            <!--
+
+            We need to wait for findbugs 3.0.0 to test on JDK 8
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>2.5.3</version>
                 <configuration>
                     <failOnError>false</failOnError>
-                    <!--
-                        Enables analysis which takes more memory but finds more bugs.
-                        If you run out of memory, changes the value of the effort element
-                        to 'Low'.
-                    -->
+
                     <effort>Max</effort>
-                    <!-- Reports all bugs (other values are medium and max) -->
                     <threshold>Low</threshold>
-                    <!-- Produces XML report -->
                     <xmlOutput>true</xmlOutput>
-                    <!-- Configures the directory in which the XML report is created -->
                     <findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
                 </configuration>
                 <executions>
@@ -162,11 +159,11 @@
                         <transformationSet>
                             <dir>${project.build.directory}/findbugs</dir>
                             <outputDir>${project.build.directory}/findbugs</outputDir>
-                            <stylesheet>fancy-hist.xsl</stylesheet>
+                            <stylesheet>fancy-hist.xsl</stylesheet>    -->
                             <!--<stylesheet>default.xsl</stylesheet>-->
                             <!--<stylesheet>plain.xsl</stylesheet>-->
                             <!--<stylesheet>fancy.xsl</stylesheet>-->
-                            <!--<stylesheet>summary.xsl</stylesheet>-->
+                            <!--<stylesheet>summary.xsl</stylesheet>--><!--
                             <fileMappers>
                                 <fileMapper
                                         implementation="org.codehaus.plexus.components.io.filemappers.FileExtensionMapper">
@@ -184,6 +181,7 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            -->
         </plugins>
         <pluginManagement>
             <plugins>
