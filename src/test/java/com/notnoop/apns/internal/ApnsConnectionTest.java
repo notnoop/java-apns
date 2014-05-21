@@ -1,16 +1,12 @@
 package com.notnoop.apns.internal;
 
-import static com.notnoop.apns.internal.MockingUtils.*;
-
 import java.io.ByteArrayOutputStream;
-
 import javax.net.SocketFactory;
-
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.Ignore;
-
 import com.notnoop.apns.SimpleApnsNotification;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
+import static com.notnoop.apns.internal.MockingUtils.*;
 
 
 public class ApnsConnectionTest {

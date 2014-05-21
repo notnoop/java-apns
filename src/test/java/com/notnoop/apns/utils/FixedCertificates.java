@@ -17,17 +17,14 @@ public class FixedCertificates {
     public static final String SERVER_STORE = "serverStore.p12";
     public static final String SERVER_PASSWD = "123456";
 
-    public static final int TEST_GATEWAY_PORT = 7654;
-    public static final int TEST_FEEDBACK_PORT = 7843;
-    public static final String TEST_HOST = "localhost";
+    public static final String LOCALHOST = "localhost";
 
     public static SSLContext serverContext() {
         try {
             //System.setProperty("javax.net.ssl.trustStore", ClassLoader.getSystemResource(CLIENT_STORE).getPath());
             InputStream stream = ClassLoader.getSystemResourceAsStream(SERVER_STORE);
-            SSLContext context = Utilities.newSSLContext(stream, SERVER_PASSWD, "PKCS12", "sunx509");
 
-            return context;
+            return Utilities.newSSLContext(stream, SERVER_PASSWD, "PKCS12", "sunx509");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

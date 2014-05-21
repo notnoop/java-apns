@@ -49,9 +49,7 @@ public class ApnsConnectionCacheTest {
     @Test(timeout = 5000)
     public void handleReTransmissionError5Good1Bad7Good() throws InterruptedException {
 
-        server = new ApnsServerStub(
-                FixedCertificates.serverContext().getServerSocketFactory(),
-                TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
+        server = new ApnsServerStub(FixedCertificates.serverContext().getServerSocketFactory());
         //5 success 1 fail 7 success 7 resent
         final CountDownLatch sync = new CountDownLatch(20);
         final AtomicInteger numResent = new AtomicInteger();
@@ -62,7 +60,7 @@ public class ApnsConnectionCacheTest {
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
                 .withDelegate(new ApnsDelegate() {
             public void messageSent(ApnsNotification message, boolean resent) {
                 if (!resent) {
@@ -118,9 +116,7 @@ public class ApnsConnectionCacheTest {
      */
     @Test(timeout = 5000)
     public void handleReTransmissionError1Good1Bad2Good() throws InterruptedException {
-        server = new ApnsServerStub(
-                FixedCertificates.serverContext().getServerSocketFactory(),
-                TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
+        server = new ApnsServerStub(FixedCertificates.serverContext().getServerSocketFactory());
         final CountDownLatch sync = new CountDownLatch(6);
         final AtomicInteger numResent = new AtomicInteger();
         final AtomicInteger numSent = new AtomicInteger();
@@ -130,7 +126,7 @@ public class ApnsConnectionCacheTest {
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
                 .withDelegate(new ApnsDelegate() {
             public void messageSent(ApnsNotification message, boolean resent) {
                 if (!resent) {
@@ -179,9 +175,7 @@ public class ApnsConnectionCacheTest {
     @Test(timeout = 5000)
     public void handleReTransmissionError1Bad() throws InterruptedException {
 
-        server = new ApnsServerStub(
-                FixedCertificates.serverContext().getServerSocketFactory(),
-                TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
+        server = new ApnsServerStub(FixedCertificates.serverContext().getServerSocketFactory());
         final CountDownLatch sync = new CountDownLatch(1);
         final AtomicInteger numError = new AtomicInteger();
         int EXPECTED_ERROR_COUNT = 1;
@@ -189,7 +183,7 @@ public class ApnsConnectionCacheTest {
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
                 .withDelegate(new ApnsDelegate() {
             public void messageSent(ApnsNotification message, boolean resent) {
             }
@@ -229,9 +223,7 @@ public class ApnsConnectionCacheTest {
      */
     @Test(timeout = 10000)
     public void handleTransmissionErrorInQueuedConnection() throws InterruptedException {
-        server = new ApnsServerStub(
-                FixedCertificates.serverContext().getServerSocketFactory(),
-                TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
+        server = new ApnsServerStub(FixedCertificates.serverContext().getServerSocketFactory());
         final AtomicInteger sync = new AtomicInteger(138);
         final AtomicInteger numResent = new AtomicInteger();
         final AtomicInteger numSent = new AtomicInteger();
@@ -239,7 +231,7 @@ public class ApnsConnectionCacheTest {
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
                 .asQueued()
                 .withDelegate(new ApnsDelegate() {
             public void messageSent(ApnsNotification message, boolean resent) {
@@ -297,9 +289,7 @@ public class ApnsConnectionCacheTest {
     @Test(timeout = 5000)
     public void cacheLengthNotification() throws InterruptedException {
 
-        server = new ApnsServerStub(
-                FixedCertificates.serverContext().getServerSocketFactory(),
-                TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
+        server = new ApnsServerStub(FixedCertificates.serverContext().getServerSocketFactory());
         final CountDownLatch sync = new CountDownLatch(1);
         int ORIGINAL_CACHE_LENGTH = 100;
         final AtomicInteger modifiedCacheLength = new AtomicInteger();
@@ -307,7 +297,7 @@ public class ApnsConnectionCacheTest {
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
                 .withDelegate(new ApnsDelegate() {
             public void messageSent(ApnsNotification message, boolean resent) {
 

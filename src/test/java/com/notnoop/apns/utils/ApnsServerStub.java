@@ -13,10 +13,28 @@ import javax.net.ServerSocketFactory;
 
 public class ApnsServerStub {
 
+    /**
+     * Create an ApnsServerStub
+     * @param gatePort port for the gateway stub server
+     * @param feedPort port for the feedback stub server
+     * @return an ApnsServerStub
+     */
+    @Deprecated
     public static ApnsServerStub prepareAndStartServer(int gatePort, int feedPort) {
         ApnsServerStub server = new ApnsServerStub(
                 FixedCertificates.serverContext().getServerSocketFactory(),
                 gatePort, feedPort);
+        server.start();
+        return server;
+    }
+
+    /**
+     * Create an ApnsServerStub that uses any free port for gateway and feedback.
+     *
+     * @return the server stub. Use getEffectiveGatewayPort() and getEffectiveFeedbackPort() to ask for ports.
+     */
+    public static ApnsServerStub prepareAndStartServer() {
+        ApnsServerStub server = new ApnsServerStub(FixedCertificates.serverContext().getServerSocketFactory());
         server.start();
         return server;
     }
@@ -29,7 +47,12 @@ public class ApnsServerStub {
     public final Semaphore waitForError = new Semaphore(1);
     private final ServerSocketFactory sslFactory;
     private final int gatewayPort, feedbackPort;
+    private int effectiveGatewayPort, effectiveFeedbackPort;
     private OutputStream gatewayOutputStream = null;
+
+    public ApnsServerStub(ServerSocketFactory sslFactory) {
+        this(sslFactory, 0,0);
+    }
 
     public ApnsServerStub(ServerSocketFactory sslFactory,
             int gatewayPort, int feedbackPort) {
@@ -90,6 +113,14 @@ public class ApnsServerStub {
         }
     }
 
+    public int getEffectiveGatewayPort() {
+        return effectiveGatewayPort;
+    }
+
+    public int getEffectiveFeedbackPort() {
+        return effectiveFeedbackPort;
+    }
+
     private class GatewayRunner implements Runnable {
 
         public void run() {
@@ -101,6 +132,8 @@ public class ApnsServerStub {
             }
 
             InputStream in = null;
+            effectiveGatewayPort = gatewaySocket.getLocalPort();
+
             try {
                 // Listen for connections
                 startUp.release();
@@ -129,13 +162,15 @@ public class ApnsServerStub {
                     if (in != null) {
                         in.close();
                     }
-                } catch (IOException _) {
+                } catch (IOException ioex) {
+                    System.err.println(ioex.toString());
                 }
                 try {
                     if (gatewayOutputStream != null) {
                         gatewayOutputStream.close();
                     }
-                } catch (Exception _) {
+                } catch (IOException ioex) {
+                    System.err.println(ioex.toString());
                 }
                 messages.release();
             }
@@ -153,6 +188,7 @@ public class ApnsServerStub {
                 throw new RuntimeException(e);
             }
 
+            effectiveFeedbackPort = feedbackSocket.getLocalPort();
             try {
                 // Listen for connections
                 startUp.release();
@@ -169,7 +205,8 @@ public class ApnsServerStub {
                 // Close the socket
                 in.close();
                 out.close();
-            } catch (IOException e) {
+            } catch (IOException ioex) {
+                System.err.println(ioex.toString());
             }
             messages.release();
         }

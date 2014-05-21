@@ -1,14 +1,15 @@
 package com.notnoop.apns.integration;
 
-import org.junit.*;
-import static org.junit.Assert.*;
-
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.apns.utils.ApnsServerStub;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import static com.notnoop.apns.utils.FixedCertificates.*;
+import static org.junit.Assert.*;
 
 public class ApnsConnectionTest {
 
@@ -21,9 +22,12 @@ public class ApnsConnectionTest {
             1, "a87d8878d878a88", "{\"aps\":{}}");
     static EnhancedApnsNotification eMsg3 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
+    private int gatewayPort;
 
     @Before
     public void startup() {
+        server = ApnsServerStub.prepareAndStartServer();
+        gatewayPort = server.getEffectiveGatewayPort();
     }
 
     @After
@@ -35,10 +39,9 @@ public class ApnsConnectionTest {
     @Test(timeout = 2000)
     public void sendOneSimple() throws InterruptedException {
 
-        server = ApnsServerStub.prepareAndStartServer(TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withGatewayDestination(LOCALHOST, gatewayPort)
                 .build();
         server.stopAt(msg1.length());
         service.push(msg1);
@@ -50,10 +53,10 @@ public class ApnsConnectionTest {
     @Test(timeout = 2000)
     public void sendOneQueued() throws InterruptedException {
 
-        server = ApnsServerStub.prepareAndStartServer(TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
+
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withGatewayDestination(LOCALHOST, gatewayPort)
                 .asQueued()
                 .build();
         server.stopAt(msg1.length());
@@ -66,11 +69,10 @@ public class ApnsConnectionTest {
     
     @Test
     public void sendOneSimpleWithoutTimeout() throws InterruptedException {
-        server = ApnsServerStub.prepareAndStartServer(TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
         server.toWaitBeforeSend.set(2000);
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withGatewayDestination(LOCALHOST, gatewayPort)
                 .withReadTimeout(5000)
                 .build();
         server.stopAt(msg1.length());
@@ -90,11 +92,10 @@ public class ApnsConnectionTest {
      */
     @Test
     public void sendOneSimpleWithTimeout() throws InterruptedException {
-        server = ApnsServerStub.prepareAndStartServer(TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
         server.toWaitBeforeSend.set(5000);
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
+                .withGatewayDestination(LOCALHOST, gatewayPort)
                 .withReadTimeout(1000)
                 .build();
         server.stopAt(msg1.length());

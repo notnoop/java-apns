@@ -1,23 +1,17 @@
 package com.notnoop.apns.integration;
 
-import static com.notnoop.apns.utils.FixedCertificates.*;
-
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-
 import javax.net.ssl.SSLContext;
-
+import com.notnoop.apns.APNS;
+import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.utils.ApnsServerStub;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import com.notnoop.apns.APNS;
-import com.notnoop.apns.ApnsService;
 import static com.notnoop.apns.internal.ApnsFeedbackParsingUtils.*;
-import com.notnoop.apns.utils.ApnsServerStub;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static com.notnoop.apns.utils.FixedCertificates.*;
+import static org.junit.Assert.*;
 
 public class FeedbackTest {
 
@@ -27,7 +21,7 @@ public class FeedbackTest {
 
     @Before
     public void startup() {
-        server = ApnsServerStub.prepareAndStartServer(TEST_GATEWAY_PORT, TEST_FEEDBACK_PORT);
+        server = ApnsServerStub.prepareAndStartServer();
     }
 
     @After
@@ -42,8 +36,8 @@ public class FeedbackTest {
 
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
-            .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
-            .withFeedbackDestination(TEST_HOST, TEST_FEEDBACK_PORT)
+            .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
+            .withFeedbackDestination(LOCALHOST, server.getEffectiveFeedbackPort())
             .build();
 
         checkParsedSimple(service.getInactiveDevices());
@@ -55,8 +49,8 @@ public class FeedbackTest {
         server.toWaitBeforeSend.set(2000);
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
-            .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
-            .withFeedbackDestination(TEST_HOST, TEST_FEEDBACK_PORT)
+            .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
+            .withFeedbackDestination(LOCALHOST, server.getEffectiveFeedbackPort())
             .withReadTimeout(3000)
             .build();
 
@@ -69,8 +63,8 @@ public class FeedbackTest {
         server.toWaitBeforeSend.set(5000);
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
-            .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
-            .withFeedbackDestination(TEST_HOST, TEST_FEEDBACK_PORT)
+            .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
+            .withFeedbackDestination(LOCALHOST, server.getEffectiveFeedbackPort())
             .withReadTimeout(1000)
             .build();
         try {
@@ -89,8 +83,8 @@ public class FeedbackTest {
 
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
-            .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
-            .withFeedbackDestination(TEST_HOST, TEST_FEEDBACK_PORT)
+            .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
+            .withFeedbackDestination(LOCALHOST, server.getEffectiveFeedbackPort())
             .build();
 
         checkParsedThree(service.getInactiveDevices());
@@ -102,8 +96,8 @@ public class FeedbackTest {
 
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
-            .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
-            .withFeedbackDestination(TEST_HOST, TEST_FEEDBACK_PORT)
+            .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
+            .withFeedbackDestination(LOCALHOST, server.getEffectiveFeedbackPort())
             .asQueued()
             .build();
 
@@ -116,8 +110,8 @@ public class FeedbackTest {
 
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
-            .withGatewayDestination(TEST_HOST, TEST_GATEWAY_PORT)
-            .withFeedbackDestination(TEST_HOST, TEST_FEEDBACK_PORT)
+            .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
+            .withFeedbackDestination(LOCALHOST, server.getEffectiveFeedbackPort())
             .asQueued()
             .build();
 
