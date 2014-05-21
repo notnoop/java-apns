@@ -61,11 +61,27 @@ public class UtilitiesTest {
     public void testEncodingUTF8() {
         String m = "esemény";
 
-        byte[] expected = {
+        // See http://en.wikipedia.org/wiki/Unicode_equivalence#Example
+        //
+        // Oh the joy as different plaforms choose to normalize Unicode differntly ... but both are valid.
+        //
+        // This is intended to fix a problem under jdk 6, I was not able to reproduce it with jdk 7u51 on OSX Mavericks
+        // (Java seems to also use expected_NFC here).
+        byte[] expected_NFC = {
                 'e', 's', 'e', 'm', (byte)0x00C3, (byte)0x00A9, 'n', 'y'
         };
 
-        Assert.assertArrayEquals(expected, Utilities.toUTF8Bytes(m));
+        byte[] expected_NFD = {
+                'e', 's', 'e', 'm', (byte)0x00cc, (byte)0x0081, (byte)0x0061, 'n', 'y'
+        };
+
+        final byte[] bytes = Utilities.toUTF8Bytes(m);
+
+        if (bytes.length == 8) {
+            Assert.assertArrayEquals(expected_NFC, bytes);
+        } else {
+            Assert.assertArrayEquals(expected_NFD, bytes);
+        }
 
     }
 }
