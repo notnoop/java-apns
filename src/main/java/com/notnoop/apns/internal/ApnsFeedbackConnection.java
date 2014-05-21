@@ -56,16 +56,11 @@ public class ApnsFeedbackConnection {
     private final String proxyPassword;
 
     public ApnsFeedbackConnection(final SocketFactory factory, final String host, final int port) {
-        this(factory, host, port, null, null, null);
-    }
-    
-    public ApnsFeedbackConnection(final SocketFactory factory, final String host, final int port,
-            final Proxy proxy, final String proxyUsername, final String proxyPassword) {
-    	this(factory, host, port, proxy, 0, 0);
+        this(factory, host, port, null, 0, 0, null, null);
     }
 
     public ApnsFeedbackConnection(final SocketFactory factory, final String host, final int port,
-            final Proxy proxy, int readTimeout, int connectTimeout) {
+            final Proxy proxy, int readTimeout, int connectTimeout, final String proxyUsername, final String proxyPassword) {
         this.factory = factory;
         this.host = host;
         this.port = port;

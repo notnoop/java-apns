@@ -226,8 +226,8 @@ public class ApnsServiceBuilder {
     /**
      * Specify the timeout value to be set in new setSoTimeout in created
      * sockets, for both feedback and push connections, in msecs.
-     * @param readTimeout
-     * @return
+     * @param readTimeout timeout value to be set in new setSoTimeout
+     * @return this
      */
     public ApnsServiceBuilder withReadTimeout(int readTimeout) {
     	this.readTimeout = readTimeout;
@@ -237,8 +237,8 @@ public class ApnsServiceBuilder {
     /**
      * Specify the timeout value to use for connectionTimeout in created
      * sockets, for both feedback and push connections, in msecs.
-     * @param connectTimeout
-     * @return
+     * @param connectTimeout timeout value to use for connectionTimeout
+     * @return this
      */
     public ApnsServiceBuilder withConnectTimeout(int connectTimeout) {
     	this.connectTimeout = connectTimeout;
@@ -343,7 +343,7 @@ public class ApnsServiceBuilder {
      * Specify if the notification cache should auto adjust.
      * Default is true
      * 
-     * @param autoAdjustCacheLength 
+     * @param autoAdjustCacheLength the notification cache should auto adjust.
      * @return this
      */
     public ApnsServiceBuilder withAutoAdjustCacheLength(boolean autoAdjustCacheLength) {
@@ -583,8 +583,7 @@ public class ApnsServiceBuilder {
         ApnsService service;
 
         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
-        ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy, readTimeout, connectTimeout);
-        ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy, proxyUsername, proxyPassword);
+        ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy, readTimeout, connectTimeout, proxyUsername, proxyPassword);
 
         ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, 
                 gatewaPort, proxy, proxyUsername, proxyPassword, reconnectPolicy, 
