@@ -32,7 +32,7 @@ public class FeedbackTest {
 
     @Test
     public void simpleFeedback() throws IOException {
-        server.toSend.write(simple);
+        server.getToSend().write(simple);
 
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
@@ -45,8 +45,8 @@ public class FeedbackTest {
     
     @Test
     public void simpleFeedbackWithoutTimeout() throws IOException {
-        server.toSend.write(simple);
-        server.toWaitBeforeSend.set(2000);
+        server.getToSend().write(simple);
+        server.getToWaitBeforeSend().set(2000);
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
             .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
@@ -59,8 +59,8 @@ public class FeedbackTest {
 
     @Test()
     public void simpleFeedbackWithTimeout() throws IOException {
-        server.toSend.write(simple);
-        server.toWaitBeforeSend.set(5000);
+        server.getToSend().write(simple);
+        server.getToWaitBeforeSend().set(5000);
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
             .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
@@ -79,7 +79,7 @@ public class FeedbackTest {
 
     @Test
     public void threeFeedback() throws IOException {
-        server.toSend.write(three);
+        server.getToSend().write(three);
 
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
@@ -92,7 +92,7 @@ public class FeedbackTest {
 
     @Test
     public void simpleQueuedFeedback() throws IOException {
-        server.toSend.write(simple);
+        server.getToSend().write(simple);
 
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)
@@ -106,7 +106,7 @@ public class FeedbackTest {
 
     @Test
     public void threeQueuedFeedback() throws IOException {
-        server.toSend.write(three);
+        server.getToSend().write(three);
 
         ApnsService service =
             APNS.newService().withSSLContext(clientContext)

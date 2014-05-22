@@ -15,15 +15,16 @@ public class ApnsServerStub {
 
     /**
      * Create an ApnsServerStub
+     *
      * @param gatePort port for the gateway stub server
      * @param feedPort port for the feedback stub server
      * @return an ApnsServerStub
+     * @deprecated use prepareAndStartServer() without port numbers and query the port numbers from the server using
+     * ApnsServerStub.getEffectiveGatewayPort() and ApnsServerStub.getEffectiveFeedbackPort()
      */
     @Deprecated
     public static ApnsServerStub prepareAndStartServer(int gatePort, int feedPort) {
-        ApnsServerStub server = new ApnsServerStub(
-                FixedCertificates.serverContext().getServerSocketFactory(),
-                gatePort, feedPort);
+        ApnsServerStub server = new ApnsServerStub(FixedCertificates.serverContext().getServerSocketFactory(), gatePort, feedPort);
         server.start();
         return server;
     }
@@ -38,24 +39,26 @@ public class ApnsServerStub {
         server.start();
         return server;
     }
-    public final AtomicInteger toWaitBeforeSend = new AtomicInteger(0);
-    public final ByteArrayOutputStream received;
-    public final ByteArrayOutputStream toSend;
-    public final Semaphore messages = new Semaphore(0);
+
+    private final AtomicInteger toWaitBeforeSend = new AtomicInteger(0);
+    private final ByteArrayOutputStream received;
+    private final ByteArrayOutputStream toSend;
+    private final Semaphore messages = new Semaphore(0);
     private final Semaphore startUp = new Semaphore(0);
     private final Semaphore gatewayOutLock = new Semaphore(0);
-    public final Semaphore waitForError = new Semaphore(1);
+    private final Semaphore waitForError = new Semaphore(1);
     private final ServerSocketFactory sslFactory;
-    private final int gatewayPort, feedbackPort;
-    private int effectiveGatewayPort, effectiveFeedbackPort;
+    private final int gatewayPort;
+    private final int feedbackPort;
+    private int effectiveGatewayPort;
+    private int effectiveFeedbackPort;
     private OutputStream gatewayOutputStream = null;
 
     public ApnsServerStub(ServerSocketFactory sslFactory) {
-        this(sslFactory, 0,0);
+        this(sslFactory, 0, 0);
     }
 
-    public ApnsServerStub(ServerSocketFactory sslFactory,
-            int gatewayPort, int feedbackPort) {
+    public ApnsServerStub(ServerSocketFactory sslFactory, int gatewayPort, int feedbackPort) {
         this.sslFactory = sslFactory;
         this.gatewayPort = gatewayPort;
         this.feedbackPort = feedbackPort;
@@ -63,18 +66,20 @@ public class ApnsServerStub {
         this.received = new ByteArrayOutputStream();
         this.toSend = new ByteArrayOutputStream();
     }
-    Thread gatewayThread, feedbackThread;
-    ServerSocket gatewaySocket, feedbackSocket;
+
+    Thread gatewayThread;
+    Thread feedbackThread;
+    ServerSocket gatewaySocket;
+    ServerSocket feedbackSocket;
 
     public void start() {
-        gatewayThread = new Thread(new GatewayRunner());
-        feedbackThread = new Thread(new FeedbackRunner());
+        gatewayThread = new GatewayRunner();
+        feedbackThread = new FeedbackRunner();
         gatewayThread.start();
         feedbackThread.start();
         startUp.acquireUninterruptibly(2);
     }
 
-    @SuppressWarnings("deprecation")
     public void stop() {
         try {
             if (gatewaySocket != null) {
@@ -121,9 +126,31 @@ public class ApnsServerStub {
         return effectiveFeedbackPort;
     }
 
-    private class GatewayRunner implements Runnable {
+    public AtomicInteger getToWaitBeforeSend() {
+        return toWaitBeforeSend;
+    }
+
+    public ByteArrayOutputStream getReceived() {
+        return received;
+    }
+
+    public ByteArrayOutputStream getToSend() {
+        return toSend;
+    }
+
+    public Semaphore getMessages() {
+        return messages;
+    }
+
+    public Semaphore getWaitForError() {
+        return waitForError;
+    }
+
+    private class GatewayRunner extends Thread {
 
         public void run() {
+
+
             try {
                 gatewaySocket = sslFactory.createServerSocket(gatewayPort);
             } catch (IOException e) {
@@ -146,14 +173,14 @@ public class ApnsServerStub {
 
                 // Read from in and write to out...
                 byte[] read = readFully(in);
-                
+
                 waitBeforeSend();
                 received.write(read);
                 messages.release();
 
 
                 waitForError.acquire();
-                
+
                 // Close the socket
                 in.close();
                 gatewayOutputStream.close();
@@ -175,9 +202,10 @@ public class ApnsServerStub {
                 messages.release();
             }
         }
+
     }
 
-    private class FeedbackRunner implements Runnable {
+    private class FeedbackRunner extends Thread {
 
         public void run() {
             try {
@@ -211,6 +239,7 @@ public class ApnsServerStub {
             messages.release();
         }
     }
+
     AtomicInteger readLen = new AtomicInteger();
 
     public void stopAt(int length) {
@@ -232,18 +261,19 @@ public class ApnsServerStub {
 
         return stream.toByteArray();
     }
-    
+
     /**
      * Introduces a waiting time, used to trigger read timeouts.
      */
     private void waitBeforeSend() {
-    	int wait = toWaitBeforeSend.get();
-    	if(wait!=0)
-			try {
-				Thread.sleep(wait);
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
+        int wait = toWaitBeforeSend.get();
+        if (wait != 0) {
+            try {
+                Thread.sleep(wait);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
-    
+
 }

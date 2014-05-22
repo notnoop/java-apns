@@ -45,9 +45,9 @@ public class ApnsConnectionTest {
                 .build();
         server.stopAt(msg1.length());
         service.push(msg1);
-        server.messages.acquire();
+        server.getMessages().acquire();
 
-        assertArrayEquals(msg1.marshall(), server.received.toByteArray());
+        assertArrayEquals(msg1.marshall(), server.getReceived().toByteArray());
     }
 
     @Test(timeout = 2000)
@@ -61,15 +61,15 @@ public class ApnsConnectionTest {
                 .build();
         server.stopAt(msg1.length());
         service.push(msg1);
-        server.messages.acquire();
+        server.getMessages().acquire();
 
-        assertArrayEquals(msg1.marshall(), server.received.toByteArray());
+        assertArrayEquals(msg1.marshall(), server.getReceived().toByteArray());
     }
     
     
     @Test
     public void sendOneSimpleWithoutTimeout() throws InterruptedException {
-        server.toWaitBeforeSend.set(2000);
+        server.getToWaitBeforeSend().set(2000);
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
                 .withGatewayDestination(LOCALHOST, gatewayPort)
@@ -77,9 +77,9 @@ public class ApnsConnectionTest {
                 .build();
         server.stopAt(msg1.length());
         service.push(msg1);
-        server.messages.acquire();
+        server.getMessages().acquire();
 
-        assertArrayEquals(msg1.marshall(), server.received.toByteArray());
+        assertArrayEquals(msg1.marshall(), server.getReceived().toByteArray());
     }
     
     /**
@@ -92,7 +92,7 @@ public class ApnsConnectionTest {
      */
     @Test
     public void sendOneSimpleWithTimeout() throws InterruptedException {
-        server.toWaitBeforeSend.set(5000);
+        server.getToWaitBeforeSend().set(5000);
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
                 .withGatewayDestination(LOCALHOST, gatewayPort)
@@ -100,9 +100,9 @@ public class ApnsConnectionTest {
                 .build();
         server.stopAt(msg1.length());
         service.push(msg1);
-        server.messages.acquire();
+        server.getMessages().acquire();
 
-        assertArrayEquals(msg1.marshall(), server.received.toByteArray());
+        assertArrayEquals(msg1.marshall(), server.getReceived().toByteArray());
     }
 
 }

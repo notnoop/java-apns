@@ -37,8 +37,19 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 
 /**
- * Represents an APNS notification to be sent to Apple service.
+ * Represents an APNS notification to be sent to Apple service. This is for legacy use only
+ * and should not be used in new development.
+ * https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/LegacyFormat.html
+ *
+ * This SimpleApnsNotification also only has limited error handly (by the APNS closing the connection
+ * when a bad message was received) This prevents us from location the malformed notification.
+ *
+ * As push messages sent after a malformed notification are discarded by APNS messages will get lost
+ * and not be delivered with the SimpleApnsNotification.
+ *
+ * @deprecated use EnhancedApnsNotification instead.
  */
+@Deprecated
 public class SimpleApnsNotification implements ApnsNotification {
 
     private final static byte COMMAND = 0;

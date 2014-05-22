@@ -43,8 +43,8 @@ import javax.net.ssl.SSLSocketFactory;
 import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.DeliveryError;
+import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.ReconnectPolicy;
-import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.exceptions.ApnsDeliveryErrorException;
 import com.notnoop.exceptions.NetworkIOException;
 import org.slf4j.Logger;
@@ -154,8 +154,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         } else {
                             cachedNotifications.addAll(tempCache);
                             int resendSize = tempCache.size();
-                            logger.warn("Received error for message "
-                                    + "that wasn't in the cache...");
+                            logger.warn("Received error for message that wasn't in the cache...");
                             if (autoAdjustCacheLength) {
                                 cacheLength = cacheLength + (resendSize / 2);
                                 delegate.cacheLengthExceeded(cacheLength);
@@ -195,7 +194,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     // has the required logic for retrying
     private Socket socket;
 
-    private synchronized Socket socket() throws NetworkIOException {
+    private synchronized Socket getOrCreateSocket() throws NetworkIOException {
         if (reconnectPolicy.shouldReconnect()) {
             Utilities.close(socket);
             socket = null;
@@ -253,7 +252,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         while (true) {
             try {
                 attempts++;
-                Socket socket = socket();
+                Socket socket = getOrCreateSocket();
                 socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
                 cacheNotification(m);
@@ -276,7 +275,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 // The first failure might be due to closed connection
                 // don't delay quite yet
                 if (attempts != 1) {
-                    // Do not spam the log files when the APNS server closed the socket (due to a
+                    // Do not spam the log files when the APNS server closed the getOrCreateSocket (due to a
                     // bad token, for example), only log when on the second retry.
                     logger.info("Failed to send message " + m + "... trying again after delay", e);
                     Utilities.sleep(DELAY_IN_MS);
@@ -308,7 +307,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
         ApnsConnectionImpl testConnection = null;
         try {
             testConnection = new ApnsConnectionImpl(factory, host, port, proxy, proxyUsername, proxyPassword, reconnectPolicy.copy(), delegate);
-            testConnection.sendMessage(new SimpleApnsNotification(new byte[]{0}, new byte[]{0}));
+            final ApnsNotification notification = new EnhancedApnsNotification(0, 0, new byte[]{0}, new byte[]{0});
+            testConnection.sendMessage(notification);
         } finally {
             if (testConnection != null) {
                 testConnection.close();

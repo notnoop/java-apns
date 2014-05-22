@@ -56,7 +56,7 @@ public class ApnsConnectionCacheTest {
         final AtomicInteger numSent = new AtomicInteger();
         int EXPECTED_RESEND_COUNT = 7;
         int EXPECTED_SEND_COUNT = 12;
-        server.waitForError.acquire();
+        server.getWaitForError().acquire();
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
@@ -98,8 +98,8 @@ public class ApnsConnectionCacheTest {
 
         server.sendError(8, eMsg2.getIdentifier());
 
-        server.waitForError.release();
-        server.messages.acquire();
+        server.getWaitForError().release();
+        server.getMessages().acquire();
 
         sync.await();
 
@@ -122,7 +122,7 @@ public class ApnsConnectionCacheTest {
         final AtomicInteger numSent = new AtomicInteger();
         int EXPECTED_RESEND_COUNT = 2;
         int EXPECTED_SEND_COUNT = 3;
-        server.waitForError.acquire();
+        server.getWaitForError().acquire();
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
@@ -157,8 +157,8 @@ public class ApnsConnectionCacheTest {
         service.push(msg2);
 
         server.sendError(8, eMsg2.getIdentifier());
-        server.waitForError.release();
-        server.messages.acquire();
+        server.getWaitForError().release();
+        server.getMessages().acquire();
 
         sync.await();
 
@@ -179,7 +179,7 @@ public class ApnsConnectionCacheTest {
         final CountDownLatch sync = new CountDownLatch(1);
         final AtomicInteger numError = new AtomicInteger();
         int EXPECTED_ERROR_COUNT = 1;
-        server.waitForError.acquire();
+        server.getWaitForError().acquire();
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
@@ -207,8 +207,8 @@ public class ApnsConnectionCacheTest {
         service.push(eMsg1);
 
         server.sendError(8, eMsg1.getIdentifier());
-        server.waitForError.release();
-        server.messages.acquire();
+        server.getWaitForError().release();
+        server.getMessages().acquire();
 
         sync.await();
 
@@ -227,7 +227,7 @@ public class ApnsConnectionCacheTest {
         final AtomicInteger sync = new AtomicInteger(138);
         final AtomicInteger numResent = new AtomicInteger();
         final AtomicInteger numSent = new AtomicInteger();
-        server.waitForError.acquire();
+        server.getWaitForError().acquire();
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
@@ -272,8 +272,8 @@ public class ApnsConnectionCacheTest {
         }
 
         server.sendError(8, eMsg2.getIdentifier());
-        server.waitForError.release();
-        server.messages.acquire();
+        server.getWaitForError().release();
+        server.getMessages().acquire();
 
         while(sync.get() != 0) {
             Thread.yield();
@@ -293,7 +293,7 @@ public class ApnsConnectionCacheTest {
         final CountDownLatch sync = new CountDownLatch(1);
         int ORIGINAL_CACHE_LENGTH = 100;
         final AtomicInteger modifiedCacheLength = new AtomicInteger();
-        server.waitForError.acquire();
+        server.getWaitForError().acquire();
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
@@ -332,8 +332,8 @@ public class ApnsConnectionCacheTest {
 
         server.sendError(8, eMsg2.getIdentifier());
 
-        server.waitForError.release();
-        server.messages.acquire();
+        server.getWaitForError().release();
+        server.getMessages().acquire();
 
         sync.await();
 
