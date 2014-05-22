@@ -31,7 +31,7 @@
 package com.notnoop.apns;
 
 import java.util.Arrays;
-import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 import com.notnoop.apns.internal.Utilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -41,25 +41,20 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class EnhancedApnsNotification implements ApnsNotification {
 
     private final static byte COMMAND = 1;
-    private static int nextId = 0;
+    private static AtomicInteger nextId = new AtomicInteger(0);
     private final int identifier;
     private final int expiry;
     private final byte[] deviceToken;
     private final byte[] payload;
 
     public static int INCREMENT_ID() {
-        return ++nextId;
+        return nextId.incrementAndGet();
     }
     
     /**
      * The infinite future for the purposes of Apple expiry date
      */
     public final static int MAXIMUM_EXPIRY = Integer.MAX_VALUE;
-
-    /**
-     * The infinite future for the purposes of Apple expiry date
-     */
-    public final static Date MAXIMUM_DATE = new Date(Integer.MAX_VALUE * 1000L);
 
     /**
      * Constructs an instance of {@code ApnsNotification}.
@@ -172,7 +167,6 @@ public class EnhancedApnsNotification implements ApnsNotification {
     public String toString() {
         String payloadString;
         try {
-
             payloadString = new String(payload, "UTF-8");
         } catch (Exception ex) {
             payloadString = "???";
