@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import javax.net.ServerSocketFactory;
+import com.notnoop.apns.internal.Utilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +126,7 @@ public abstract class ApnsServerSimulator {
                 try {
                     final ApnsInputStream inputStream = inputOutputSocket.getInputStream();
                     byte notificationType = inputStream.readByte();
-                    logger.debug("Received Notification {}", notificationType);
+                    logger.debug("Received Notification (type {})", notificationType);
                     switch (notificationType) {
                         case 0:
                             readLegacyNotification(inputOutputSocket);
@@ -337,6 +338,18 @@ public abstract class ApnsServerSimulator {
 
         public byte getPriority() {
             return priority;
+        }
+
+        @Override
+        public String toString() {
+            return "Notification{" +
+                    "type=" + type +
+                    ", identifier=" + identifier +
+                    ", expiry=" + expiry +
+                    ", deviceToken=" + Utilities.encodeHex(deviceToken) +
+                    //", payload=" + Utilities.encodeHex(payload) +
+                    ", priority=" + priority +
+                    '}';
         }
     }
 

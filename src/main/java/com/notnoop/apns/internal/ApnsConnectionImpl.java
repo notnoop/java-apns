@@ -178,7 +178,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         logger.debug("resending {} notifications", resendSize);
                         delegate.notificationsResent(resendSize);
 
-                        logger.debug("resending {} notifications", resendSize);
+                        logger.debug("closing connection cause={}; id={}", e, id);
                         delegate.connectionClosed(e, id);
 
                         drainBuffer();

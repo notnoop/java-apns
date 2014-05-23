@@ -14,6 +14,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.mockito.Matchers;
@@ -26,7 +27,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings("deprecation")
 public class ApnsSimulatorTest {
 
-    //@Rule
+    @Rule
     public Timeout globalTimeout = new Timeout(5000);
 
 
@@ -71,7 +72,15 @@ public class ApnsSimulatorTest {
     }
 
     @Test
+    public void sendThree() throws InterruptedException {
+        sendCount(3, 0);
+        assertNumberReceived(3);
+        assertDelegateSentCount(3);
+    }
+
+    @Test
     public void sendThousand() throws InterruptedException {
+        TestLoggerFactory.getInstance().setPrintLevel(Level.INFO);
         sendCount(1000, 0);
         assertNumberReceived(1000);
         assertDelegateSentCount(1000);
@@ -98,11 +107,39 @@ public class ApnsSimulatorTest {
 
     @Test
     public void handleRetransmissionWithSeveralOutstandingMessages() throws InterruptedException {
-        send(0, 0, -1, -1, -1, 8, -1, -1, -1, -1, 0, 0, 0);
-        assertNumberReceived(13);
-        assertDelegateSentCount(13);
-        verify(delegate, times(1)).connectionClosed(Matchers.any(DeliveryError.class), Matchers.anyInt());
+        send(-1, -1, -1, -1, -1, 8, -1, -1, -1, -1, -1, -1, -1);
+        assertNumberReceived(12);
+        assertDelegateSentCount(13 + 7); // Initially sending all 13 notifications, then resend the last 7 ones
+        //verify(delegate, times(1)).connectionClosed(Matchers.any(DeliveryError.class), Matchers.anyInt());
+    }
 
+    @Ignore
+    @Test
+    public void testConnectionAbort() {
+        // TODO implement test, validate assumption
+        Assert.fail("Assumption: java-apns does resend when the connection just closes - probably OK");
+    }
+
+    @Ignore
+    @Test
+    public void Racecondition() {
+        // TODO implement test & decide if fix is neccessary afterwards.
+        Assert.fail("Assumption: monitoring thread crashes in read() when the sender thread closes the connection first.");
+        // Thus the last feedback message gets lost, thus we lose messages.
+    }
+
+    @Ignore
+    @Test
+    public void CloseLog() {
+        // TODO implement test & decide if fix is neccessary afterwards.
+        Assert.fail("A message with a bad token fills the error log with exceptions due to EOF ");
+    }
+
+    @Ignore
+    @Test
+    public void OneHundretAndFour() {
+        // TODO implement test & decide if fix is neccessary afterwards.
+        Assert.fail("There is github issue #104 ");
     }
 
     private void send(final int... codes) {
@@ -155,7 +192,7 @@ public class ApnsSimulatorTest {
             }
 
         }
-        return new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(), 1, deviceToken, Utilities.toUTF8Bytes(payload));
+        return new EnhancedApnsNotification(EnhancedApnsNotification.incrementId(), 1, deviceToken, Utilities.toUTF8Bytes(payload));
     }
 
     private void sendCount(final int count, final int code) {

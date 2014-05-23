@@ -159,4 +159,6 @@ public class SimpleApnsNotification implements ApnsNotification {
         }
         return "Message(Token="+Utilities.encodeHex(deviceToken)+"; Payload="+payloadString+")";
     }
+
+
 }
