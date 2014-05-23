@@ -10,8 +10,12 @@ import java.util.concurrent.TimeUnit;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BatchApnsService extends AbstractApnsService {
+
+    private static final Logger logger = LoggerFactory.getLogger(BatchApnsService.class);
 
 	/**
 	 * How many seconds to wait for more messages before batch is send.
@@ -90,8 +94,8 @@ public class BatchApnsService extends AbstractApnsService {
 					try {
 						newConnection.sendMessage(msg);
 					} catch (NetworkIOException e) {
-						continue;
-					}
+                        logger.warn("Network exception sending message msg "+ msg.getIdentifier(), e);
+                    }
 				}
 			} finally {
 				Utilities.close(newConnection);

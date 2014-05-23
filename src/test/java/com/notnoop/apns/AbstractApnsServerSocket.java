@@ -42,7 +42,8 @@ public abstract class AbstractApnsServerSocket {
 		}).start();
 	}
 
-	private void startAccept() {
+	@SuppressWarnings("InfiniteLoopStatement")
+    private void startAccept() {
 
 		try {
 			while (true) {

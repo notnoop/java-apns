@@ -61,10 +61,28 @@ public interface ApnsDelegate {
      */
     public void messageSendFailed(ApnsNotification message, Throwable e);
 
+    /**
+     * The connection was closed and/or an error packet was received while
+     * monitoring was turned on.
+     *
+     * @param e the delivery error
+     * @param messageIdentifier  id of the message that failed
+     */
     public void connectionClosed(DeliveryError e, int messageIdentifier);
 
+    /**
+     * The resend cache needed a bigger size (while resending messages)
+     *
+     * @param newCacheLength new size of the resend cache.
+     */
     public void cacheLengthExceeded(int newCacheLength);
-    
+
+    /**
+     * A number of notifications has been queued for resending due to a error-response
+     * packet being received.
+     *
+     * @param resendCount the number of messages being queued for resend
+     */
     public void notificationsResent(int resendCount);
     
     /**

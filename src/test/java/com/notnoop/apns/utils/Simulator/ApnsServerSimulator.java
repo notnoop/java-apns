@@ -15,7 +15,6 @@ import javax.net.ServerSocketFactory;
 
 public abstract class ApnsServerSimulator {
 
-
     private final Semaphore startUp = new Semaphore(0);
     private final ServerSocketFactory sslFactory;
     private int effectiveGatewayPort;
@@ -55,11 +54,11 @@ public abstract class ApnsServerSimulator {
         }
 
         if (gatewayThread != null) {
-            gatewayThread.stop();
+            gatewayThread.interrupt();
         }
 
         if (feedbackThread != null) {
-            feedbackThread.stop();
+            feedbackThread.interrupt();
         }
 
     }
@@ -88,17 +87,12 @@ public abstract class ApnsServerSimulator {
             startUp.release();
 
             while (!isInterrupted()) {
-                InputOutputSocket inputOutputSocket = null;
                 try {
                     handleGatewayConnection(new InputOutputSocket(gatewaySocket.accept()));
                 } catch (SocketException ex) {
                     interrupt();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
-                } finally {
-                    if (inputOutputSocket != null) {
-                        inputOutputSocket.close();
-                    }
                 }
             }
         }
@@ -141,7 +135,7 @@ public abstract class ApnsServerSimulator {
 
             ApnsInputStream frameStream = inputOutputSocket.getInputStream().readFrame();
             try {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     final ApnsInputStream.Item item = frameStream.readItem();
                     map.put(item.getItemId(), item);
                 }
@@ -198,9 +192,9 @@ public abstract class ApnsServerSimulator {
 
     protected void fail(final byte status, final int identifier, final InputOutputSocket inputOutputSocket) throws IOException {
         final DataOutputStream outputStream = inputOutputSocket.getOutputStream();
-        outputStream.write((byte) 8);
-        outputStream.write(status);
-        outputStream.write(identifier);
+        outputStream.writeByte(8);
+        outputStream.writeByte(status);
+        outputStream.writeInt(identifier);
         outputStream.flush();
         inputOutputSocket.close();
     }
@@ -221,17 +215,12 @@ public abstract class ApnsServerSimulator {
 
 
             while (!isInterrupted()) {
-                InputOutputSocket inputOutputSocket = null;
                 try {
                     handleFeedbackConnection(new InputOutputSocket(feedbackSocket.accept()));
                 } catch (SocketException ex) {
                     interrupt();
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
-                } finally {
-                    if (inputOutputSocket != null) {
-                        inputOutputSocket.close();
-                    }
                 }
             }
 
@@ -272,6 +261,7 @@ public abstract class ApnsServerSimulator {
     }
 
 
+    @SuppressWarnings("UnusedDeclaration")
     protected class Notification {
         private final int type;
         private final int identifier;

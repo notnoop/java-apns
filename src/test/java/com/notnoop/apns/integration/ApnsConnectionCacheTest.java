@@ -17,16 +17,17 @@ import org.junit.Before;
 import org.junit.Test;
 import static com.notnoop.apns.utils.FixedCertificates.*;
 
+@SuppressWarnings("deprecation")
 public class ApnsConnectionCacheTest {
 
-    ApnsServerStub server;
-    static SimpleApnsNotification msg1 = new SimpleApnsNotification("a87d8878d878a79", "{\"aps\":{}}");
-    static SimpleApnsNotification msg2 = new SimpleApnsNotification("a87d8878d878a88", "{\"aps\":{}}");
-    static EnhancedApnsNotification eMsg1 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
+    private ApnsServerStub server;
+    private static SimpleApnsNotification msg1 = new SimpleApnsNotification("a87d8878d878a79", "{\"aps\":{}}");
+    private static SimpleApnsNotification msg2 = new SimpleApnsNotification("a87d8878d878a88", "{\"aps\":{}}");
+    private static EnhancedApnsNotification eMsg1 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
-    static EnhancedApnsNotification eMsg2 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
+    private static EnhancedApnsNotification eMsg2 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
-    static EnhancedApnsNotification eMsg3 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
+    private static EnhancedApnsNotification eMsg3 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
 
     @Before

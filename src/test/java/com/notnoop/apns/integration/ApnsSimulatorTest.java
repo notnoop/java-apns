@@ -5,6 +5,7 @@ import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.DeliveryError;
 import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.internal.Utilities;
 import com.notnoop.apns.utils.FixedCertificates;
@@ -13,14 +14,21 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.mockito.Matchers;
+import uk.org.lidalia.slf4jext.Level;
+import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 import static com.notnoop.apns.utils.FixedCertificates.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("deprecation")
 public class ApnsSimulatorTest {
+
+    @Rule
+    public Timeout globalTimeout = new Timeout(5000);
 
 
     private static final String payload = "{\"aps\":{}}";
@@ -31,11 +39,20 @@ public class ApnsSimulatorTest {
 
     @Before
     public void startup() {
+        // http://projects.lidalia.org.uk/slf4j-test/
+        TestLoggerFactory.getInstance().setPrintLevel(Level.DEBUG);
+        TestLoggerFactory.clearAll();
+
+
+
         server = new FailingApnsServerSimulator(FixedCertificates.serverContext().getServerSocketFactory());
         server.start();
         delegate = ApnsDelegate.EMPTY;
         delegate = mock(ApnsDelegate.class);
-        service = APNS.newService().withSSLContext(clientContext()).withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
+        service = APNS.newService()
+                .withSSLContext(clientContext())
+                .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
+                .withFeedbackDestination(LOCALHOST, server.getEffectiveFeedbackPort())
                 .withDelegate(delegate).build();
         random = new Random();
     }
@@ -70,13 +87,24 @@ public class ApnsSimulatorTest {
         assertDelegateSentCount(1);
     }
 
+    @Ignore("Failing - getting 2 callbacks on connectionclosed")
+    @Test
+    public void testConnectionClose() throws InterruptedException {
+        send(8);
+        assertNumberReceived(1);
+        Thread.sleep(3000);
+        assertDelegateSentCount(1);
+        verify(delegate, times(1)).connectionClosed(Matchers.any(DeliveryError.class), Matchers.anyInt());
+    }
 
-    @Ignore("failing")
+    @Ignore("Failing - hangs")
     @Test
     public void handleRetransmissionWithSeveralOutstandingMessages() throws InterruptedException {
         send(0, 0, -1, -1, -1, 8, -1, -1, -1, -1, 0, 0, 0);
         assertNumberReceived(13);
-        assertDelegateSentCount(1);
+        assertDelegateSentCount(13);
+        verify(delegate, times(1)).connectionClosed(Matchers.any(DeliveryError.class), Matchers.anyInt());
+
     }
 
     private void send(final int... codes) {
@@ -125,6 +153,7 @@ public class ApnsSimulatorTest {
                 assert code > 0;
                 deviceToken[2] = (byte) 0;
                 deviceToken[3] = (byte) code;
+
             }
 
         }

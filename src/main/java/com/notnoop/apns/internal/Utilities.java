@@ -231,6 +231,8 @@ public final class Utilities {
     }
 
     public static void close(final Closeable closeable) {
+        logger.debug("close {}", closeable);
+
         try {
             if (closeable != null) {
                 closeable.close();
@@ -241,6 +243,8 @@ public final class Utilities {
     }
 
     public static void close(final Socket closeable) {
+        logger.debug("close {}", closeable);
+
         try {
             if (closeable != null) {
                 closeable.close();
@@ -253,7 +257,9 @@ public final class Utilities {
     public static void sleep(final int delay) {
         try {
             Thread.sleep(delay);
-        } catch (final InterruptedException e1) {}
+        } catch (final InterruptedException e1) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     public static byte[] copyOf(final byte[] bytes) {
@@ -285,6 +291,7 @@ public final class Utilities {
         }
     }
 
+    @SuppressWarnings({"PointlessArithmeticExpression", "PointlessBitwiseExpression"})
     public static int parseBytes(final int b1, final int b2, final int b3, final int b4) {
         return  ((b1 << 3 * 8) & 0xFF000000)
               | ((b2 << 2 * 8) & 0x00FF0000)

@@ -80,6 +80,7 @@ public class ApnsServerStub {
         startUp.acquireUninterruptibly(2);
     }
 
+    @SuppressWarnings("deprecation")
     public void stop() {
         try {
             if (gatewaySocket != null) {

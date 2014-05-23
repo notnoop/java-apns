@@ -1,17 +1,17 @@
 package com.notnoop.apns;
 
-import static org.junit.Assert.*;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringContains.containsString;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Random;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
-import com.notnoop.apns.PayloadBuilder;
 import com.notnoop.apns.internal.Utilities;
+import org.junit.Test;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsNot.*;
+import static org.hamcrest.core.StringContains.*;
+import static org.junit.Assert.*;
 
+@SuppressWarnings("deprecation")
 public class PayloadBuilderTest {
 
     @Test
@@ -81,7 +81,7 @@ public class PayloadBuilderTest {
     public void localizedOneWithArray() {
         final PayloadBuilder builder = new PayloadBuilder()
         .localizedKey("GAME_PLAY_REQUEST_FORMAT")
-        .localizedArguments(new String[] { "Jenna", "Frank" });
+        .localizedArguments("Jenna", "Frank");
         builder.sound("chime");
 
         final String expected = "{\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
@@ -107,7 +107,7 @@ public class PayloadBuilderTest {
             new PayloadBuilder()
         .sound("chime")
         .localizedKey("GAME_PLAY_REQUEST_FORMAT")
-        .localizedArguments(new String[] { "Jenna", "Frank" });
+        .localizedArguments("Jenna", "Frank");
 
         final String expected = "{\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
         final String actual = builder.toString();
@@ -226,7 +226,7 @@ public class PayloadBuilderTest {
         builder.customField("achme", "foo");
         builder.sound("chime");
         builder.localizedKey("GAME_PLAY_REQUEST_FORMAT")
-        .localizedArguments(new String[] { "Jenna", "Frank"});
+        .localizedArguments("Jenna", "Frank");
 
         final String expected = "{\"achme\":\"foo\",\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
         final String actual = builder.toString();
@@ -239,7 +239,7 @@ public class PayloadBuilderTest {
         builder.customField("achme", "foo");
         builder.sound("chime");
         builder.localizedKey("GAME_PLAY_REQUEST_FORMAT")
-        .localizedArguments(new String[] { "Jenna", "Frank"});
+        .localizedArguments("Jenna", "Frank");
 
         final String expected = "{\"achme\":\"foo\",\"aps\":{\"sound\":\"chime\",\"alert\":{\"loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"loc-args\":[\"Jenna\",\"Frank\"]}}}";
         assertEqualsJson(expected, builder.build());
@@ -297,8 +297,7 @@ public class PayloadBuilderTest {
         for (int i = 0; i < l; ++i) {
             sb.append('c');
         }
-        final String alert = sb.toString();
-        return alert;
+        return sb.toString();
     }
 
     private PayloadBuilder payloadOf(final int l) {

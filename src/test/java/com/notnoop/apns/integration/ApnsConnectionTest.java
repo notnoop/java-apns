@@ -11,6 +11,7 @@ import org.junit.Test;
 import static com.notnoop.apns.utils.FixedCertificates.*;
 import static org.junit.Assert.*;
 
+@SuppressWarnings("ALL")
 public class ApnsConnectionTest {
 
     ApnsServerStub server;

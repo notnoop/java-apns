@@ -279,7 +279,7 @@ public final class PayloadBuilder {
      * @param values   the custom map
      * @return  this
      */
-    public PayloadBuilder customFields(final Map<String, ? extends Object> values) {
+    public PayloadBuilder customFields(final Map<String, ?> values) {
         root.putAll(values);
         return this;
     }

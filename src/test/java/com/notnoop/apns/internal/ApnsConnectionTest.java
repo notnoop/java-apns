@@ -9,8 +9,9 @@ import org.junit.Test;
 import static com.notnoop.apns.internal.MockingUtils.*;
 
 
+@SuppressWarnings("deprecation")
 public class ApnsConnectionTest {
-    SimpleApnsNotification msg = new SimpleApnsNotification ("a87d8878d878a79", "{\"aps\":{}}");
+    private SimpleApnsNotification msg = new SimpleApnsNotification ("a87d8878d878a79", "{\"aps\":{}}");
 
     @Test
     public void simpleSocket() {
