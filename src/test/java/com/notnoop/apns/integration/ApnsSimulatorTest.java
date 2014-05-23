@@ -14,7 +14,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.mockito.Matchers;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings("deprecation")
 public class ApnsSimulatorTest {
 
-    @Rule
+    //@Rule
     public Timeout globalTimeout = new Timeout(5000);
 
 
@@ -97,7 +96,6 @@ public class ApnsSimulatorTest {
         verify(delegate, times(1)).connectionClosed(Matchers.any(DeliveryError.class), Matchers.anyInt());
     }
 
-    @Ignore("Failing - hangs")
     @Test
     public void handleRetransmissionWithSeveralOutstandingMessages() throws InterruptedException {
         send(0, 0, -1, -1, -1, 8, -1, -1, -1, -1, 0, 0, 0);

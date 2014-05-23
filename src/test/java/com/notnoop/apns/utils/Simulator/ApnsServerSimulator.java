@@ -12,8 +12,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 import javax.net.ServerSocketFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class ApnsServerSimulator {
+
+    private static final Logger logger = LoggerFactory.getLogger(ApnsServerSimulator.class);
 
     private final Semaphore startUp = new Semaphore(0);
     private final ServerSocketFactory sslFactory;
@@ -30,6 +34,7 @@ public abstract class ApnsServerSimulator {
     ServerSocket feedbackSocket;
 
     public void start() {
+        logger.debug("Starting APNSServerSimulator");
         gatewayThread = new GatewayListener();
         feedbackThread = new FeedbackRunner();
         gatewayThread.start();
@@ -38,6 +43,7 @@ public abstract class ApnsServerSimulator {
     }
 
     public void stop() {
+        logger.debug("Stopping APNSServerSimulator");
         try {
             if (gatewaySocket != null) {
                 gatewaySocket.close();
@@ -74,6 +80,8 @@ public abstract class ApnsServerSimulator {
     private class GatewayListener extends Thread {
 
         public void run() {
+            logger.debug("Running GatewayListener");
+
             try {
                 gatewaySocket = sslFactory.createServerSocket(0);
             } catch (IOException e) {
@@ -101,17 +109,23 @@ public abstract class ApnsServerSimulator {
             Thread gatewayConnectionTread = new Thread() {
                 @Override
                 public void run() {
-                    parseNotifications(inputOutputSocket);
+                    try {
+                        parseNotifications(inputOutputSocket);
+                    } finally {
+                        inputOutputSocket.close();
+                    }
                 }
             };
             gatewayConnectionTread.start();
         }
 
         private void parseNotifications(final InputOutputSocket inputOutputSocket) {
+            logger.debug("Runnin parseNotifications {}", inputOutputSocket.getSocket());
             while (!Thread.interrupted()) {
                 try {
                     final ApnsInputStream inputStream = inputOutputSocket.getInputStream();
                     byte notificationType = inputStream.readByte();
+                    logger.debug("Received Notification {}", notificationType);
                     switch (notificationType) {
                         case 0:
                             readLegacyNotification(inputOutputSocket);
@@ -148,7 +162,10 @@ public abstract class ApnsServerSimulator {
             int identifier = get(map, ApnsInputStream.Item.ID_NOTIFICATIONIDENTIFIER).getInt();
             int expiry = get(map, ApnsInputStream.Item.ID_EXPIRATIONDATE).getInt();
             byte priority = get(map, ApnsInputStream.Item.ID_PRIORITY).getByte();
-            onNotification(new Notification(2, identifier, expiry, deviceToken, payload, priority), inputOutputSocket);
+
+            final Notification notification = new Notification(2, identifier, expiry, deviceToken, payload, priority);
+            logger.debug("Read framed notification {}", notification);
+            onNotification(notification, inputOutputSocket);
 
         }
 
@@ -167,7 +184,9 @@ public abstract class ApnsServerSimulator {
             int expiry = inputStream.readInt();
             final byte[] deviceToken = inputStream.readBlob();
             final byte[] payload = inputStream.readBlob();
-            onNotification(new Notification(1, identifier, expiry, deviceToken, payload), inputOutputSocket);
+            final Notification notification = new Notification(1, identifier, expiry, deviceToken, payload);
+            logger.debug("Read enhanced notification {}", notification);
+            onNotification(notification, inputOutputSocket);
         }
 
         private void readLegacyNotification(final InputOutputSocket inputOutputSocket) throws IOException {
@@ -175,12 +194,15 @@ public abstract class ApnsServerSimulator {
 
             final byte[] deviceToken = inputStream.readBlob();
             final byte[] payload = inputStream.readBlob();
-            onNotification(new Notification(0, deviceToken, payload), inputOutputSocket);
+            final Notification notification = new Notification(0, deviceToken, payload);
+            logger.debug("Read legacy notification {}", notification);
+            onNotification(notification, inputOutputSocket);
 
         }
 
         @Override
         public void interrupt() {
+            logger.debug("Interrupt, closing socket");
             super.interrupt();
             try {
                 gatewaySocket.close();
@@ -191,6 +213,7 @@ public abstract class ApnsServerSimulator {
     }
 
     protected void fail(final byte status, final int identifier, final InputOutputSocket inputOutputSocket) throws IOException {
+        logger.debug("FAIL {} {}", status, identifier);
         final DataOutputStream outputStream = inputOutputSocket.getOutputStream();
         outputStream.writeByte(8);
         outputStream.writeByte(status);
@@ -202,6 +225,7 @@ public abstract class ApnsServerSimulator {
     private class FeedbackRunner extends Thread {
 
         public void run() {
+            logger.debug("Launched FeedbackRunner");
             try {
                 feedbackSocket = sslFactory.createServerSocket(0);
             } catch (IOException e) {
@@ -231,10 +255,12 @@ public abstract class ApnsServerSimulator {
                 @Override
                 public void run() {
                     try {
+                        logger.debug("Feedback connection sending feedback");
                         sendFeedback(inputOutputSocket);
                     } catch (IOException ioe) {
                         // An exception is unexpected here. Close the current connection and bail out.
                         ioe.printStackTrace();
+                    } finally {
                         inputOutputSocket.close();
                     }
 

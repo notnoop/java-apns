@@ -42,10 +42,12 @@ public class FailingApnsServerSimulator extends ApnsServerSimulator {
 
                 case 1:
                     try {
-                        Thread.sleep(token[3] * 100);
+                        final int millis = token[3] * 100;
+                        Thread.sleep(millis);
                     } catch (InterruptedException e) {
                         Thread.interrupted();
                     }
+                    break;
 
                 case 2:
                 default:

@@ -274,7 +274,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
                 delegate.messageSent(m, fromBuffer);
 
-                logger.debug("Message \"{}\" sent", m);
+                //logger.debug("Message \"{}\" sent", m);
 
                 attempts = 0;
                 drainBuffer();
