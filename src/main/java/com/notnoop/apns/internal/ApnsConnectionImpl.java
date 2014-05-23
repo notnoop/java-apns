@@ -121,11 +121,13 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 try {
                     InputStream in = socket.getInputStream();
 
-                    // TODO(jwilson): this should readFully()
+                    // the DataInpuStream.readFully(byte[]) also got some send failure
                     final int expectedSize = 6;
                     byte[] bytes = new byte[expectedSize];
                     while (in.read(bytes) == expectedSize) {
-
+                        // when got apns's error response, we should close the current socket immediately, then will get new Socket when sending next ApnsNotification
+                        close();
+                        
                         int command = bytes[0] & 0xFF;
                         if (command != 8) {
                             throw new IOException("Unexpected command byte " + command);
@@ -182,8 +184,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     // server we can't do much about it - so let's not spam the application's error log.
                     logger.info("Exception while waiting for error code", e);
                     delegate.connectionClosed(DeliveryError.UNKNOWN, -1);
-                } finally {
-                    close();
                 }
             }
         }
