@@ -76,7 +76,7 @@ localizable alert:
 Enhanced Notification Format
 ----------------
 
-You can use the enhanced notification format to get feetback from Apple about notifications that were unable to be processed.
+You can use the enhanced notification format to get feedback from Apple about notifications that were unable to be processed.
 
      String payload = APNS.newPayload()
                 .badge(3)
@@ -85,8 +85,10 @@ You can use the enhanced notification format to get feetback from Apple about no
                 .localizedArguments("Jenna", "Frank")
                 .actionKey("Play").build();
 
+     int now =  (int)(new Date().getTime()/1000);
+
      EnhancedApnsNotification notification = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID() /* Next ID */,
-         new Date().getTime() + 60 * 60 /* Expire in one hour */,
+         now + 60 * 60 /* Expire in one hour */,
          token /* Device Token */,
          payload);
 
