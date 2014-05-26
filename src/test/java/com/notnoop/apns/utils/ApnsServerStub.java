@@ -165,26 +165,28 @@ public class ApnsServerStub {
             try {
                 // Listen for connections
                 startUp.release();
-                Socket socket = gatewaySocket.accept();
+                while (true) {
+                    Socket socket = gatewaySocket.accept();
 
-                // Create streams to securely send and receive data to the client
-                in = socket.getInputStream();
-                gatewayOutputStream = socket.getOutputStream();
-                gatewayOutLock.release();
+                    // Create streams to securely send and receive data to the client
+                    in = socket.getInputStream();
+                    gatewayOutputStream = socket.getOutputStream();
+                    gatewayOutLock.release();
 
-                // Read from in and write to out...
-                byte[] read = readFully(in);
+                    // Read from in and write to out...
+                    byte[] read = readFully(in);
 
-                waitBeforeSend();
-                received.write(read);
-                messages.release();
+                    waitBeforeSend();
+                    received.write(read);
+                    messages.release();
 
 
-                waitForError.acquire();
+                    waitForError.acquire();
 
-                // Close the socket
-                in.close();
-                gatewayOutputStream.close();
+                    // Close the socket
+                    in.close();
+                    gatewayOutputStream.close();
+                }
             } catch (Throwable e) {
                 try {
                     if (in != null) {
