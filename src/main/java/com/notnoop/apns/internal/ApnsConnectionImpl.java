@@ -221,7 +221,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     } catch (IOException ioe) {
                         if (n == 0)
                             return false;
-                        throw ioe;
+                        throw new IOException("Error after reading "+n+" bytes of packet", ioe);
                     }
                 }
                 return true;
