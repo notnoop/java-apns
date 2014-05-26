@@ -31,6 +31,7 @@
 package com.notnoop.apns.internal;
 
 import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -108,7 +109,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     }
 
     private void monitorSocket(final Socket socket) {
-        logger.debug("Launchining Monitoring Thread for socket {}", socket);
+        logger.debug("Launching Monitoring Thread for socket {}", socket);
 
         class MonitoringThread extends Thread {
             final static int EXPECTED_SIZE = 6;
@@ -122,9 +123,11 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     DataInputStream in = new DataInputStream(socket.getInputStream());
 
                     byte[] bytes = new byte[EXPECTED_SIZE];
-                    while (true) {
-                        in.readFully(bytes);
+                    while (readPacket(in, bytes)) {
                         logger.debug("Error-response packet {}", Utilities.encodeHex(bytes));
+                        // Quickly close socket, so we won't ever try to send push notifications
+                        // using the defective socket.
+                        Utilities.close(socket);
 
                         int command = bytes[0] & 0xFF;
                         if (command != 8) {
@@ -181,8 +184,10 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         logger.debug("closing connection cause={}; id={}", e, id);
                         delegate.connectionClosed(e, id);
 
+                        logger.debug("draining buffer");
                         drainBuffer();
                     }
+                    logger.debug("Monitoring connection cleanly closed by EOF");
 
                 } catch (IOException e) {
                     // An exception when reading the error code is non-critical, it will cause another retry
@@ -193,6 +198,31 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 } finally {
                     close();
                 }
+            }
+
+            /**
+             * Read a packet like in.readFully(bytes) does - but do not throw an exception and return false if nothing
+             * could be read at all.
+             * @param in the input stream
+             * @param bytes the array to be filled with data
+             * @return true if a packet as been read, false if the stream was at EOF right at the beginning.
+             * @throws IOException When a problem occurs, especially EOFException when there's an EOF in the middle of the packet.
+             */
+            private boolean readPacket(final DataInputStream in, final byte[] bytes) throws IOException {
+                final int len = bytes.length;
+                int n = 0;
+                while (n < len) {
+                    int count = in.read(bytes, n, len - n);
+                    if (count < 0) {
+                        if (n == 0) {
+                            return false;
+                        }
+                        logger.warn("EOF: Read {} bytes of packet", n);
+                        throw new EOFException();
+                    }
+                    n += count;
+                }
+                return true;
             }
         }
         Thread t = new MonitoringThread();
@@ -281,17 +311,18 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 break;
             } catch (IOException e) {
                 Utilities.close(socket);
-                socket = null;
                 if (attempts >= RETRIES) {
                     logger.error("Couldn't send message after " + RETRIES + " retries." + m, e);
                     delegate.messageSendFailed(m, e);
                     Utilities.wrapAndThrowAsRuntimeException(e);
                 }
-                // The first failure might be due to closed connection
-                // don't delay quite yet
+                // The first failure might be due to closed connection (which in turn might be caused by
+                // a message containing a bad token), so don't delay for the first retry.
+                //
+                // Additionally we don't want to spam the log file in this case, only after the second retry
+                // which uses the delay.
+
                 if (attempts != 1) {
-                    // Do not spam the log files when the APNS server closed the getOrCreateSocket (due to a
-                    // bad token, for example), only log when on the second retry.
                     logger.info("Failed to send message " + m + "... trying again after delay", e);
                     Utilities.sleep(DELAY_IN_MS);
                 }

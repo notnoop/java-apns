@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.ServerSocketFactory;
 import com.notnoop.apns.internal.Utilities;
 import org.slf4j.Logger;
@@ -19,9 +20,11 @@ import org.slf4j.LoggerFactory;
 public abstract class ApnsServerSimulator {
 
     private static final Logger logger = LoggerFactory.getLogger(ApnsServerSimulator.class);
+    private static AtomicInteger threadNameCount = new AtomicInteger(0);
 
     private final Semaphore startUp = new Semaphore(0);
     private final ServerSocketFactory sslFactory;
+
     private int effectiveGatewayPort;
     private int effectiveFeedbackPort;
 
@@ -80,29 +83,39 @@ public abstract class ApnsServerSimulator {
 
     private class GatewayListener extends Thread {
 
+        private GatewayListener() {
+            super(new ThreadGroup("GatewayListener" + threadNameCount.incrementAndGet()), "");
+            setName(getThreadGroup().getName());
+        }
+
         public void run() {
-            logger.debug("Running GatewayListener");
-
+            logger.debug("Launched " + Thread.currentThread().getName());
             try {
-                gatewaySocket = sslFactory.createServerSocket(0);
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
 
-            effectiveGatewayPort = gatewaySocket.getLocalPort();
-
-            // Listen for connections
-            startUp.release();
-
-            while (!isInterrupted()) {
                 try {
-                    handleGatewayConnection(new InputOutputSocket(gatewaySocket.accept()));
-                } catch (SocketException ex) {
-                    interrupt();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
+                    gatewaySocket = sslFactory.createServerSocket(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
+
+                effectiveGatewayPort = gatewaySocket.getLocalPort();
+
+                // Listen for connections
+                startUp.release();
+
+                while (!isInterrupted()) {
+                    try {
+                        handleGatewayConnection(new InputOutputSocket(gatewaySocket.accept()));
+                    } catch (SocketException ex) {
+                        interrupt();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+            } finally {
+                logger.debug("Terminating " + Thread.currentThread().getName());
+                getThreadGroup().interrupt();
             }
         }
 
@@ -225,30 +238,38 @@ public abstract class ApnsServerSimulator {
 
     private class FeedbackRunner extends Thread {
 
+        private FeedbackRunner() {
+            super(new ThreadGroup("FeedbackRunner" + threadNameCount.incrementAndGet()), "");
+            setName(getThreadGroup().getName());
+        }
+
         public void run() {
-            logger.debug("Launched FeedbackRunner");
             try {
-                feedbackSocket = sslFactory.createServerSocket(0);
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e);
-            }
-
-            effectiveFeedbackPort = feedbackSocket.getLocalPort();
-
-            startUp.release();
-
-
-            while (!isInterrupted()) {
+                logger.debug("Launched " + Thread.currentThread().getName());
                 try {
-                    handleFeedbackConnection(new InputOutputSocket(feedbackSocket.accept()));
-                } catch (SocketException ex) {
-                    interrupt();
-                } catch (IOException ioe) {
-                    ioe.printStackTrace();
+                    feedbackSocket = sslFactory.createServerSocket(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
-            }
 
+                effectiveFeedbackPort = feedbackSocket.getLocalPort();
+
+                startUp.release();
+
+                while (!isInterrupted()) {
+                    try {
+                        handleFeedbackConnection(new InputOutputSocket(feedbackSocket.accept()));
+                    } catch (SocketException ex) {
+                        interrupt();
+                    } catch (IOException ioe) {
+                        ioe.printStackTrace();
+                    }
+                }
+            } finally {
+                logger.debug("Terminating " + Thread.currentThread().getName());
+                getThreadGroup().interrupt();
+            }
         }
 
         private void handleFeedbackConnection(final InputOutputSocket inputOutputSocket) {
@@ -282,7 +303,7 @@ public abstract class ApnsServerSimulator {
             DataOutputStream dos = inputOutputSocket.getOutputStream();
             final int unixtime = (int) (new Date().getTime() / 1000);
             dos.write(unixtime);
-            dos.write((short)token.length);
+            dos.write((short) token.length);
             dos.write(token);
         }
     }
@@ -353,7 +374,8 @@ public abstract class ApnsServerSimulator {
         }
     }
 
-    protected void onNotification(final Notification notification, final InputOutputSocket inputOutputSocket) throws IOException {}
+    protected void onNotification(final Notification notification, final InputOutputSocket inputOutputSocket) throws IOException {
+    }
 
 
     protected List<byte[]> getBadTokens() {

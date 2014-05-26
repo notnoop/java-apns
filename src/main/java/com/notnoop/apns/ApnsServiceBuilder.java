@@ -87,7 +87,7 @@ public class ApnsServiceBuilder {
     private boolean autoAdjustCacheLength = true;
     private ExecutorService executor = null;
 
-    private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.NEVER.newObject();
+    private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.EVERY_HALF_HOUR.newObject();
     private boolean isQueued = false;
     
     private boolean isBatched = false;
