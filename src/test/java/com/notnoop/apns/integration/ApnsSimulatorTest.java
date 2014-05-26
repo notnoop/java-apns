@@ -1,5 +1,6 @@
 package com.notnoop.apns.integration;
 
+import java.util.List;
 import java.util.Random;
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsDelegate;
@@ -10,6 +11,9 @@ import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.internal.Utilities;
 import com.notnoop.apns.utils.FixedCertificates;
 import com.notnoop.apns.utils.Simulator.FailingApnsServerSimulator;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,9 +26,11 @@ import org.mockito.Matchers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.org.lidalia.slf4jext.Level;
+import uk.org.lidalia.slf4jtest.LoggingEvent;
 import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 import static com.notnoop.apns.utils.FixedCertificates.*;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("deprecation")
@@ -104,12 +110,10 @@ public class ApnsSimulatorTest {
         assertDelegateSentCount(1);
     }
 
-    @Ignore("Failing - getting 2 callbacks on connectionclosed")
     @Test
     public void testConnectionClose() throws InterruptedException {
         send(8);
         assertNumberReceived(1);
-        Thread.sleep(3000);
         assertDelegateSentCount(1);
         verify(delegate, times(1)).connectionClosed(Matchers.any(DeliveryError.class), Matchers.anyInt());
     }
@@ -117,16 +121,16 @@ public class ApnsSimulatorTest {
     @Test
     public void handleRetransmissionWithSeveralOutstandingMessages() throws InterruptedException {
         send(-1, -1, -1, -1, -1, 8, -1, -1, -1, -1, -1, -1, -1);
-        assertNumberReceived(12);
+        assertNumberReceived(13);
         assertDelegateSentCount(13 + 7); // Initially sending all 13 notifications, then resend the last 7 ones
-        //verify(delegate, times(1)).connectionClosed(Matchers.any(DeliveryError.class), Matchers.anyInt());
+        verify(delegate, times(1)).connectionClosed(Matchers.any(DeliveryError.class), Matchers.anyInt());
     }
 
-    @Ignore
+
     @Test
-    public void testConnectionAbort() {
-        // TODO implement test, validate assumption
-        Assert.fail("Assumption: java-apns does resend when the connection just closes - probably OK");
+    public void testClientDoesNotResendMessagesWhenServerClosesSocketWithoutErrorPacket() throws InterruptedException {
+        send(-1, -1, -1, -1, -1, -100, -1, -1, -1, -1, -1, -1, -1);
+        assertNumberReceived(6);
     }
 
     @Ignore
@@ -137,18 +141,35 @@ public class ApnsSimulatorTest {
         // Thus the last feedback message gets lost, thus we lose messages.
     }
 
-    @Ignore
     @Test
-    public void CloseLog() {
-        // TODO implement test & decide if fix is neccessary afterwards.
-        Assert.fail("A message with a bad token fills the error log with exceptions due to EOF ");
+    public void abortNoWait() throws InterruptedException {
+        send(8, 0);
+        assertNumberReceived(2);
     }
 
-    @Ignore
     @Test
-    public void OneHundretAndFour() {
-        // TODO implement test & decide if fix is neccessary afterwards.
-        Assert.fail("There is github issue #104 ");
+    public void doNotSpamLogWhenConnectionClosesBetweenFeedbackPackets() throws InterruptedException {
+        // Don't spam a lot of information into the log when the socket closes at a "legal" location. (Just before
+        // or after a feedback packet)
+        send(-1, 8, -1);
+        assertNumberReceived(3);
+        final List<LoggingEvent> allLoggingEvents = TestLoggerFactory.getAllLoggingEvents();
+        assertThat(allLoggingEvents, not(hasItem(eventContains("Exception while waiting for error code"))) );
+    }
+
+    private Matcher<? super LoggingEvent> eventContains(final String substr) {
+        return new BaseMatcher<LoggingEvent>() {
+            @Override
+            public boolean matches(final Object item) {
+                final String message = ((LoggingEvent) item).getMessage();
+                return  message.contains(substr);
+            }
+
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("substring ["+substr+"]");
+            }
+        };
     }
 
     private void send(final int... codes) {
@@ -218,8 +239,8 @@ public class ApnsSimulatorTest {
     }
 
     private void assertIdle() throws InterruptedException {
-        Thread.sleep(50);
-        Assert.assertThat(server.getQueue().size(), equalTo(0));
+        Thread.sleep(1000);
+        assertThat(server.getQueue().size(), equalTo(0));
     }
 
     private void assertDelegateSentCount(final int count) {

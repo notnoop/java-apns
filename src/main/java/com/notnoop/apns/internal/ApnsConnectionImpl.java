@@ -212,15 +212,17 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 final int len = bytes.length;
                 int n = 0;
                 while (n < len) {
-                    int count = in.read(bytes, n, len - n);
-                    if (count < 0) {
-                        if (n == 0) {
-                            return false;
+                    try {
+                        int count = in.read(bytes, n, len - n);
+                        if (count < 0) {
+                            throw new EOFException("EOF after reading "+n+" bytes of new packet.");
                         }
-                        logger.warn("EOF: Read {} bytes of packet", n);
-                        throw new EOFException();
+                        n += count;
+                    } catch (IOException ioe) {
+                        if (n == 0)
+                            return false;
+                        throw ioe;
                     }
-                    n += count;
                 }
                 return true;
             }
