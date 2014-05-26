@@ -39,7 +39,7 @@ public class ApnsSimulatorTest {
     final Logger logger = LoggerFactory.getLogger(ApnsSimulatorTest.class);
 
     @Rule
-    public Timeout globalTimeout = new Timeout(10000);
+    public Timeout globalTimeout = new Timeout(5000);
 
     @Rule
     public TestName name = new TestName();
@@ -232,18 +232,22 @@ public class ApnsSimulatorTest {
     }
 
     private void assertNumberReceived(final int count) throws InterruptedException {
+        logger.debug("assertNumberReceived {}", count);
         for (int i = 0; i< count; ++i) {
             server.getQueue().take();
         }
+        logger.debug("assertNumberReceived - successfully took {}", count);
         assertIdle();
     }
 
     private void assertIdle() throws InterruptedException {
+        logger.info("assertIdle");
         Thread.sleep(1000);
         assertThat(server.getQueue().size(), equalTo(0));
     }
 
     private void assertDelegateSentCount(final int count) {
+        logger.info("assertDelegateSentCount {}", count);
         verify(delegate, times(count)).messageSent(Matchers.any(ApnsNotification.class), Matchers.anyBoolean() );
     }
 }
