@@ -16,8 +16,11 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.rules.Timeout;
 import org.mockito.Matchers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.org.lidalia.slf4jext.Level;
 import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 import static com.notnoop.apns.utils.FixedCertificates.*;
@@ -27,8 +30,13 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings("deprecation")
 public class ApnsSimulatorTest {
 
+    final Logger logger = LoggerFactory.getLogger(ApnsSimulatorTest.class);
+
     @Rule
     public Timeout globalTimeout = new Timeout(5000);
+
+    @Rule
+    public TestName name = new TestName();
 
 
     private static final String payload = "{\"aps\":{}}";
@@ -43,7 +51,8 @@ public class ApnsSimulatorTest {
         TestLoggerFactory.getInstance().setPrintLevel(Level.DEBUG);
         TestLoggerFactory.clearAll();
 
-
+        logger.info("\n\n\n\n\n");
+        logger.info("********* Test: {}", name.getMethodName());
 
         server = new FailingApnsServerSimulator(FixedCertificates.serverContext().getServerSocketFactory());
         server.start();
