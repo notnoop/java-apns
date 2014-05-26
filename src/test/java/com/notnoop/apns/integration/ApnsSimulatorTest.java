@@ -39,7 +39,7 @@ public class ApnsSimulatorTest {
     final Logger logger = LoggerFactory.getLogger(ApnsSimulatorTest.class);
 
     @Rule
-    public Timeout globalTimeout = new Timeout(5000);
+    public Timeout globalTimeout = new Timeout(10000);
 
     @Rule
     public TestName name = new TestName();
