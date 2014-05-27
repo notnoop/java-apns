@@ -70,6 +70,7 @@ public abstract class ApnsServerSimulator {
         if (feedbackThread != null) {
             feedbackThread.interrupt();
         }
+        logger.debug("Stopped - APNSServerSimulator");
 
     }
 
@@ -115,6 +116,7 @@ public abstract class ApnsServerSimulator {
                 }
             } finally {
                 logger.debug("Terminating " + Thread.currentThread().getName());
+                getThreadGroup().list();
                 getThreadGroup().interrupt();
             }
         }
@@ -268,6 +270,7 @@ public abstract class ApnsServerSimulator {
                 }
             } finally {
                 logger.debug("Terminating " + Thread.currentThread().getName());
+                getThreadGroup().list();
                 getThreadGroup().interrupt();
             }
         }

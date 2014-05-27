@@ -2,6 +2,7 @@ package com.notnoop.apns.integration;
 
 import java.util.List;
 import java.util.Random;
+
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import uk.org.lidalia.slf4jext.Level;
 import uk.org.lidalia.slf4jtest.LoggingEvent;
 import uk.org.lidalia.slf4jtest.TestLoggerFactory;
+
 import static com.notnoop.apns.utils.FixedCertificates.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -154,7 +156,7 @@ public class ApnsSimulatorTest {
         send(-1, 8, -1);
         assertNumberReceived(3);
         final List<LoggingEvent> allLoggingEvents = TestLoggerFactory.getAllLoggingEvents();
-        assertThat(allLoggingEvents, not(hasItem(eventContains("Exception while waiting for error code"))) );
+        assertThat(allLoggingEvents, not(hasItem(eventContains("Exception while waiting for error code"))));
     }
 
     private Matcher<? super LoggingEvent> eventContains(final String substr) {
@@ -162,12 +164,12 @@ public class ApnsSimulatorTest {
             @Override
             public boolean matches(final Object item) {
                 final String message = ((LoggingEvent) item).getMessage();
-                return  message.contains(substr);
+                return message.contains(substr);
             }
 
             @Override
             public void describeTo(final Description description) {
-                description.appendText("substring ["+substr+"]");
+                description.appendText("substring [" + substr + "]");
             }
         };
     }
@@ -190,11 +192,11 @@ public class ApnsSimulatorTest {
      * {@link FailingApnsServerSimulator}
      *
      * @param code A code specifying the FailingApnsServer's behaviour.
-     *            <ul>
-     *                  <li>-100: Drop connection</li>
-     *                  <li>below zero: wait (-code) number times a tenth of a second</li>
-     *                  <li>above zero: send code as APNS error message then drop connection</li>
-     *            </ul>
+     *             <ul>
+     *             <li>-100: Drop connection</li>
+     *             <li>below zero: wait (-code) number times a tenth of a second</li>
+     *             <li>above zero: send code as APNS error message then drop connection</li>
+     *             </ul>
      * @return an APNS notification
      */
     private EnhancedApnsNotification makeNotification(final int code) {
@@ -226,15 +228,21 @@ public class ApnsSimulatorTest {
     }
 
     private void sendCount(final int count, final int code) {
-        for (int i = 0; i< count; ++i) {
+        for (int i = 0; i < count; ++i) {
             send(code);
         }
     }
 
     private void assertNumberReceived(final int count) throws InterruptedException {
         logger.debug("assertNumberReceived {}", count);
-        for (int i = 0; i< count; ++i) {
-            server.getQueue().take();
+        int i = 0;
+        try {
+            for (; i < count; ++i) {
+                server.getQueue().take();
+            }
+        } catch (RuntimeException re) {
+            logger.error("Exception in assertNumberReceived, took {}", i);
+            throw re;
         }
         logger.debug("assertNumberReceived - successfully took {}", count);
         assertIdle();
@@ -248,6 +256,6 @@ public class ApnsSimulatorTest {
 
     private void assertDelegateSentCount(final int count) {
         logger.info("assertDelegateSentCount {}", count);
-        verify(delegate, times(count)).messageSent(Matchers.any(ApnsNotification.class), Matchers.anyBoolean() );
+        verify(delegate, times(count)).messageSent(Matchers.any(ApnsNotification.class), Matchers.anyBoolean());
     }
 }
