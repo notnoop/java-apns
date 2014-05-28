@@ -5,4 +5,6 @@ jdk:
   - oraclejdk7
   - openjdk6
 
-  
+notifications:
+  email:
+    - java-apns@frohwalt.de
