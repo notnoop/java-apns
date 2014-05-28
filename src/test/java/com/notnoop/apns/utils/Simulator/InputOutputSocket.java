@@ -31,7 +31,7 @@ public class InputOutputSocket {
         return outputStream;
     }
 
-    public void close() {
+    public synchronized void close() {
         if (inputStream != null) {
             try {
                 inputStream.close();

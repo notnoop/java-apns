@@ -5,6 +5,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.SocketException;
+import java.nio.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -231,11 +232,28 @@ public abstract class ApnsServerSimulator {
     protected void fail(final byte status, final int identifier, final InputOutputSocket inputOutputSocket) throws IOException {
         logger.debug("FAIL {} {}", status, identifier);
         final DataOutputStream outputStream = inputOutputSocket.getOutputStream();
-        outputStream.writeByte(8);
-        outputStream.writeByte(status);
-        outputStream.writeInt(identifier);
+
+        // Here comes the fun ... we need to write the feedback packet as one single packet
+        // or the client will notice the connection to be closed before it read the complete packet.
+        // But - only on linux, however. (I was not able to see that problem on Windows 7 or OS X)
+        // What also helped was inserting a little sleep between the flush and closing the connection.
+        //
+        // I believe this is irregular (writing to a tcp socket then closing it should result in ALL data
+        // being visible at the client) but interestingly in Netty there is (was) a similar problem:
+        // https://github.com/netty/netty/issues/1952
+        //
+        // Funnily that appeared as somebody ported this library to use netty.
+        //
+        //
+        //
+        ByteBuffer bb = ByteBuffer.allocate(6);
+        bb.put((byte) 8);
+        bb.put(status);
+        bb.putInt(identifier);
+        outputStream.write(bb.array());
         outputStream.flush();
         inputOutputSocket.close();
+        logger.debug("FAIL - closed");
     }
 
     private class FeedbackRunner extends Thread {
