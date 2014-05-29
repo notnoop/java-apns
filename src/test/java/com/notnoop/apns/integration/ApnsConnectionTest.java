@@ -5,14 +5,21 @@ import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.apns.utils.ApnsServerStub;
+import com.notnoop.apns.utils.junit.Repeat;
+import com.notnoop.apns.utils.junit.RepeatRule;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import static com.notnoop.apns.utils.FixedCertificates.*;
 import static org.junit.Assert.*;
 
+
 @SuppressWarnings("ALL")
 public class ApnsConnectionTest {
+
+    @Rule
+    public RepeatRule rr = new RepeatRule();
 
     ApnsServerStub server;
     static SimpleApnsNotification msg1 = new SimpleApnsNotification("a87d8878d878a79", "{\"aps\":{}}");
@@ -37,9 +44,9 @@ public class ApnsConnectionTest {
         server = null;
     }
 
+    @Repeat(count = 50)
     @Test(timeout = 2000)
     public void sendOneSimple() throws InterruptedException {
-
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
                 .withGatewayDestination(LOCALHOST, gatewayPort)
@@ -51,10 +58,9 @@ public class ApnsConnectionTest {
         assertArrayEquals(msg1.marshall(), server.getReceived().toByteArray());
     }
 
+    @Repeat(count = 50)
     @Test(timeout = 2000)
     public void sendOneQueued() throws InterruptedException {
-
-
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
                 .withGatewayDestination(LOCALHOST, gatewayPort)
@@ -66,8 +72,8 @@ public class ApnsConnectionTest {
 
         assertArrayEquals(msg1.marshall(), server.getReceived().toByteArray());
     }
-    
-    
+
+
     @Test
     public void sendOneSimpleWithoutTimeout() throws InterruptedException {
         server.getToWaitBeforeSend().set(2000);

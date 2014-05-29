@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -114,7 +115,10 @@ public class ApnsServerStub {
             gatewayOutLock.acquire();
             gatewayOutputStream.write(buf.array());
             gatewayOutputStream.flush();
-        } catch (Exception ex) {
+        }
+
+
+        catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -236,8 +240,10 @@ public class ApnsServerStub {
                 // Close the socket
                 in.close();
                 out.close();
+            } catch (SocketException se) {
+                // Ignore closed socket.
             } catch (IOException ioex) {
-                System.err.println(ioex.toString());
+                ioex.printStackTrace();
             }
             messages.release();
         }
