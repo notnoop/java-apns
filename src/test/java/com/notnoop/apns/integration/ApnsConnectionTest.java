@@ -5,6 +5,7 @@ import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.SimpleApnsNotification;
 import com.notnoop.apns.utils.ApnsServerStub;
+import com.notnoop.apns.utils.junit.DumpThreadsOnErrorRule;
 import com.notnoop.apns.utils.junit.Repeat;
 import com.notnoop.apns.utils.junit.RepeatRule;
 import org.junit.After;
@@ -20,6 +21,9 @@ public class ApnsConnectionTest {
 
     @Rule
     public RepeatRule rr = new RepeatRule();
+
+    @Rule
+    public DumpThreadsOnErrorRule dumpRule = new DumpThreadsOnErrorRule();
 
     ApnsServerStub server;
     static SimpleApnsNotification msg1 = new SimpleApnsNotification("a87d8878d878a79", "{\"aps\":{}}");

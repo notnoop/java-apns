@@ -159,6 +159,20 @@ public class ApnsSimulatorTest {
         assertThat(allLoggingEvents, not(hasItem(eventContains("Exception while waiting for error code"))));
     }
 
+    @Test
+    public void firstTokenBad_issue145() throws InterruptedException {
+        // Test for Issue #145
+        send(8, -1);
+        assertNumberReceived(2);
+    }
+
+    @Test
+    public void multipleTokensBad_issue145() throws InterruptedException {
+        send(8, 0, 8, 0, 8, 0 ,8, 0);
+        assertNumberReceived(8);
+
+    }
+
     private Matcher<? super LoggingEvent> eventContains(final String substr) {
         return new BaseMatcher<LoggingEvent>() {
             @Override
