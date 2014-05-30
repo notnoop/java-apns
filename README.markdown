@@ -1,5 +1,10 @@
 Build status: [![Build Status](https://travis-ci.org/notnoop/java-apns.png)](https://travis-ci.org/notnoop/java-apns)
 
+News
+----
+There currently is a perelease for 1.0.0 which fixes a number of problems over 0.2.3. However there's still
+a CI test that sporadically fails, so 1.0.0 is NOT meant for production, yet.
+
 Introduction
 ------------
 
