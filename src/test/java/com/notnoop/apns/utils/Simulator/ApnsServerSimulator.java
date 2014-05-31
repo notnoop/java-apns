@@ -1,5 +1,6 @@
 package com.notnoop.apns.utils.Simulator;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
@@ -231,7 +232,6 @@ public abstract class ApnsServerSimulator {
 
     protected void fail(final byte status, final int identifier, final InputOutputSocket inputOutputSocket) throws IOException {
         logger.debug("FAIL {} {}", status, identifier);
-        final DataOutputStream outputStream = inputOutputSocket.getOutputStream();
 
         // Here comes the fun ... we need to write the feedback packet as one single packet
         // or the client will notice the connection to be closed before it read the complete packet.
@@ -250,8 +250,7 @@ public abstract class ApnsServerSimulator {
         bb.put((byte) 8);
         bb.put(status);
         bb.putInt(identifier);
-        outputStream.write(bb.array());
-        outputStream.flush();
+        inputOutputSocket.syncWrite(bb.array());
         inputOutputSocket.close();
         logger.debug("FAIL - closed");
     }
@@ -321,11 +320,14 @@ public abstract class ApnsServerSimulator {
         }
 
         private void writeFeedback(final InputOutputSocket inputOutputSocket, final byte[] token) throws IOException {
-            DataOutputStream dos = inputOutputSocket.getOutputStream();
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(os);
             final int unixtime = (int) (new Date().getTime() / 1000);
             dos.write(unixtime);
             dos.write((short) token.length);
             dos.write(token);
+            dos.close();
+            inputOutputSocket.syncWrite(os.toByteArray());
         }
     }
 

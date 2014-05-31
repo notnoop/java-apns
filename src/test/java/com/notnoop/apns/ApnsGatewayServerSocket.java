@@ -13,6 +13,7 @@ import javax.net.ssl.SSLContext;
  * Represents the Apple APNS server. This allows testing outside of the Apple
  * servers.
  */
+@SuppressWarnings("deprecation")
 public class ApnsGatewayServerSocket extends AbstractApnsServerSocket {
 	private final ApnsServerService apnsServerService;
 

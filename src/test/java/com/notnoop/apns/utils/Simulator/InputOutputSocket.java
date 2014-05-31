@@ -27,9 +27,13 @@ public class InputOutputSocket {
         return inputStream;
     }
 
+    /*
     public DataOutputStream getOutputStream() {
         return outputStream;
     }
+    */
+
+
 
     public synchronized void close() {
         if (inputStream != null) {
@@ -55,5 +59,16 @@ public class InputOutputSocket {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * Write data to the outputstream while synchronized against close(). This hopefully fixes
+     * sporadic test failures caused by a deadlock of write() and close()
+     * @param bytes The data to write
+     * @throws IOException if an error occurs
+     */
+    public void syncWrite(byte[] bytes) throws IOException {
+        outputStream.write(bytes);
+        outputStream.flush();
     }
 }
