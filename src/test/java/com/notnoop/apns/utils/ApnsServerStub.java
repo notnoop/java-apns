@@ -115,10 +115,7 @@ public class ApnsServerStub {
             gatewayOutLock.acquire();
             gatewayOutputStream.write(buf.array());
             gatewayOutputStream.flush();
-        }
-
-
-        catch (Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
@@ -171,6 +168,7 @@ public class ApnsServerStub {
                 startUp.release();
                 while (true) {
                     Socket socket = gatewaySocket.accept();
+                    socket.setSoLinger(true, 1);
 
                     // Create streams to securely send and receive data to the client
                     in = socket.getInputStream();
@@ -228,6 +226,7 @@ public class ApnsServerStub {
                 // Listen for connections
                 startUp.release();
                 Socket socket = feedbackSocket.accept();
+                socket.setSoLinger(true, 1);
 
                 // Create streams to securely send and receive data to the client
                 InputStream in = socket.getInputStream();

@@ -3,7 +3,6 @@ package com.notnoop.apns.utils.Simulator;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import com.notnoop.apns.utils.Simulator.ApnsInputStream;
 
 /**
  * Wrap some of the boilerplate code using socket, enable passing around a socket together with its streams.
@@ -14,7 +13,14 @@ public class InputOutputSocket {
     private final DataOutputStream outputStream;
 
     public InputOutputSocket(final Socket socket) throws IOException {
+        if (socket == null) {
+            throw new NullPointerException("socket may not be null");
+        }
+
         this.socket = socket;
+
+        // Hack ... https://community.oracle.com/message/10989561#10989561
+        socket.setSoLinger(true, 1);
         outputStream = new DataOutputStream(socket.getOutputStream());
         inputStream = new ApnsInputStream(socket.getInputStream());
     }
@@ -36,28 +42,22 @@ public class InputOutputSocket {
 
 
     public synchronized void close() {
-        if (inputStream != null) {
-            try {
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        if (outputStream != null) {
-            try {
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        if (socket != null) {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
