@@ -168,6 +168,7 @@ public class ApnsServerStub {
                 startUp.release();
                 while (true) {
                     Socket socket = gatewaySocket.accept();
+                    // Work around JVM deadlock ... https://community.oracle.com/message/10989561#10989561
                     socket.setSoLinger(true, 1);
 
                     // Create streams to securely send and receive data to the client
@@ -226,6 +227,7 @@ public class ApnsServerStub {
                 // Listen for connections
                 startUp.release();
                 Socket socket = feedbackSocket.accept();
+                // Work around JVM deadlock ... https://community.oracle.com/message/10989561#10989561
                 socket.setSoLinger(true, 1);
 
                 // Create streams to securely send and receive data to the client

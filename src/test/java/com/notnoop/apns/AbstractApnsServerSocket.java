@@ -48,7 +48,9 @@ public abstract class AbstractApnsServerSocket {
 		try {
 			while (true) {
 				Socket accept = serverSocket.accept();
-				executorService.execute(new SocketHandler(accept));
+                // Work around JVM deadlock ... https://community.oracle.com/message/10989561#10989561
+                accept.setSoLinger(true, 1);
+                executorService.execute(new SocketHandler(accept));
 			}
 		} catch (IOException ioe) {
 			executorService.shutdown();

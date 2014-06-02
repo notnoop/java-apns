@@ -19,7 +19,7 @@ public class InputOutputSocket {
 
         this.socket = socket;
 
-        // Hack ... https://community.oracle.com/message/10989561#10989561
+        // Hack, work arond JVM deadlock ... https://community.oracle.com/message/10989561#10989561
         socket.setSoLinger(true, 1);
         outputStream = new DataOutputStream(socket.getOutputStream());
         inputStream = new ApnsInputStream(socket.getInputStream());
