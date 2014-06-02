@@ -1,29 +1,23 @@
 package com.notnoop.apns.utils.Simulator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.net.ServerSocketFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import javax.net.ServerSocketFactory;
-import com.notnoop.apns.utils.FixedCertificates;
 
 /**
  * A Server simulator that can simulate some failure modes.
  */
 public class FailingApnsServerSimulator extends ApnsServerSimulator {
 
-    private BlockingQueue<Notification> queue = new LinkedBlockingQueue<Notification>();
+    private static final Logger logger = LoggerFactory.getLogger(FailingApnsServerSimulator.class);
 
-    /**
-     * Create an ApnsServerSimulator. This tries to behave more like the real APNS server by being fully asnyc.
-     *
-     * @return the server stub. Use getEffectiveGatewayPort() and getEffectiveFeedbackPort() to ask for ports.
-     */
-    public static FailingApnsServerSimulator prepareAndStartServer() {
-        FailingApnsServerSimulator server = new FailingApnsServerSimulator(FixedCertificates.serverContext().getServerSocketFactory());
-        server.start();
-        return server;
-    }
+
+    private BlockingQueue<Notification> queue = new LinkedBlockingQueue<Notification>();
 
     public FailingApnsServerSimulator(final ServerSocketFactory sslFactory) {
         super(sslFactory);
@@ -32,6 +26,7 @@ public class FailingApnsServerSimulator extends ApnsServerSimulator {
     @Override
     protected void onNotification(final ApnsServerSimulator.Notification notification, final InputOutputSocket inputOutputSocket)
             throws IOException {
+        logger.debug("Queueing notification " + notification);
         queue.add(notification);
         final byte[] token = notification.getDeviceToken();
         if (token.length == 32 && token[0] == (byte)0xff && token[1] == (byte)0xff) {

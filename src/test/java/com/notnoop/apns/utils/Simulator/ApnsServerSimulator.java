@@ -333,7 +333,7 @@ public abstract class ApnsServerSimulator {
 
 
     @SuppressWarnings("UnusedDeclaration")
-    protected class Notification {
+    public class Notification {
         private final int type;
         private final int identifier;
         private final int expiry;
