@@ -21,11 +21,11 @@ public class ApnsConnectionCacheTest {
     private ApnsServerStub server;
     private static SimpleApnsNotification msg1 = new SimpleApnsNotification("a87d8878d878a79", "{\"aps\":{}}");
     private static SimpleApnsNotification msg2 = new SimpleApnsNotification("a87d8878d878a88", "{\"aps\":{}}");
-    private static EnhancedApnsNotification eMsg1 = new EnhancedApnsNotification(EnhancedApnsNotification.incrementId(),
+    private static EnhancedApnsNotification eMsg1 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
-    private static EnhancedApnsNotification eMsg2 = new EnhancedApnsNotification(EnhancedApnsNotification.incrementId(),
+    private static EnhancedApnsNotification eMsg2 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
-    private static EnhancedApnsNotification eMsg3 = new EnhancedApnsNotification(EnhancedApnsNotification.incrementId(),
+    private static EnhancedApnsNotification eMsg3 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
 
     @Before

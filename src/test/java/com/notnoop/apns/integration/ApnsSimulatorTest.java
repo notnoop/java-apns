@@ -245,7 +245,7 @@ public class ApnsSimulatorTest {
             }
 
         }
-        return new EnhancedApnsNotification(EnhancedApnsNotification.incrementId(), 1, deviceToken, Utilities.toUTF8Bytes(payload));
+        return new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(), 1, deviceToken, Utilities.toUTF8Bytes(payload));
     }
 
     private void sendCount(final int count, final int code) {
