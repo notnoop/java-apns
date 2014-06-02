@@ -1,28 +1,13 @@
 package com.notnoop.apns.integration;
 
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import com.notnoop.apns.APNS;
-import com.notnoop.apns.ApnsDelegate;
-import com.notnoop.apns.ApnsNotification;
-import com.notnoop.apns.ApnsService;
-import com.notnoop.apns.DeliveryError;
-import com.notnoop.apns.EnhancedApnsNotification;
+import com.notnoop.apns.*;
 import com.notnoop.apns.internal.Utilities;
 import com.notnoop.apns.utils.FixedCertificates;
 import com.notnoop.apns.utils.Simulator.FailingApnsServerSimulator;
-import com.notnoop.apns.utils.junit.DumpThreadsOnErrorRule;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.rules.Timeout;
 import org.mockito.Matchers;
@@ -32,9 +17,14 @@ import uk.org.lidalia.slf4jext.Level;
 import uk.org.lidalia.slf4jtest.LoggingEvent;
 import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
-import static com.notnoop.apns.utils.FixedCertificates.*;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import static com.notnoop.apns.utils.FixedCertificates.LOCALHOST;
+import static com.notnoop.apns.utils.FixedCertificates.clientContext;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("deprecation")
@@ -42,8 +32,8 @@ public class ApnsSimulatorTest {
 
     final Logger logger = LoggerFactory.getLogger(ApnsSimulatorTest.class);
 
-    @Rule
-    public DumpThreadsOnErrorRule dump = new DumpThreadsOnErrorRule();
+    //@Rule
+    //public DumpThreadsOnErrorRule dump = new DumpThreadsOnErrorRule();
 
     @Rule
     public TestName name = new TestName();

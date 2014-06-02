@@ -120,10 +120,15 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 logger.debug("Started monitoring thread");
                 try {
 
-                    DataInputStream in = new DataInputStream(socket.getInputStream());
+                    DataInputStream in;
+                    try {
+                        in = new DataInputStream(socket.getInputStream());
+                    } catch (IOException ioe) {
+                        in = null;
+                    }
 
                     byte[] bytes = new byte[EXPECTED_SIZE];
-                    while (readPacket(in, bytes)) {
+                    while (in != null && readPacket(in, bytes)) {
                         logger.debug("Error-response packet {}", Utilities.encodeHex(bytes));
                         // Quickly close socket, so we won't ever try to send push notifications
                         // using the defective socket.
