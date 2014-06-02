@@ -138,7 +138,7 @@ public abstract class ApnsServerSimulator {
         }
 
         private void parseNotifications(final InputOutputSocket inputOutputSocket) {
-            logger.debug("Runnin parseNotifications {}", inputOutputSocket.getSocket());
+            logger.debug("Running parseNotifications {}", inputOutputSocket.getSocket());
             while (!Thread.interrupted()) {
                 try {
                     final ApnsInputStream inputStream = inputOutputSocket.getInputStream();
