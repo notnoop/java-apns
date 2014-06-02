@@ -12,12 +12,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+
 import static com.notnoop.apns.utils.FixedCertificates.*;
 import static org.junit.Assert.*;
 
 
 @SuppressWarnings("ALL")
 public class ApnsConnectionTest {
+
+    @Rule
+    public TestName testName = new TestName();
 
     @Rule
     public RepeatRule rr = new RepeatRule();
@@ -38,6 +43,7 @@ public class ApnsConnectionTest {
 
     @Before
     public void startup() {
+        System.out.println("****** "+testName);
         server = ApnsServerStub.prepareAndStartServer();
         gatewayPort = server.getEffectiveGatewayPort();
     }
