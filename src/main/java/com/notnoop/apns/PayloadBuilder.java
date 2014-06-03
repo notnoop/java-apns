@@ -197,6 +197,19 @@ public final class PayloadBuilder {
     }
 
     /**
+     * With iOS7 it is possible to have the application wake up before the user opens the app.
+     * 
+     * The same key-word can also be used to send 'silent' notifications. With these 'silent' notification 
+     * a different app delegate is being invoked, allowing the app to perform background tasks.
+     *
+     * @return this
+     */
+    public PayloadBuilder instantDeliveryOrSlientNofitication() {
+        root.put("content-available", 1);
+        return this;
+    }
+
+    /**
      * Set the notification localized key for the alert body
      * message.
      *
