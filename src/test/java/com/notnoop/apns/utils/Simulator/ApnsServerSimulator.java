@@ -138,7 +138,7 @@ public abstract class ApnsServerSimulator {
         }
 
         private void parseNotifications(final InputOutputSocket inputOutputSocket) {
-            logger.debug("Runnin parseNotifications {}", inputOutputSocket.getSocket());
+            logger.debug("Running parseNotifications {}", inputOutputSocket.getSocket());
             while (!Thread.interrupted()) {
                 try {
                     final ApnsInputStream inputStream = inputOutputSocket.getInputStream();
@@ -333,7 +333,7 @@ public abstract class ApnsServerSimulator {
 
 
     @SuppressWarnings("UnusedDeclaration")
-    protected class Notification {
+    public class Notification {
         private final int type;
         private final int identifier;
         private final int expiry;

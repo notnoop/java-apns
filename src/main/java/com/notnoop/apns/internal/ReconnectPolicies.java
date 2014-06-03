@@ -50,7 +50,7 @@ public final class ReconnectPolicies {
     public static class EveryHalfHour implements ReconnectPolicy {
         private static final long PERIOD = 30 * 60 * 1000;
 
-        private long lastRunning = 0;
+        private long lastRunning = System.currentTimeMillis();
 
         public boolean shouldReconnect() {
             return System.currentTimeMillis() - lastRunning > PERIOD;

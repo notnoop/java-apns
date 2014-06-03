@@ -47,9 +47,8 @@ public class EnhancedApnsNotification implements ApnsNotification {
     private final byte[] deviceToken;
     private final byte[] payload;
 
-    public static int incrementId() {
-        final int id = nextId.incrementAndGet();
-        return id;
+    public static int INCREMENT_ID() {
+        return nextId.incrementAndGet();
     }
     
     /**

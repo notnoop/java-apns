@@ -12,12 +12,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+
 import static com.notnoop.apns.utils.FixedCertificates.*;
 import static org.junit.Assert.*;
 
 
 @SuppressWarnings("ALL")
 public class ApnsConnectionTest {
+
+    @Rule
+    public TestName testName = new TestName();
 
     @Rule
     public RepeatRule rr = new RepeatRule();
@@ -28,16 +33,17 @@ public class ApnsConnectionTest {
     ApnsServerStub server;
     static SimpleApnsNotification msg1 = new SimpleApnsNotification("a87d8878d878a79", "{\"aps\":{}}");
     static SimpleApnsNotification msg2 = new SimpleApnsNotification("a87d8878d878a88", "{\"aps\":{}}");
-    static EnhancedApnsNotification eMsg1 = new EnhancedApnsNotification(EnhancedApnsNotification.incrementId(),
+    static EnhancedApnsNotification eMsg1 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
-    static EnhancedApnsNotification eMsg2 = new EnhancedApnsNotification(EnhancedApnsNotification.incrementId(),
+    static EnhancedApnsNotification eMsg2 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
-    static EnhancedApnsNotification eMsg3 = new EnhancedApnsNotification(EnhancedApnsNotification.incrementId(),
+    static EnhancedApnsNotification eMsg3 = new EnhancedApnsNotification(EnhancedApnsNotification.INCREMENT_ID(),
             1, "a87d8878d878a88", "{\"aps\":{}}");
     private int gatewayPort;
 
     @Before
     public void startup() {
+        System.out.println("****** "+testName);
         server = ApnsServerStub.prepareAndStartServer();
         gatewayPort = server.getEffectiveGatewayPort();
     }
