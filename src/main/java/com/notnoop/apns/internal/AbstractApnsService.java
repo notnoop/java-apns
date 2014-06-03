@@ -42,7 +42,7 @@ import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 
-abstract class AbstractApnsService implements ApnsService {
+public abstract class AbstractApnsService implements ApnsService {
     private ApnsFeedbackConnection feedback;
     private AtomicInteger c = new AtomicInteger();
 

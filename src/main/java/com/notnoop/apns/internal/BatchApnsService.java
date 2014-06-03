@@ -42,12 +42,16 @@ public class BatchApnsService extends AbstractApnsService {
 	
 	private Runnable batchRunner = new SendMessagessBatch();
 
-	public BatchApnsService(ApnsConnection prototype, ApnsFeedbackConnection feedback, int batchWaitTimeInSec, int maxBachWaitTimeInSec, ThreadFactory tf) {
+	public BatchApnsService(ApnsConnection prototype, ApnsFeedbackConnection feedback, int batchWaitTimeInSec, int maxBatchWaitTimeInSec, ThreadFactory tf) {
+		this(prototype, feedback, batchWaitTimeInSec, maxBatchWaitTimeInSec, new ScheduledThreadPoolExecutor(1, tf));
+	}
+	
+	public BatchApnsService(ApnsConnection prototype, ApnsFeedbackConnection feedback, int batchWaitTimeInSec, int maxBachWaitTimeInSec, ScheduledExecutorService scheduleService) {
 		super(feedback);
 		this.prototype = prototype;
 		this.batchWaitTimeInSec = batchWaitTimeInSec;
 		this.maxBatchWaitTimeInSec = maxBachWaitTimeInSec;
-		this.scheduleService = new ScheduledThreadPoolExecutor(1, tf);
+		this.scheduleService = scheduleService;
 	}
 
 	public void start() {

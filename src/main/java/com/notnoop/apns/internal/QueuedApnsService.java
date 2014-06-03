@@ -34,7 +34,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,13 +49,19 @@ public class QueuedApnsService extends AbstractApnsService {
 
 	private static final Logger logger = LoggerFactory.getLogger(QueuedApnsService.class);
 	
-    private ApnsService service;
-    private BlockingQueue<ApnsNotification> queue;
-    private AtomicBoolean started = new AtomicBoolean(false);
+    private final ApnsService service;
+    private final ThreadFactory threadFactory;
+    private final BlockingQueue<ApnsNotification> queue;
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
     public QueuedApnsService(ApnsService service) {
-        super(null);
+    	this(service, null, Executors.defaultThreadFactory());
+    }
+    
+    public QueuedApnsService(ApnsService service, ApnsFeedbackConnection feedback, ThreadFactory threadFactory) {
+        super(feedback);
         this.service = service;
+        this.threadFactory = threadFactory;
         this.queue = new LinkedBlockingQueue<ApnsNotification>();
         this.thread = null;
     }
@@ -79,8 +87,9 @@ public class QueuedApnsService extends AbstractApnsService {
 
         service.start();
         shouldContinue = true;
-        thread = new Thread() {
-            public void run() {
+        thread = threadFactory.newThread(new Runnable() {
+			@Override
+			public void run() {
                 while (shouldContinue) {
                     try {
                         ApnsNotification msg = queue.take();
@@ -94,8 +103,8 @@ public class QueuedApnsService extends AbstractApnsService {
                     	logger.warn("Unexpected message caught... Shouldn't be here", e);
                     }
                 }
-            }
-        };
+			}
+		});
         thread.start();
     }
 
@@ -114,5 +123,4 @@ public class QueuedApnsService extends AbstractApnsService {
     public void testConnection() throws NetworkIOException {
         service.testConnection();
     }
-
 }

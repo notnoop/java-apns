@@ -40,6 +40,8 @@ import java.net.Socket;
 import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadFactory;
 
 import javax.net.ssl.SSLContext;
@@ -89,11 +91,12 @@ public class ApnsServiceBuilder {
 
     private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.EVERY_HALF_HOUR.newObject();
     private boolean isQueued = false;
-    
+	private ThreadFactory threadFactory;
+	
     private boolean isBatched = false;
     private int batchWaitTimeInSec;
     private int batchMaxWaitTimeInSec;
-    private ThreadFactory batchThreadFactory;
+    private ScheduledExecutorService scheduledExecutorService;
     
     private ApnsDelegate delegate = ApnsDelegate.EMPTY;
     private Proxy proxy = null;
@@ -485,8 +488,22 @@ public class ApnsServiceBuilder {
      * @return  this
      */
     public ApnsServiceBuilder asQueued() {
-        this.isQueued = true;
-        return this;
+        return asQueued(Executors.defaultThreadFactory());
+    }
+
+    /**
+     * Constructs a new thread with a processing queue to process
+     * notification requests.
+     * 
+     * @param threadFactory
+     *            thread factory to use for queued processing
+     *            
+     * @return  this
+     */
+    public ApnsServiceBuilder asQueued(ThreadFactory threadFactory) {
+    	this.isQueued = true;
+    	this.threadFactory = threadFactory;
+    	return this;
     }
     
     /**
@@ -537,10 +554,33 @@ public class ApnsServiceBuilder {
      *            thread factory to use for batch processing
      */
     public ApnsServiceBuilder asBatched(int waitTimeInSec, int maxWaitTimeInSec, ThreadFactory threadFactory) {
+        return asBatched(waitTimeInSec, maxWaitTimeInSec, new ScheduledThreadPoolExecutor(1, threadFactory));
+    }
+    
+    /**
+     * Construct service which will process notification requests in batch.
+     * After each request batch will wait <code>waitTimeInSec</code> for more request to come
+     * before executing but not more than <code>maxWaitTimeInSec></code>
+     * 
+     * Each batch creates new connection and close it after finished.
+     * In case reconnect policy is specified it will be applied by batch processing. 
+     * E.g.: {@link ReconnectPolicy.Provided#EVERY_HALF_HOUR} will reconnect the connection in case batch is running for more than half an hour
+     * 
+     * Note: It is not recommended to use pooled connection
+     * 
+     * @param waitTimeInSec
+     *            time to wait for more notification request before executing
+     *            batch
+     * @param maxWaitTimeInSec
+     *            maximum wait time for batch before executing
+     * @param scheduledExecutorService
+     *            scheduled executor service to use for batch processing
+     */
+    public ApnsServiceBuilder asBatched(int waitTimeInSec, int maxWaitTimeInSec, ScheduledExecutorService scheduledExecutorService) {
         this.isBatched = true;
         this.batchWaitTimeInSec = waitTimeInSec;
         this.batchMaxWaitTimeInSec = maxWaitTimeInSec;
-        this.batchThreadFactory = threadFactory;
+        this.scheduledExecutorService = scheduledExecutorService;
         return this;
     }
     
@@ -595,11 +635,11 @@ public class ApnsServiceBuilder {
         service = new ApnsServiceImpl(conn, feedback);
 
         if (isQueued) {
-            service = new QueuedApnsService(service);
+            service = new QueuedApnsService(service, feedback, threadFactory);
         }
         
         if (isBatched) {
-            service = new BatchApnsService(conn, feedback, batchWaitTimeInSec, batchMaxWaitTimeInSec, batchThreadFactory);
+            service = new BatchApnsService(conn, feedback, batchWaitTimeInSec, batchMaxWaitTimeInSec, scheduledExecutorService);
         }
 
         service.start();
