@@ -2,6 +2,7 @@ package com.notnoop.apns.internal;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -47,7 +48,7 @@ public class BatchApnsService extends AbstractApnsService {
 		this.prototype = prototype;
 		this.batchWaitTimeInSec = batchWaitTimeInSec;
 		this.maxBatchWaitTimeInSec = maxBachWaitTimeInSec;
-		this.scheduleService = new ScheduledThreadPoolExecutor(1, tf);
+		this.scheduleService = new ScheduledThreadPoolExecutor(1, tf == null ? Executors.defaultThreadFactory() : tf);
 	}
 
 	public void start() {
