@@ -98,7 +98,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this.delegate = delegate == null ? ApnsDelegate.EMPTY : delegate;
         this.proxy = proxy;
         this.errorDetection = errorDetection;
-        this.threadFactory = tf == null ? Executors.defaultThreadFactory() : tf;
+        this.threadFactory = tf == null ? defaultThreadFactory() : tf;
         this.cacheLength = cacheLength;
         this.autoAdjustCacheLength = autoAdjustCacheLength;
         this.readTimeout = readTimeout;
@@ -107,6 +107,20 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this.proxyPassword = proxyPassword;
         cachedNotifications = new ConcurrentLinkedQueue<ApnsNotification>();
         notificationsBuffer = new ConcurrentLinkedQueue<ApnsNotification>();
+    }
+
+    private ThreadFactory defaultThreadFactory() {
+        return new ThreadFactory() {
+            ThreadFactory wrapped = Executors.defaultThreadFactory();
+            @Override
+            public Thread newThread( Runnable r )
+            {
+                Thread result = wrapped.newThread(r);
+                result.setName("MonitoringThread");
+                result.setDaemon(true);
+                return result;
+            }
+        };
     }
 
     public synchronized void close() {
@@ -236,8 +250,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 return true;
             }
         });
-        t.setName("MonitoringThread");
-        t.setDaemon(true);
         t.start();
     }
 
