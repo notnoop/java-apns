@@ -30,15 +30,18 @@
  */
 package com.notnoop.apns.internal;
 
-import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import com.notnoop.apns.ApnsDelegate;
@@ -67,6 +70,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final ApnsDelegate delegate;
     private int cacheLength;
     private final boolean errorDetection;
+    private final ThreadFactory threadFactory;
     private final boolean autoAdjustCacheLength;
     private final ConcurrentLinkedQueue<ApnsNotification> cachedNotifications, notificationsBuffer;
 
@@ -80,12 +84,12 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     private ApnsConnectionImpl(SocketFactory factory, String host, int port, Proxy proxy, String proxyUsername, String proxyPassword,
                                ReconnectPolicy reconnectPolicy, ApnsDelegate delegate) {
-        this(factory, host, port, proxy, proxyUsername, proxyPassword, reconnectPolicy, delegate, false,
+        this(factory, host, port, proxy, proxyUsername, proxyPassword, reconnectPolicy, delegate, false, null,
                 ApnsConnection.DEFAULT_CACHE_LENGTH, true, 0, 0);
     }
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port, Proxy proxy, String proxyUsername, String proxyPassword,
-                              ReconnectPolicy reconnectPolicy, ApnsDelegate delegate, boolean errorDetection, int cacheLength,
+                              ReconnectPolicy reconnectPolicy, ApnsDelegate delegate, boolean errorDetection, ThreadFactory tf, int cacheLength,
                               boolean autoAdjustCacheLength, int readTimeout, int connectTimeout) {
         this.factory = factory;
         this.host = host;
@@ -94,6 +98,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this.delegate = delegate == null ? ApnsDelegate.EMPTY : delegate;
         this.proxy = proxy;
         this.errorDetection = errorDetection;
+        this.threadFactory = tf == null ? Executors.defaultThreadFactory() : tf;
         this.cacheLength = cacheLength;
         this.autoAdjustCacheLength = autoAdjustCacheLength;
         this.readTimeout = readTimeout;
@@ -111,7 +116,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private void monitorSocket(final Socket socket) {
         logger.debug("Launching Monitoring Thread for socket {}", socket);
 
-        class MonitoringThread extends Thread {
+        Thread t = threadFactory.newThread(new Runnable() {
             final static int EXPECTED_SIZE = 6;
 
             @SuppressWarnings("InfiniteLoopStatement")
@@ -119,10 +124,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
             public void run() {
                 logger.debug("Started monitoring thread");
                 try {
-
-                    DataInputStream in;
+                    InputStream in;
                     try {
-                        in = new DataInputStream(socket.getInputStream());
+                        in = socket.getInputStream();
                     } catch (IOException ioe) {
                         in = null;
                     }
@@ -213,7 +217,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
              * @return true if a packet as been read, false if the stream was at EOF right at the beginning.
              * @throws IOException When a problem occurs, especially EOFException when there's an EOF in the middle of the packet.
              */
-            private boolean readPacket(final DataInputStream in, final byte[] bytes) throws IOException {
+            private boolean readPacket(final InputStream in, final byte[] bytes) throws IOException {
                 final int len = bytes.length;
                 int n = 0;
                 while (n < len) {
@@ -231,8 +235,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 }
                 return true;
             }
-        }
-        Thread t = new MonitoringThread();
+        });
         t.setName("MonitoringThread");
         t.setDaemon(true);
         t.start();
@@ -353,7 +356,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     public ApnsConnectionImpl copy() {
         return new ApnsConnectionImpl(factory, host, port, proxy, proxyUsername, proxyPassword, reconnectPolicy.copy(), delegate,
-                errorDetection, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout);
+                errorDetection, threadFactory, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout);
     }
 
     public void testConnection() throws NetworkIOException {
