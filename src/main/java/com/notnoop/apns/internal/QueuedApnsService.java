@@ -34,7 +34,9 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +54,14 @@ public class QueuedApnsService extends AbstractApnsService {
     private AtomicBoolean started = new AtomicBoolean(false);
 
     public QueuedApnsService(ApnsService service) {
+        this(service, null);
+    }
+
+    public QueuedApnsService(ApnsService service, final ThreadFactory tf) {
         super(null);
         this.service = service;
         this.queue = new LinkedBlockingQueue<ApnsNotification>();
+        this.threadFactory = tf == null ? Executors.defaultThreadFactory() : tf;
         this.thread = null;
     }
 
@@ -66,6 +73,7 @@ public class QueuedApnsService extends AbstractApnsService {
         queue.add(msg);
     }
 
+    private final ThreadFactory threadFactory;
     private Thread thread;
     private volatile boolean shouldContinue;
 
@@ -79,7 +87,7 @@ public class QueuedApnsService extends AbstractApnsService {
 
         service.start();
         shouldContinue = true;
-        thread = new Thread() {
+        thread = threadFactory.newThread(new Runnable() {
             public void run() {
                 while (shouldContinue) {
                     try {
@@ -95,7 +103,7 @@ public class QueuedApnsService extends AbstractApnsService {
                     }
                 }
             }
-        };
+        });
         thread.start();
     }
 

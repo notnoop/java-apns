@@ -38,7 +38,7 @@ public class ApnsPooledConnection implements ApnsConnection {
     };
 
     public void sendMessage(final ApnsNotification m) throws NetworkIOException {
-        Future future = executors.submit(new Callable<Void>() {
+        Future<Void> future = executors.submit(new Callable<Void>() {
             public Void call() throws Exception {
                 uniquePrototype.get().sendMessage(m);
                 return null;

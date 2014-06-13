@@ -89,17 +89,19 @@ public class ApnsServiceBuilder {
 
     private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.EVERY_HALF_HOUR.newObject();
     private boolean isQueued = false;
+    private ThreadFactory queueThreadFactory = null;
     
     private boolean isBatched = false;
     private int batchWaitTimeInSec;
     private int batchMaxWaitTimeInSec;
-    private ThreadFactory batchThreadFactory;
+    private ThreadFactory batchThreadFactory = null;
     
     private ApnsDelegate delegate = ApnsDelegate.EMPTY;
     private Proxy proxy = null;
     private String proxyUsername = null;
     private String proxyPassword = null;
     private boolean errorDetection = true;
+    private ThreadFactory errorDetectionThreadFactory = null;
 
     /**
      * Constructs a new instance of {@code ApnsServiceBuilder}
@@ -485,7 +487,20 @@ public class ApnsServiceBuilder {
      * @return  this
      */
     public ApnsServiceBuilder asQueued() {
+        return asQueued(Executors.defaultThreadFactory());
+    }
+    
+    /**
+     * Constructs a new thread with a processing queue to process
+     * notification requests.
+     *
+     * @param threadFactory
+     *            thread factory to use for queue processing
+     * @return  this
+     */
+    public ApnsServiceBuilder asQueued(ThreadFactory threadFactory) {
         this.isQueued = true;
+        this.queueThreadFactory = threadFactory;
         return this;
     }
     
@@ -514,7 +529,7 @@ public class ApnsServiceBuilder {
      *            maximum wait time for batch before executing
      */
     public ApnsServiceBuilder asBatched(int waitTimeInSec, int maxWaitTimeInSec) {
-        return asBatched(waitTimeInSec, maxWaitTimeInSec, Executors.defaultThreadFactory());
+        return asBatched(waitTimeInSec, maxWaitTimeInSec, null);
     }
     
     /**
@@ -573,6 +588,20 @@ public class ApnsServiceBuilder {
     }
 
     /**
+     * Provide a custom source for threads used for monitoring connections.
+     *
+     * This setting is desired when the application must obtain threads from a
+     * controlled environment Google App Engine. 
+     * @param threadFactory
+     *            thread factory to use for error detection
+     * @return  this
+     */
+    public ApnsServiceBuilder withErrorDetectionThreadFactory(ThreadFactory threadFactory) {
+        this.errorDetectionThreadFactory = threadFactory;
+        return this;
+    }
+
+    /**
      * Returns a fully initialized instance of {@link ApnsService},
      * according to the requested settings.
      *
@@ -587,7 +616,8 @@ public class ApnsServiceBuilder {
 
         ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, 
                 gatewaPort, proxy, proxyUsername, proxyPassword, reconnectPolicy, 
-                delegate, errorDetection, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout);
+                delegate, errorDetection, errorDetectionThreadFactory, cacheLength,
+                autoAdjustCacheLength, readTimeout, connectTimeout);
         if (pooledMax != 1) {
             conn = new ApnsPooledConnection(conn, pooledMax, executor);
         }
@@ -595,7 +625,7 @@ public class ApnsServiceBuilder {
         service = new ApnsServiceImpl(conn, feedback);
 
         if (isQueued) {
-            service = new QueuedApnsService(service);
+            service = new QueuedApnsService(service, queueThreadFactory);
         }
         
         if (isBatched) {
