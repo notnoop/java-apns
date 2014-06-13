@@ -43,7 +43,7 @@ public class ApnsConnectionTest {
 
     @Before
     public void startup() {
-        System.out.println("****** "+testName);
+        System.out.println("****** "+testName.getMethodName());
         server = ApnsServerStub.prepareAndStartServer();
         gatewayPort = server.getEffectiveGatewayPort();
     }
