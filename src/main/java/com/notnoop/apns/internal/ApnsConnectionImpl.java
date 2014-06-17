@@ -41,6 +41,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
@@ -73,6 +74,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final ThreadFactory threadFactory;
     private final boolean autoAdjustCacheLength;
     private final ConcurrentLinkedQueue<ApnsNotification> cachedNotifications, notificationsBuffer;
+    private Socket socket;
+    private final AtomicInteger threadId = new AtomicInteger(0);
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port) {
         this(factory, host, port, new ReconnectPolicies.Never(), ApnsDelegate.EMPTY);
@@ -116,7 +119,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
             public Thread newThread( Runnable r )
             {
                 Thread result = wrapped.newThread(r);
-                result.setName("MonitoringThread");
+                result.setName("MonitoringThread-"+threadId.incrementAndGet());
                 result.setDaemon(true);
                 return result;
             }
@@ -161,6 +164,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
                         int id = Utilities.parseBytes(bytes[2], bytes[3], bytes[4], bytes[5]);
 
+                        logger.debug("Closed connection cause={}; id={}", e, id);
+                        delegate.connectionClosed(e, id);
+
                         Queue<ApnsNotification> tempCache = new LinkedList<ApnsNotification>();
                         ApnsNotification notification = null;
                         boolean foundNotification = false;
@@ -204,13 +210,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         logger.debug("resending {} notifications", resendSize);
                         delegate.notificationsResent(resendSize);
 
-                        logger.debug("closing connection cause={}; id={}", e, id);
-                        delegate.connectionClosed(e, id);
-
-                        logger.debug("draining buffer");
                         drainBuffer();
                     }
-                    logger.debug("Monitoring connection cleanly closed by EOF");
+                    logger.debug("Monitoring input stream closed by EOF");
 
                 } catch (IOException e) {
                     // An exception when reading the error code is non-critical, it will cause another retry
@@ -252,10 +254,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
         });
         t.start();
     }
-
-    // This method is only called from sendMessage.  sendMessage
-    // has the required logic for retrying
-    private Socket socket;
 
     private synchronized Socket getOrCreateSocket() throws NetworkIOException {
         if (reconnectPolicy.shouldReconnect()) {
@@ -311,9 +309,11 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     public synchronized void sendMessage(ApnsNotification m) throws NetworkIOException {
         sendMessage(m, false);
+        drainBuffer();
     }
 
-    synchronized void sendMessage(ApnsNotification m, boolean fromBuffer) throws NetworkIOException {
+    private synchronized void sendMessage(ApnsNotification m, boolean fromBuffer) throws NetworkIOException {
+        logger.debug("sendMessage {} fromBuffer: {}", m, fromBuffer);
 
         int attempts = 0;
         while (true) {
@@ -327,9 +327,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 delegate.messageSent(m, fromBuffer);
 
                 //logger.debug("Message \"{}\" sent", m);
-
                 attempts = 0;
-                drainBuffer();
                 break;
             } catch (IOException e) {
                 Utilities.close(socket);
@@ -352,8 +350,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
         }
     }
 
-    private void drainBuffer() {
-        if (!notificationsBuffer.isEmpty()) {
+    private synchronized void drainBuffer() {
+        logger.debug("draining buffer");
+        while (!notificationsBuffer.isEmpty()) {
             sendMessage(notificationsBuffer.poll(), true);
         }
     }
