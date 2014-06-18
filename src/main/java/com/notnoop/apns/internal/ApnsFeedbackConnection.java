@@ -84,7 +84,7 @@ public class ApnsFeedbackConnection {
                 attempts = 0;
                 return result;
             } catch (final Exception e) {
-                logger.warn("Failed to retreive invalid devices", e);
+                logger.warn("Failed to retrieve invalid devices", e);
                 if (attempts >= RETRIES) {
                     logger.error("Couldn't get feedback connection", e);
                     Utilities.wrapAndThrowAsRuntimeException(e);

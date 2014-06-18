@@ -12,7 +12,7 @@ public class ApnsServiceImplTest {
             EnhancedApnsNotification.MAXIMUM_EXPIRY, "2342", "{}");
 
     @Test
-    public void pushEvantually() {
+    public void pushEventually() {
         ApnsConnection connection = mock(ApnsConnection.class);
         ApnsService service = newService(connection, null);
 
@@ -22,7 +22,7 @@ public class ApnsServiceImplTest {
     }
 
     @Test
-    public void pushEvantuallySample() {
+    public void pushEventuallySample() {
         ApnsConnection connection = mock(ApnsConnection.class);
         ApnsService service = newService(connection, null);
 

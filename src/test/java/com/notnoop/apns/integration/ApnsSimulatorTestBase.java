@@ -68,17 +68,17 @@ public class ApnsSimulatorTestBase {
         server = null;
     }
 
-    protected Matcher<? super LoggingEvent> eventContains(final String substr) {
+    protected Matcher<? super LoggingEvent> eventContains(final String subString) {
         return new BaseMatcher<LoggingEvent>() {
             @Override
             public boolean matches(final Object item) {
                 final String message = ((LoggingEvent) item).getMessage();
-                return message.contains(substr);
+                return message.contains(subString);
             }
 
             @Override
             public void describeTo(final Description description) {
-                description.appendText("substring [" + substr + "]");
+                description.appendText("substring [" + subString + "]");
             }
         };
     }

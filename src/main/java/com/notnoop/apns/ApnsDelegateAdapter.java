@@ -1,7 +1,7 @@
 package com.notnoop.apns;
 
 /**
- * A NOOP delegate that does nothing!
+ * A no operation delegate that does nothing!
  */
 public class ApnsDelegateAdapter implements ApnsDelegate {
 

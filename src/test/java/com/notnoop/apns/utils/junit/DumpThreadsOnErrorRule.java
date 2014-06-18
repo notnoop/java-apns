@@ -5,7 +5,6 @@ import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
-import java.util.Iterator;
 import java.util.Map;
 
 public class DumpThreadsOnErrorRule implements TestRule {
@@ -35,12 +34,12 @@ public class DumpThreadsOnErrorRule implements TestRule {
 
         private void dumpAllThreads() {
             Map liveThreads = Thread.getAllStackTraces();
-            for (Iterator i = liveThreads.keySet().iterator(); i.hasNext(); ) {
-                Thread key = (Thread) i.next();
+            for (Object o : liveThreads.keySet()) {
+                Thread key = (Thread) o;
                 System.err.println("\nThread " + key.getName());
                 StackTraceElement[] trace = (StackTraceElement[]) liveThreads.get(key);
-                for (int j = 0; j < trace.length; j++) {
-                    System.err.println("\tat " + trace[j]);
+                for (StackTraceElement aTrace : trace) {
+                    System.err.println("\tat " + aTrace);
                 }
             }
         }

@@ -24,29 +24,29 @@ public class QueuedApnsServiceTest {
             EnhancedApnsNotification.MAXIMUM_EXPIRY, "2342", "{}");
 
     @Test
-    public void pushEvantually() {
+    public void pushEventually() {
         ConnectionStub connection = spy(new ConnectionStub(0, 1));
         ApnsService service = newService(connection, null);
 
         service.push(notification);
-        connection.semaphor.acquireUninterruptibly();
+        connection.semaphore.acquireUninterruptibly();
 
         verify(connection, times(1)).sendMessage(notification);
     }
 
     @Test
-    public void pushEvantuallySample() {
+    public void pushEventuallySample() {
         ConnectionStub connection = spy(new ConnectionStub(0, 1));
         ApnsService service = newService(connection, null);
 
         service.push("2342", "{}");
-        connection.semaphor.acquireUninterruptibly();
+        connection.semaphore.acquireUninterruptibly();
 
         verify(connection, times(1)).sendMessage(notification);
     }
 
     @Test
-    public void dontBlock() {
+    public void doNotBlock() {
         final int delay = 10000;
         ConnectionStub connection = spy(new ConnectionStub(delay, 2));
         QueuedApnsService queued =
@@ -59,7 +59,7 @@ public class QueuedApnsServiceTest {
         assertTrue("queued.push() blocks", (time2 - time1) < delay);
 
         connection.interrupt();
-        connection.semaphor.acquireUninterruptibly();
+        connection.semaphore.acquireUninterruptibly();
         verify(connection, times(2)).sendMessage(notification);
 
         queued.stop();
@@ -74,19 +74,26 @@ public class QueuedApnsServiceTest {
 
     static class ConnectionStub implements ApnsConnection {
 
-        Semaphore semaphor;
+        Semaphore semaphore;
         int delay;
 
         public ConnectionStub(int delay, int expectedCalls) {
-            this.semaphor = new Semaphore(1 - expectedCalls);
+            this.semaphore = new Semaphore(1 - expectedCalls);
             this.delay = delay;
         }
         volatile boolean stop;
 
         public synchronized void sendMessage(ApnsNotification m) {
             long time = System.currentTimeMillis();
-            while (!stop && (System.currentTimeMillis() < time + delay));
-            semaphor.release();
+            while (!stop && (System.currentTimeMillis() < time + delay)) {
+                // WTF? Here was a busy wait for up to 10 seconds or until "stop" fired. Added: A tiny amount of sleep every round.
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            semaphore.release();
         }
 
         protected void interrupt() {

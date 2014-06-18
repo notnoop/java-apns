@@ -10,7 +10,7 @@ import com.notnoop.exceptions.InvalidSSLConfig;
 public class MainClass {
 
     /**
-     * @param args
+     * @param args Program arguments
      * @throws FileNotFoundException
      * @throws InvalidSSLConfig
      */

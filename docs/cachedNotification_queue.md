@@ -4,7 +4,7 @@ java-apns maintains a per-connection sent queue (cachedNotifications) like descr
 
    * java-apns queue is bounded (cacheNotification() will poll notifications out of the queue when the queue gets too big.)
 
-   * It does not regularily check whether sent messages have been sent a few seconds ago to remove them from the sent queue. 
+   * It does not regularly check whether sent messages have been sent a few seconds ago to remove them from the sent queue.
 
 So if we send a lot of notifications without failure the old notifications will fall off the queue. This is typically ok (since they are "older" and probably have been sent successfully). The queue only serves to cache all the messages sent in between the client sending a bad notification and the APNS server replying.
 

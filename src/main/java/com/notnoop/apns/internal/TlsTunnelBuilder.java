@@ -79,14 +79,14 @@ public final class TlsTunnelBuilder {
     }
 
     @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
-            justification = "use <CR><LF> as according to RFC, not platform-linfeed")
+            justification = "use <CR><LF> as according to RFC, not platform-linefeed")
     Socket makeTunnel(String host, int port, String proxyUsername, 
             String proxyPassword, InetSocketAddress proxyAddress) throws IOException {
         if(host == null || port < 0 || host.isEmpty() || proxyAddress == null){
             throw new ProtocolException("Incorrect parameters to build tunnel.");   
         }
         logger.debug("Creating socket for Proxy : " + proxyAddress.getAddress() + ":" + proxyAddress.getPort());
-        Socket socket = null;
+        Socket socket;
         try {
             ProxyClient client = new ProxyClient();
             client.getParams().setParameter("http.useragent", "java-apns");
@@ -100,7 +100,7 @@ public final class TlsTunnelBuilder {
             if (socket == null) {
                 ConnectMethod method = response.getConnectMethod();
                 // Read the proxy's HTTP response.
-                if(method.getStatusLine().toString().matches("HTTP\\/1\\.\\d 407 Proxy Authentication Required")) {
+                if(method.getStatusLine().toString().matches("HTTP/1\\.\\d 407 Proxy Authentication Required")) {
                     // Proxy server returned 407. We will now try to connect with auth Header
                     if(proxyUsername != null && proxyPassword != null) {
                         socket = AuthenticateProxy(method, client,proxyHost, proxyAddress.getPort(),
@@ -114,7 +114,9 @@ public final class TlsTunnelBuilder {
         } catch (Exception e) {
             throw new ProtocolException("Error occurred while creating proxy socket : " + e.toString());
         }
-        logger.debug("Socket for proxy created successfully : " + socket.getRemoteSocketAddress().toString());
+        if (socket != null) {
+            logger.debug("Socket for proxy created successfully : " + socket.getRemoteSocketAddress().toString());
+        }
         return socket;
     }
     

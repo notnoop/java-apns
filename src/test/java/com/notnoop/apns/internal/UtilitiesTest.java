@@ -63,7 +63,7 @@ public class UtilitiesTest {
 
         // See http://en.wikipedia.org/wiki/Unicode_equivalence#Example
         //
-        // Oh the joy as different plaforms choose to normalize Unicode differntly ... but both are valid.
+        // Oh the joy as different platforms choose to normalize Unicode differently ... but both are valid.
         //
         // This is intended to fix a problem under jdk 6, I was not able to reproduce it with jdk 7u51 on OSX Mavericks
         // (Java seems to also use expected_NFC here).

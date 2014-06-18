@@ -30,7 +30,7 @@ Features:
   *  Easy to use, high performance APNS Service API
   *  Supports Apple Feedback service
   *  Support Enhanced Apple Push Notification
-  *  Support MDM and Newstand Notifications
+  *  Support MDM and Newsstand Notifications
   *  Easy to use with Apple certificates
   *  Easy to extend and reuse
   *  Easy to integrate with dependency injection frameworks

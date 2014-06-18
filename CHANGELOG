@@ -6,7 +6,7 @@ Version 0.2.4.build-SNAPSHOT - (in progress)
 Version 0.2.3 - Mar 30, 2013
   - return back to com.notnoop.apns group id (#91)
 
-  - Add NOOP delegate adapter and ability to build service with keystore (#93)
+  - Add no operation delegate adapter and ability to build service with keystore (#93)
   - Proxy support for Feedback connection (#92)
   - Make APNS class final    
   - Batch APNS (#14)
@@ -14,13 +14,13 @@ Version 0.2.3 - Mar 30, 2013
 
 Version 0.2.2 - Jan 20, 2013
   - ApnsConnection resend unsent notifications after error
-  - Do not stop QueuedApnsService on unsuccessfull attempt to submit a message
+  - Do not stop QueuedApnsService on unsuccessful attempt to submit a message
   - Continuous integration builds on travis ci
   - Support Proxy.Type.HTTP.
   - Do not log error messages for retries when sending a message, rather
     log one when we can't send a message at all.
   - When there is an error (error packet or exception in parsing error packet)
-    close the socket instead of wating for APNS to close it.
+    close the socket instead of waiting for APNS to close it.
   - java-apns now is an osgi bundle
   - Have ApnsService.push return sent messages
   - Add changelog

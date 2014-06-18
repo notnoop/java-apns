@@ -43,7 +43,7 @@ public interface ApnsDelegate {
      * Called when message was successfully sent to the Apple servers
      *
      * @param message the notification that was sent
-     * @param resent whether the notfication was resent after an error
+     * @param resent whether the notification was resent after an error
      */
     public void messageSent(ApnsNotification message, boolean resent);
 
@@ -86,7 +86,7 @@ public interface ApnsDelegate {
     public void notificationsResent(int resendCount);
     
     /**
-     * A NOOP delegate that does nothing!
+     * A no operation delegate that does nothing!
      */
     public final static ApnsDelegate EMPTY = new ApnsDelegateAdapter();
 }

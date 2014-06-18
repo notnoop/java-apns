@@ -12,6 +12,7 @@ import com.notnoop.apns.internal.Utilities;
 import static com.notnoop.apns.PayloadBuilder.*;
 import static com.notnoop.apns.internal.Utilities.*;
 
+@SuppressWarnings("deprecation")
 @RunWith(Theories.class)
 public class SimpleApnsNotificationTest {
 

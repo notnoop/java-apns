@@ -82,9 +82,9 @@ abstract class AbstractApnsService implements ApnsService {
         byte[] messageBytes = Utilities.toUTF8Bytes(payload);
         List<EnhancedApnsNotification> notifications = new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
         for (String deviceToken : deviceTokens) {
-            byte[] dtbytes = Utilities.decodeHex(deviceToken);
+            byte[] dtBytes = Utilities.decodeHex(deviceToken);
             EnhancedApnsNotification notification =
-                new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, dtbytes, messageBytes);
+                new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, dtBytes, messageBytes);
             notifications.add(notification);
             push(notification);
         }
@@ -95,9 +95,9 @@ abstract class AbstractApnsService implements ApnsService {
         byte[] messageBytes = Utilities.toUTF8Bytes(payload);
         List<EnhancedApnsNotification> notifications = new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
         for (String deviceToken : deviceTokens) {
-            byte[] dtbytes = Utilities.decodeHex(deviceToken);
+            byte[] dtBytes = Utilities.decodeHex(deviceToken);
             EnhancedApnsNotification notification =
-                new EnhancedApnsNotification(c.incrementAndGet(), (int)(expiry.getTime() / 1000), dtbytes, messageBytes);
+                new EnhancedApnsNotification(c.incrementAndGet(), (int)(expiry.getTime() / 1000), dtBytes, messageBytes);
             notifications.add(notification);
             push(notification);
         }

@@ -175,10 +175,10 @@ public abstract class ApnsServerSimulator {
                 // Done reading.
             }
 
-            byte[] deviceToken = get(map, ApnsInputStream.Item.ID_DEVICETOKEN).getBlob();
+            byte[] deviceToken = get(map, ApnsInputStream.Item.ID_DEVICE_TOKEN).getBlob();
             byte[] payload = get(map, ApnsInputStream.Item.ID_PAYLOAD).getBlob();
-            int identifier = get(map, ApnsInputStream.Item.ID_NOTIFICATIONIDENTIFIER).getInt();
-            int expiry = get(map, ApnsInputStream.Item.ID_EXPIRATIONDATE).getInt();
+            int identifier = get(map, ApnsInputStream.Item.ID_NOTIFICATION_IDENTIFIER).getInt();
+            int expiry = get(map, ApnsInputStream.Item.ID_EXPIRATION_DATE).getInt();
             byte priority = get(map, ApnsInputStream.Item.ID_PRIORITY).getByte();
 
             final Notification notification = new Notification(2, identifier, expiry, deviceToken, payload, priority);
@@ -187,8 +187,8 @@ public abstract class ApnsServerSimulator {
 
         }
 
-        private ApnsInputStream.Item get(final Map<Byte, ApnsInputStream.Item> map, final byte idDevicetoken) {
-            ApnsInputStream.Item item = map.get(idDevicetoken);
+        private ApnsInputStream.Item get(final Map<Byte, ApnsInputStream.Item> map, final byte idDeviceToken) {
+            ApnsInputStream.Item item = map.get(idDeviceToken);
             if (item == null) {
                 item = ApnsInputStream.Item.DEFAULT;
             }
@@ -322,8 +322,8 @@ public abstract class ApnsServerSimulator {
         private void writeFeedback(final InputOutputSocket inputOutputSocket, final byte[] token) throws IOException {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             DataOutputStream dos = new DataOutputStream(os);
-            final int unixtime = (int) (new Date().getTime() / 1000);
-            dos.write(unixtime);
+            final int unixTime = (int) (new Date().getTime() / 1000);
+            dos.write(unixTime);
             dos.write((short) token.length);
             dos.write(token);
             dos.close();

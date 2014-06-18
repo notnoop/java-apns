@@ -103,9 +103,9 @@ public final class Utilities {
                tmf.init((KeyStore)null);
 
                // Get the SSLContext to help create SSLSocketFactory
-               final SSLContext sslc = SSLContext.getInstance("TLS");
-               sslc.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-               return sslc;
+               final SSLContext sslContext = SSLContext.getInstance("TLS");
+               sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+               return sslContext;
            } catch (final GeneralSecurityException e) {
                throw new InvalidSSLConfig(e);
            }
@@ -117,12 +117,12 @@ public final class Utilities {
 
         final byte[] bts = new byte[hex.length() / 2];
         for (int i = 0; i < bts.length; i++) {
-            bts[i] = (byte) (charval(hex.charAt(2*i)) * 16 + charval(hex.charAt(2*i + 1)));
+            bts[i] = (byte) (charVal(hex.charAt(2 * i)) * 16 + charVal(hex.charAt(2 * i + 1)));
         }
         return bts;
     }
 
-    private static int charval(final char a) {
+    private static int charVal(final char a) {
         if ('0' <= a && a <= '9') {
             return (a - '0');
         } else if ('a' <= a && a <= 'f') {

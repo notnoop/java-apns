@@ -150,6 +150,7 @@ public class ApnsServerStub {
 
     private class GatewayRunner extends Thread {
 
+        @SuppressWarnings("InfiniteLoopStatement")
         public void run() {
 
 

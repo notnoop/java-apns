@@ -33,10 +33,10 @@ public class ApnsInputStream extends DataInputStream {
     }
 
     public static class Item {
-        public final static byte ID_DEVICETOKEN = 1;
+        public final static byte ID_DEVICE_TOKEN = 1;
         public final static byte ID_PAYLOAD = 2;
-        public final static byte ID_NOTIFICATIONIDENTIFIER = 3;
-        public final static byte ID_EXPIRATIONDATE = 4;
+        public final static byte ID_NOTIFICATION_IDENTIFIER = 3;
+        public final static byte ID_EXPIRATION_DATE = 4;
         public final static byte ID_PRIORITY = 5;
         public final static Item DEFAULT = new Item((byte)0, new byte[0]);
 

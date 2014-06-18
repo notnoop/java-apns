@@ -36,7 +36,7 @@ public class StringTruncationTest {
             {"a\u0800b", 6, 5},
     };
 
-    @DataPoints public static Object[][] surregatePairs = {
+    @DataPoints public static Object[][] surrogatePairs = {
             {"\uD834\uDD1E", 0, 0},
             {"\uD834\uDD1E", 1, 0},
             {"\uD834\uDD1E", 2, 0},

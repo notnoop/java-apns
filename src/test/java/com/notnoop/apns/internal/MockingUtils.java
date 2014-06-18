@@ -10,8 +10,7 @@ import javax.net.SocketFactory;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.OngoingStubbing;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
+
 import static org.mockito.Mockito.*;
 
 public class MockingUtils {
@@ -44,7 +43,7 @@ public class MockingUtils {
                 } else {
                     when(socket.getOutputStream()).thenThrow(
                             new IOException("simulated IOException"));
-                    doAnswer(new DynamicMockSocketClosed(socket)).when(socket).close();;
+                    doAnswer(new DynamicMockSocketClosed(socket)).when(socket).close();
                 }
                 socketMocks.add(socket);
             }

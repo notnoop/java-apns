@@ -41,7 +41,7 @@ public class BatchApnsService extends AbstractApnsService {
 	private ScheduledExecutorService scheduleService;
 	private ScheduledFuture<?> taskFuture;
 	
-	private Runnable batchRunner = new SendMessagessBatch();
+	private Runnable batchRunner = new SendMessagesBatch();
 
 	public BatchApnsService(ApnsConnection prototype, ApnsFeedbackConnection feedback, int batchWaitTimeInSec, int maxBachWaitTimeInSec, ThreadFactory tf) {
 		super(feedback);
@@ -73,9 +73,9 @@ public class BatchApnsService extends AbstractApnsService {
 			firstMessageArrivedTime = System.nanoTime();
 		}
 		
-		long sincFirstMessageSec = (System.nanoTime() - firstMessageArrivedTime) / 1000 / 1000 / 1000;
+		long sinceFirstMessageSec = (System.nanoTime() - firstMessageArrivedTime) / 1000 / 1000 / 1000;
 		
-		if (taskFuture != null && sincFirstMessageSec < maxBatchWaitTimeInSec) {
+		if (taskFuture != null && sinceFirstMessageSec < maxBatchWaitTimeInSec) {
 			taskFuture.cancel(false);
 		}
 		
@@ -86,7 +86,7 @@ public class BatchApnsService extends AbstractApnsService {
 		}
 	}
 
-	class SendMessagessBatch implements Runnable {
+	class SendMessagesBatch implements Runnable {
 		public void run() {
 			ApnsConnection newConnection = prototype.copy();
 			try {

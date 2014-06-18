@@ -91,7 +91,7 @@ public class ApnsServerSocketBuilder {
 	 * Oracle Java library <a
 	 * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6415637"> Bug
 	 * 6415637</a>. There are three workarounds: use a password-protected
-	 * certificate, use a different boot Java SDK implementation, or constract
+	 * certificate, use a different boot Java SDK implementation, or construct
 	 * the `SSLContext` yourself! Needless to say, the password-protected
 	 * certificate is most recommended option.
 	 * 
@@ -130,7 +130,7 @@ public class ApnsServerSocketBuilder {
 	 * Oracle Java library <a
 	 * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6415637"> Bug
 	 * 6415637</a>. There are three workarounds: use a password-protected
-	 * certificate, use a different boot Java SDK implementation, or constract
+	 * certificate, use a different boot Java SDK implementation, or construct
 	 * the `SSLContext` yourself! Needless to say, the password-protected
 	 * certificate is most recommended option.
 	 * 
@@ -158,7 +158,7 @@ public class ApnsServerSocketBuilder {
 	 * Oracle Java library <a
 	 * href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6415637"> Bug
 	 * 6415637</a>. There are three workarounds: use a password-protected
-	 * certificate, use a different boot Java SDK implementation, or constract
+	 * certificate, use a different boot Java SDK implementation, or construct
 	 * the `SSLContext` yourself! Needless to say, the password-protected
 	 * certificate is most recommended option.
 	 * 

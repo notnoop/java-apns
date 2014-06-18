@@ -32,7 +32,6 @@
 package com.notnoop.apns.internal;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 //import java.net.InetSocketAddress;
@@ -65,12 +64,11 @@ public class TlsTunnelBuilderTest {
 
     @Test
     public void invalidProxyParams() throws IOException {
-        InputStream response = inputStream("HTTP/1.1 407 AUTH REQUIRED\r\n\r\n");
-        ByteArrayOutputStream request = new ByteArrayOutputStream();
         try {
             new TlsTunnelBuilder().makeTunnel("origin.example.com", 9876, null, null, null);
             fail();
         } catch (IOException expected) {
+            // No operation
         }
     }
 

@@ -19,7 +19,7 @@ public class InputOutputSocket {
 
         this.socket = socket;
 
-        // Hack, work arond JVM deadlock ... https://community.oracle.com/message/10989561#10989561
+        // Hack, work around JVM deadlock ... https://community.oracle.com/message/10989561#10989561
         socket.setSoLinger(true, 1);
         outputStream = new DataOutputStream(socket.getOutputStream());
         inputStream = new ApnsInputStream(socket.getInputStream());
@@ -62,7 +62,7 @@ public class InputOutputSocket {
     }
 
     /**
-     * Write data to the outputstream while synchronized against close(). This hopefully fixes
+     * Write data to the output stream while synchronized against close(). This hopefully fixes
      * sporadic test failures caused by a deadlock of write() and close()
      * @param bytes The data to write
      * @throws IOException if an error occurs

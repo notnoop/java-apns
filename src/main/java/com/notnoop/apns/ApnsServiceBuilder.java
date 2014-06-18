@@ -78,7 +78,7 @@ public class ApnsServiceBuilder {
     private int connectTimeout = 0;
 
     private String gatewayHost;
-    private int gatewaPort = -1;
+    private int gatewayPort = -1;
 
     private String feedbackHost;
     private int feedbackPort;
@@ -121,7 +121,7 @@ public class ApnsServiceBuilder {
      * This library does not support password-less p12 certificates, due to a
      * Oracle Java library <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6415637">
      * Bug 6415637</a>.  There are three workarounds: use a password-protected
-     * certificate, use a different boot Java SDK implementation, or constract
+     * certificate, use a different boot Java SDK implementation, or construct
      * the `SSLContext` yourself!  Needless to say, the password-protected
      * certificate is most recommended option.
      *
@@ -184,7 +184,7 @@ public class ApnsServiceBuilder {
      * This library does not support password-less p12 certificates, due to a
      * Oracle Java library <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6415637">
      * Bug 6415637</a>.  There are three workarounds: use a password-protected
-     * certificate, use a different boot Java SDK implementation, or constract
+     * certificate, use a different boot Java SDK implementation, or construct
      * the `SSLContext` yourself!  Needless to say, the password-protected
      * certificate is most recommended option.
      *
@@ -227,7 +227,7 @@ public class ApnsServiceBuilder {
     
     /**
      * Specify the timeout value to be set in new setSoTimeout in created
-     * sockets, for both feedback and push connections, in msecs.
+     * sockets, for both feedback and push connections, in milliseconds.
      * @param readTimeout timeout value to be set in new setSoTimeout
      * @return this
      */
@@ -238,7 +238,7 @@ public class ApnsServiceBuilder {
 
     /**
      * Specify the timeout value to use for connectionTimeout in created
-     * sockets, for both feedback and push connections, in msecs.
+     * sockets, for both feedback and push connections, in milliseconds.
      * @param connectTimeout timeout value to use for connectionTimeout
      * @return this
      */
@@ -261,7 +261,7 @@ public class ApnsServiceBuilder {
      */
     public ApnsServiceBuilder withGatewayDestination(String host, int port) {
         this.gatewayHost = host;
-        this.gatewaPort = port;
+        this.gatewayPort = port;
         return this;
     }
 
@@ -422,7 +422,7 @@ public class ApnsServiceBuilder {
     }
     
     /**
-     * Specity the number of notifications to cache for error purposes.
+     * Specify the number of notifications to cache for error purposes.
      * Default is 100
      * 
      * @param cacheLength  Number of notifications to cache for error purposes
@@ -614,8 +614,8 @@ public class ApnsServiceBuilder {
         SSLSocketFactory sslFactory = sslContext.getSocketFactory();
         ApnsFeedbackConnection feedback = new ApnsFeedbackConnection(sslFactory, feedbackHost, feedbackPort, proxy, readTimeout, connectTimeout, proxyUsername, proxyPassword);
 
-        ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, 
-                gatewaPort, proxy, proxyUsername, proxyPassword, reconnectPolicy, 
+        ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost,
+            gatewayPort, proxy, proxyUsername, proxyPassword, reconnectPolicy,
                 delegate, errorDetection, errorDetectionThreadFactory, cacheLength,
                 autoAdjustCacheLength, readTimeout, connectTimeout);
         if (pooledMax != 1) {
@@ -642,7 +642,7 @@ public class ApnsServiceBuilder {
             throw new IllegalStateException(
                     "SSL Certificates and attribute are not initialized\n"
                     + "Use .withCert() methods.");
-        if (gatewayHost == null || gatewaPort == -1)
+        if (gatewayHost == null || gatewayPort == -1)
             throw new IllegalStateException(
                     "The Destination APNS server is not stated\n"
                     + "Use .withDestination(), withSandboxDestination(), "

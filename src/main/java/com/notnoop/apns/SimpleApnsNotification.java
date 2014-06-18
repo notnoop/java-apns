@@ -41,7 +41,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * and should not be used in new development.
  * https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/LegacyFormat.html
  *
- * This SimpleApnsNotification also only has limited error handly (by the APNS closing the connection
+ * This SimpleApnsNotification also only has limited error handling (by the APNS closing the connection
  * when a bad message was received) This prevents us from location the malformed notification.
  *
  * As push messages sent after a malformed notification are discarded by APNS messages will get lost
@@ -49,6 +49,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  * @deprecated use EnhancedApnsNotification instead.
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 public class SimpleApnsNotification implements ApnsNotification {
 

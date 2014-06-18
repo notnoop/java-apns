@@ -89,8 +89,8 @@ public class ApnsSimulatorTest extends ApnsSimulatorTestBase {
 
     @Ignore
     @Test
-    public void Racecondition() {
-        // TODO implement test & decide if fix is neccessary afterwards.
+    public void RaceCondition() {
+        // TODO implement test & decide if fix is necessary afterwards.
         Assert.fail("Assumption: monitoring thread crashes in read() when the sender thread closes the connection first.");
         // Thus the last feedback message gets lost, thus we lose messages.
     }

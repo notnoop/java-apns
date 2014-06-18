@@ -60,7 +60,7 @@ public interface ApnsService {
      *
      * @param deviceToken   the destination iPhone device token
      * @param payload       The payload message
-     * @throws NetworkIOException if a network error occured while
+     * @throws NetworkIOException if a network error occurred while
      *      attempting to send the message
      */
     ApnsNotification push(String deviceToken, String payload) throws NetworkIOException;
@@ -119,7 +119,7 @@ public interface ApnsService {
     /**
      * Sends the provided notification {@code message} to the desired
      * destination.
-     * @throws NetworkIOException if a network error occured while
+     * @throws NetworkIOException if a network error occurred while
      *      attempting to send the message
      */
     void push(ApnsNotification message) throws NetworkIOException;
@@ -128,7 +128,7 @@ public interface ApnsService {
      * Starts the service.
      *
      * The underlying implementation may prepare its connections or
-     * datastructures to be able to send the messages.
+     * data structures to be able to send the messages.
      *
      * This method is a blocking call, even if the service represents
      * a Non-blocking push service.  Once the service is returned, it is ready

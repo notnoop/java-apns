@@ -12,10 +12,10 @@ import com.notnoop.apns.internal.Utilities;
 public class FixedCertificates {
 
     public static final String CLIENT_STORE = "clientStore.p12";
-    public static final String CLIENT_PASSWD = "123456";
+    public static final String CLIENT_PASSWORD = "123456";
 
     public static final String SERVER_STORE = "serverStore.p12";
-    public static final String SERVER_PASSWD = "123456";
+    public static final String SERVER_PASSWORD = "123456";
 
     public static final String LOCALHOST = "localhost";
 
@@ -24,7 +24,7 @@ public class FixedCertificates {
             //System.setProperty("javax.net.ssl.trustStore", ClassLoader.getSystemResource(CLIENT_STORE).getPath());
             InputStream stream = ClassLoader.getSystemResourceAsStream(SERVER_STORE);
 
-            return Utilities.newSSLContext(stream, SERVER_PASSWD, "PKCS12", "sunx509");
+            return Utilities.newSSLContext(stream, SERVER_PASSWORD, "PKCS12", "sunx509");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -33,7 +33,7 @@ public class FixedCertificates {
     public static SSLContext clientContext() {
         try {
             InputStream stream = ClassLoader.getSystemResourceAsStream(CLIENT_STORE);
-            SSLContext context = Utilities.newSSLContext(stream, CLIENT_PASSWD, "PKCS12", "sunx509");
+            SSLContext context = Utilities.newSSLContext(stream, CLIENT_PASSWORD, "PKCS12", "sunx509");
             context.init(null, new TrustManager[] { new X509TrustManagerTrustAll() }, new SecureRandom());
             return context;
         } catch (Exception e) {
