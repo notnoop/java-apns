@@ -37,6 +37,7 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.net.SocketFactory;
@@ -68,7 +69,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private int cacheLength;
     private final boolean errorDetection;
     private final boolean autoAdjustCacheLength;
-    private final ConcurrentLinkedQueue<ApnsNotification> cachedNotifications, notificationsBuffer;
+    private final ConcurrentLinkedQueue<ApnsNotification> cachedNotifications;
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port) {
         this(factory, host, port, new ReconnectPolicies.Never(), ApnsDelegate.EMPTY);
@@ -101,7 +102,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this.proxyUsername = proxyUsername;
         this.proxyPassword = proxyPassword;
         cachedNotifications = new ConcurrentLinkedQueue<ApnsNotification>();
-        notificationsBuffer = new ConcurrentLinkedQueue<ApnsNotification>();
     }
 
     public synchronized void close() {
@@ -118,6 +118,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
             @Override
             public void run() {
                 logger.debug("Started monitoring thread");
+                List<ApnsNotification> validNotifications = new LinkedList<ApnsNotification>();
                 try {
 
                     DataInputStream in;
@@ -149,10 +150,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
                         while (!cachedNotifications.isEmpty()) {
                             notification = cachedNotifications.poll();
-                            logger.debug("Candidate for removal, message id {}", notification.getIdentifier());
 
                             if (notification.getIdentifier() == id) {
-                                logger.debug("Bad message found {}", notification.getIdentifier());
+                                logger.debug("Bad message id={}", notification.getIdentifier());
                                 foundNotification = true;
                                 break;
                             }
@@ -160,7 +160,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         }
 
                         if (foundNotification) {
-                            logger.debug("delegate.messageSendFailed, message id {}", notification.getIdentifier());
+                            logger.debug("delegate.messageSendFailed, message id={}", notification.getIdentifier());
                             delegate.messageSendFailed(notification, new ApnsDeliveryErrorException(e));
                         } else {
                             cachedNotifications.addAll(tempCache);
@@ -181,7 +181,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                             resendSize++;
                             final ApnsNotification resendNotification = cachedNotifications.poll();
                             logger.debug("Queuing for resend {}", resendNotification.getIdentifier());
-                            notificationsBuffer.add(resendNotification);
+                            validNotifications.add(resendNotification);
                         }
                         logger.debug("resending {} notifications", resendSize);
                         delegate.notificationsResent(resendSize);
@@ -189,8 +189,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         logger.debug("closing connection cause={}; id={}", e, id);
                         delegate.connectionClosed(e, id);
 
-                        logger.debug("draining buffer");
-                        drainBuffer();
                     }
                     logger.debug("Monitoring connection cleanly closed by EOF");
 
@@ -202,6 +200,11 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     delegate.connectionClosed(DeliveryError.UNKNOWN, -1);
                 } finally {
                     close();
+                }
+
+                for (ApnsNotification notification : validNotifications) {
+                    logger.debug("Resend notification id={}", notification.getIdentifier());
+                    sendMessage(notification, true);
                 }
             }
 
@@ -314,7 +317,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 //logger.debug("Message \"{}\" sent", m);
 
                 attempts = 0;
-                drainBuffer();
                 break;
             } catch (IOException e) {
                 Utilities.close(socket);
@@ -334,12 +336,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     Utilities.sleep(DELAY_IN_MS);
                 }
             }
-        }
-    }
-
-    private void drainBuffer() {
-        if (!notificationsBuffer.isEmpty()) {
-            sendMessage(notificationsBuffer.poll(), true);
         }
     }
 
