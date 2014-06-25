@@ -220,11 +220,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     close();
                 }
 
-                if (validNotifications.size() > 0) {
-                    for (ApnsNotification notification : validNotifications) {
-                        logger.debug("Resend notification id={}", notification.getIdentifier());
-                        sendMessage(notification, true);
-                    }
+                for (ApnsNotification notification : validNotifications) {
+                    logger.debug("Resend notification id={}", notification.getIdentifier());
+                    sendMessage(notification, true);
                 }
             }
 
