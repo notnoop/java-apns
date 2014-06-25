@@ -38,6 +38,7 @@ import java.net.Proxy;
 import java.net.Socket;
 
 import java.security.KeyStore;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -100,6 +101,7 @@ public class ApnsServiceBuilder {
     private String proxyUsername = null;
     private String proxyPassword = null;
     private boolean errorDetection = true;
+    private Executor monitorThreadExecutor;
 
     /**
      * Constructs a new instance of {@code ApnsServiceBuilder}
@@ -573,6 +575,16 @@ public class ApnsServiceBuilder {
     }
 
     /**
+     * Customize monitoring thread executor
+     * @param executor executor
+     * @return this
+     */
+    public ApnsServiceBuilder withMonitorThreadExecutor(Executor executor){
+        this.monitorThreadExecutor = executor;
+        return this;
+    }
+
+    /**
      * Returns a fully initialized instance of {@link ApnsService},
      * according to the requested settings.
      *
@@ -587,7 +599,7 @@ public class ApnsServiceBuilder {
 
         ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost, 
                 gatewaPort, proxy, proxyUsername, proxyPassword, reconnectPolicy, 
-                delegate, errorDetection, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout);
+                delegate, errorDetection, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout, monitorThreadExecutor);
         if (pooledMax != 1) {
             conn = new ApnsPooledConnection(conn, pooledMax, executor);
         }
