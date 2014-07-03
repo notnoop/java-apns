@@ -204,7 +204,7 @@ public final class PayloadBuilder {
      *
      * @return this
      */
-    public PayloadBuilder instantDeliveryOrSlientNofitication() {
+    public PayloadBuilder instantDeliveryOrSilentNotification() {
         root.put("content-available", 1);
         return this;
     }

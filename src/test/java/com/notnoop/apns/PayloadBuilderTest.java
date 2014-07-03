@@ -495,9 +495,9 @@ public class PayloadBuilderTest {
     }
     
     @Test
-    public void slientPingMessage() {
+    public void silentPingMessage() {
         final PayloadBuilder builder = new PayloadBuilder();
-        builder.instantDeliveryOrSlientNofitication();
+        builder.instantDeliveryOrSilentNotification();
 
         final String expected = "{\"aps\":{},\"content-available\":1}";
         final String actual = builder.toString();
@@ -506,10 +506,10 @@ public class PayloadBuilderTest {
     }
 
     @Test
-    public void slientPingMessageWithCustomKey() {
+    public void silentPingMessageWithCustomKey() {
         final PayloadBuilder builder = new PayloadBuilder();
         
-        builder.instantDeliveryOrSlientNofitication();
+        builder.instantDeliveryOrSilentNotification();
         builder.customField("ache1", "what");
 
         final String expected = "{\"aps\":{},\"ache1\":\"what\",\"content-available\":1}";
@@ -522,7 +522,7 @@ public class PayloadBuilderTest {
     public void instantMessageWithAlert() {
         final PayloadBuilder builder = new PayloadBuilder();
         builder.alertBody("test");
-        builder.instantDeliveryOrSlientNofitication();
+        builder.instantDeliveryOrSilentNotification();
 
         final String expected = "{\"aps\":{\"alert\":\"test\"},\"content-available\":1}";
         final String actual = builder.toString();
