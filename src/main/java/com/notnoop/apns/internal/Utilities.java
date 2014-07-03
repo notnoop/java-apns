@@ -69,7 +69,7 @@ public final class Utilities {
     public static final String PRODUCTION_FEEDBACK_HOST = "feedback.push.apple.com";
     public static final int PRODUCTION_FEEDBACK_PORT = 2196;
 
-    public static final int MAX_PAYLOAD_LENGTH = 256;
+    public static final int MAX_PAYLOAD_LENGTH = 2048;
 
     private Utilities() { throw new AssertionError("Uninstantiable class"); }
 

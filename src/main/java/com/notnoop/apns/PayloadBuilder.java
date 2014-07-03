@@ -327,7 +327,7 @@ public final class PayloadBuilder {
 
     /**
      * Returns true if the payload built so far is larger than
-     * the size permitted by Apple (which is 256 bytes).
+     * the size permitted by Apple (which is 2048 bytes).
      *
      * @return true if the result payload is too long
      */
@@ -395,7 +395,7 @@ public final class PayloadBuilder {
 
     /**
      * Shrinks the alert message body so that the resulting payload
-     * message fits within require Apple specification (256 bytes).
+     * message fits within require Apple specification (2048 bytes).
      *
      * This method performs best-effort approach, and its behavior
      * is unspecified when handling alerts where the payload
@@ -410,7 +410,7 @@ public final class PayloadBuilder {
 
     /**
      * Shrinks the alert message body so that the resulting payload
-     * message fits within require Apple specification (256 bytes).
+     * message fits within require Apple specification (2048 bytes).
      *
      * This method performs best-effort approach, and its behavior
      * is unspecified when handling alerts where the payload
