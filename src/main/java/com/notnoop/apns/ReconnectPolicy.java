@@ -70,9 +70,9 @@ public interface ReconnectPolicy {
     public enum Provided {
         /**
          * Only reconnect if absolutely needed, e.g. when the connection is dropped.
-         * <p/>
+         * <p>
          * Apple recommends using a persistent connection.  This improves the latency of sending push notification messages.
-         * <p/>
+         * <p>
          * The down-side is that once the connection is closed ungracefully (e.g. because Apple server drops it), the library wouldn't
          * detect such failure and not warn against the messages sent after the drop before the detection.
          */
@@ -85,9 +85,9 @@ public interface ReconnectPolicy {
 
         /**
          * Makes a new connection if the current connection has lasted for more than half an hour.
-         * <p/>
+         * <p>
          * This is the recommended mode.
-         * <p/>
+         * <p>
          * This is the sweat-spot in my experiments between dropped connections while minimizing latency.
          */
         EVERY_HALF_HOUR {
