@@ -69,7 +69,8 @@ public final class Utilities {
     public static final String PRODUCTION_FEEDBACK_HOST = "feedback.push.apple.com";
     public static final int PRODUCTION_FEEDBACK_PORT = 2196;
 
-    public static final int MAX_PAYLOAD_LENGTH = 256;
+    // Increased from 256 to 2k, as per "What's new in iOS notitifcations" 15:12
+    public static final int MAX_PAYLOAD_LENGTH = 2048;
 
     private Utilities() { throw new AssertionError("Uninstantiable class"); }
 
