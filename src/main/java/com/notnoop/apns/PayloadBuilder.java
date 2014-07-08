@@ -126,6 +126,25 @@ public final class PayloadBuilder {
     }
 
     /**
+     * Sets the category of the notification for iOS8 notification
+     * actions.  See 13 minutes into "What's new in iOS Notifications"
+     *
+     * Passing {@code null} removes the category.
+     *
+     * @param category the name of the category supplied to the app
+     *              when receiving the notification
+     * @return  this
+     */
+    public PayloadBuilder category(final String category) {
+        if (category != null) {
+            aps.put("category", category);
+        } else {
+            aps.remove("category");
+        }
+        return this;
+    }
+
+    /**
      * Sets the notification badge to be displayed next to the
      * application icon.
      *
