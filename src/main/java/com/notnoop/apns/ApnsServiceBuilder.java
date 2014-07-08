@@ -535,7 +535,7 @@ public class ApnsServiceBuilder {
     /**
      * Construct service which will process notification requests in batch.
      * After each request batch will wait <code>waitTimeInSec</code> for more request to come
-     * before executing but not more than <code>maxWaitTimeInSec></code>
+     * before executing but not more than <code>maxWaitTimeInSec</code>
      * 
      * Each batch creates new connection and close it after finished.
      * In case reconnect policy is specified it will be applied by batch processing. 
