@@ -126,6 +126,25 @@ public final class PayloadBuilder {
     }
 
     /**
+     * Sets the category of the notification for iOS8 notification
+     * actions.  See 13 minutes into "What's new in iOS Notifications"
+     *
+     * Passing {@code null} removes the category.
+     *
+     * @param category the name of the category supplied to the app
+     *              when receiving the notification
+     * @return  this
+     */
+    public PayloadBuilder category(final String category) {
+        if (category != null) {
+            aps.put("category", category);
+        } else {
+            aps.remove("category");
+        }
+        return this;
+    }
+
+    /**
      * Sets the notification badge to be displayed next to the
      * application icon.
      *
@@ -204,7 +223,7 @@ public final class PayloadBuilder {
      *
      * @return this
      */
-    public PayloadBuilder instantDeliveryOrSlientNofitication() {
+    public PayloadBuilder instantDeliveryOrSilentNotification() {
         root.put("content-available", 1);
         return this;
     }
@@ -308,7 +327,7 @@ public final class PayloadBuilder {
 
     /**
      * Returns true if the payload built so far is larger than
-     * the size permitted by Apple (which is 256 bytes).
+     * the size permitted by Apple (which is 2048 bytes).
      *
      * @return true if the result payload is too long
      */
@@ -376,7 +395,7 @@ public final class PayloadBuilder {
 
     /**
      * Shrinks the alert message body so that the resulting payload
-     * message fits within require Apple specification (256 bytes).
+     * message fits within require Apple specification (2048 bytes).
      *
      * This method performs best-effort approach, and its behavior
      * is unspecified when handling alerts where the payload
@@ -391,7 +410,7 @@ public final class PayloadBuilder {
 
     /**
      * Shrinks the alert message body so that the resulting payload
-     * message fits within require Apple specification (256 bytes).
+     * message fits within require Apple specification (2048 bytes).
      *
      * This method performs best-effort approach, and its behavior
      * is unspecified when handling alerts where the payload

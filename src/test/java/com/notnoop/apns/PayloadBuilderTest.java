@@ -308,7 +308,7 @@ public class PayloadBuilderTest {
     public void detectingLongMessages() {
         final String basic = "{\"aps\":{\"alert\":\"\"}}";
         final int wrapperOverhead = basic.length();
-        final int cutoffForAlert = 256 - wrapperOverhead;
+        final int cutoffForAlert = 2048 - wrapperOverhead;
 
         final PayloadBuilder wayShort = payloadOf(1);
         assertFalse(wayShort.isTooLong());
@@ -321,7 +321,7 @@ public class PayloadBuilderTest {
         final PayloadBuilder border = payloadOf(cutoffForAlert);
         assertFalse(border.isTooLong());
         assertTrue(border.length() == wrapperOverhead + cutoffForAlert);
-        assertTrue(border.length() == 256);
+        assertTrue(border.length() == 2048);
 
         final PayloadBuilder abitLong = payloadOf(cutoffForAlert + 1);
         assertTrue(abitLong.isTooLong());
@@ -336,8 +336,8 @@ public class PayloadBuilderTest {
     public void shrinkLongMessages() {
         final String basic = "{\"aps\":{\"alert\":\"\"}}";
         final int wrapperOverhead = basic.length();
-        final int cutoffForAlert = 256 - wrapperOverhead;
-        final int max_length = 256;
+        final int cutoffForAlert = 2048 - wrapperOverhead;
+        final int max_length = 2048;
 
         final PayloadBuilder wayShort = payloadOf(1);
         wayShort.shrinkBody();  // NOOP
@@ -368,8 +368,8 @@ public class PayloadBuilderTest {
     public void shrinkLongMessagesWithOtherthigns() {
         final String basic = "{\"aps\":{\"alert\":\"\"}}";
         final int wrapperOverhead = basic.length();
-        final int cutoffForAlert = 256 - wrapperOverhead;
-        final int max_length = 256;
+        final int cutoffForAlert = 2048 - wrapperOverhead;
+        final int max_length = 2048;
 
         final PayloadBuilder wayShort = payloadOf(1).sound("default");
         assertFalse(wayShort.isTooLong());
@@ -400,7 +400,7 @@ public class PayloadBuilderTest {
     public void removeAlertIfSooLong() {
         final PayloadBuilder tooLong =
             APNS.newPayload()
-            .customField("test", strOfLen(256))
+            .customField("test", strOfLen(2048))
             .alertBody("what");
         tooLong.shrinkBody();
         final String payload = tooLong.build();
@@ -495,9 +495,9 @@ public class PayloadBuilderTest {
     }
     
     @Test
-    public void slientPingMessage() {
+    public void silentPingMessage() {
         final PayloadBuilder builder = new PayloadBuilder();
-        builder.instantDeliveryOrSlientNofitication();
+        builder.instantDeliveryOrSilentNotification();
 
         final String expected = "{\"aps\":{},\"content-available\":1}";
         final String actual = builder.toString();
@@ -506,10 +506,10 @@ public class PayloadBuilderTest {
     }
 
     @Test
-    public void slientPingMessageWithCustomKey() {
+    public void silentPingMessageWithCustomKey() {
         final PayloadBuilder builder = new PayloadBuilder();
         
-        builder.instantDeliveryOrSlientNofitication();
+        builder.instantDeliveryOrSilentNotification();
         builder.customField("ache1", "what");
 
         final String expected = "{\"aps\":{},\"ache1\":\"what\",\"content-available\":1}";
@@ -522,7 +522,7 @@ public class PayloadBuilderTest {
     public void instantMessageWithAlert() {
         final PayloadBuilder builder = new PayloadBuilder();
         builder.alertBody("test");
-        builder.instantDeliveryOrSlientNofitication();
+        builder.instantDeliveryOrSilentNotification();
 
         final String expected = "{\"aps\":{\"alert\":\"test\"},\"content-available\":1}";
         final String actual = builder.toString();
