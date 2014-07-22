@@ -103,7 +103,43 @@ You can use the enhanced notification format to get feedback from Apple about no
          payload);
 
      service.push(notification);
+     
+If you want to use enhanced notifications for error handling, you first have to write a adapter class that implements ApnsDelegate. 
+Within the messageSendFailed method you then may implement your custom code, for example:
 
+     @Override
+     public void messageSendFailed(ApnsNotification message, Throwable e)
+     {
+          System.err.println("MessageSendFailed: " + e.getMessage());
+     }
+
+Next you may instantiate your custom delegate and submit it to your push notification using the withDelegate method of the ApnsServiceBuilder. A very basic example may look like this:
+
+     public void pushMessage(List<String> receivers, String message, String certificatePath, String certificatePass)
+     {
+          // create a new delagate
+          ApnsDelegate delagate = new CustomApnsDelegate();
+     
+          // build a new apns service and submit the created delagate to it
+          ApnsService service = APNS.newService().withCert(certificatePath, certpass).withSandboxDestination().withDelegate(delagate).build();
+     
+          // compose your push notification
+          String payload = APNS.newPayload().alertBody(message).badge(1).noActionButton().build();
+     
+          // push the notification
+          try
+          {
+               System.out.println("Pushing notification.");
+               service.push(receivers, payload);
+          }
+          catch(Exception e)
+          {
+               //TODO error handling
+               System.out.println("Push failed.");
+          }
+     }
+      
+When an error occures while delivering your message, APNS will return an error code before closing the socket. This error code will be received by your ApnsDelegate adapter class where the messageSendFailed method will be called. Also an exception on the ApnsService.push method will be risen.
 
 License
 ----------------
