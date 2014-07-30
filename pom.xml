@@ -66,7 +66,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
-                    <archive>
+                    <archive> 
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
                 </configuration>
@@ -78,7 +78,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <plugin>  
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
 		<!--
@@ -88,6 +88,8 @@
 		-->
                 <executions>
                     <execution>
+                        <id>generate-javadoc</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>jar</goal>
                             <goal>javadoc</goal>
@@ -117,8 +119,24 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.springsource.bundlor</groupId>
-                <artifactId>com.springsource.bundlor.maven</artifactId>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>   
+                            <goal>manifest</goal>
+                        </goals>  
+                    </execution>
+                </executions>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>${project.groupId}</Bundle-Name>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                    </instructions>
+                </configuration>
             </plugin>
             <!--
 
@@ -189,27 +207,9 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>com.springsource.bundlor</groupId>
-                    <artifactId>com.springsource.bundlor.maven</artifactId>
-                    <version>1.0.0.RELEASE</version>
-                    <executions>
-                        <execution>
-                            <id>bundlor</id>
-                            <phase>compile</phase>
-                            <goals>
-                                <goal>bundlor</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <bundleSymbolicName>${project.groupId}.${project.artifactId}</bundleSymbolicName>
-                        <bundleVersion>${project.version}</bundleVersion>
-                        <failOnWarnings>true</failOnWarnings>
-                        <!-- Set the input path explicitly to ensure that it is never set to the target/generated-classes of the cobertua plugin.
-                            These classes contain references to cobertura classes and will mess up the generated manifest. If the default for inputPath is used, it will
-                            use target/generated-classes if other plugins run custom builds that include cobertura. If the path is set explicitly it will always be target/classes. -->
-                        <inputPath>${project.build.outputDirectory}</inputPath>
-                    </configuration>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>2.5.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -313,14 +313,6 @@
             </plugin>
         </plugins>
     </reporting>
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>com.springsource.repository.bundles.release</id>
-            <name>SpringSource Enterprise Bundle Repository</name>
-            <url>http://repository.springsource.com/maven/bundles/release</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <issueManagement>
         <system>Github</system>
