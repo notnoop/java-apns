@@ -224,7 +224,7 @@ public final class PayloadBuilder {
      * @return this
      */
     public PayloadBuilder instantDeliveryOrSilentNotification() {
-        root.put("content-available", 1);
+        aps.put("content-available", 1);
         return this;
     }
 
