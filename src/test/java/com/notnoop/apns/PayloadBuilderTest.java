@@ -499,7 +499,7 @@ public class PayloadBuilderTest {
         final PayloadBuilder builder = new PayloadBuilder();
         builder.instantDeliveryOrSilentNotification();
 
-        final String expected = "{\"aps\":{},\"content-available\":1}";
+        final String expected = "{\"aps\":{\"content-available\":1}}";
         final String actual = builder.toString();
         assertEqualsJson(expected, actual);
         
@@ -512,7 +512,7 @@ public class PayloadBuilderTest {
         builder.instantDeliveryOrSilentNotification();
         builder.customField("ache1", "what");
 
-        final String expected = "{\"aps\":{},\"ache1\":\"what\",\"content-available\":1}";
+        final String expected = "{\"aps\":{\"content-available\":1},\"ache1\":\"what\"}";
         final String actual = builder.toString();
         assertEqualsJson(expected, actual);
         
@@ -524,7 +524,7 @@ public class PayloadBuilderTest {
         builder.alertBody("test");
         builder.instantDeliveryOrSilentNotification();
 
-        final String expected = "{\"aps\":{\"alert\":\"test\"},\"content-available\":1}";
+        final String expected = "{\"aps\":{\"alert\":\"test\",\"content-available\":1}}";
         final String actual = builder.toString();
         assertEqualsJson(expected, actual);
     }
