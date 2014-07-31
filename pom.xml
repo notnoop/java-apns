@@ -14,9 +14,9 @@
     </parent>
 
     <scm>
-        <connection>scm:git:git://github.com/java-apns/java-apns.git</connection>
-        <developerConnection>scm:git:git@github.com:java-apns/java-apns.git</developerConnection>
-        <url>http://github.com/java-apns/java-apns</url>
+        <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
+        <developerConnection>scm:git:git@github.com:notnoop/java-apns.git</developerConnection>
+        <url>http://github.com/notnoop/java-apns</url>
         <tag>HEAD</tag>
     </scm>
 
