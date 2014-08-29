@@ -36,13 +36,14 @@ import java.net.InetSocketAddress;
 import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.Socket;
+
 import javax.net.ssl.SSLSocketFactory;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.httpclient.ConnectMethod;
-import org.apache.commons.httpclient.NTCredentials;
-import org.apache.commons.httpclient.ProxyClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
+
+import org.apache.http.HttpHost;
+import org.apache.http.impl.client.ProxyClient;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,58 +89,24 @@ public final class TlsTunnelBuilder {
         logger.debug("Creating socket for Proxy : " + proxyAddress.getAddress() + ":" + proxyAddress.getPort());
         Socket socket;
         try {
-            ProxyClient client = new ProxyClient();
-            client.getParams().setParameter("http.useragent", "java-apns");
-            client.getHostConfiguration().setHost(host, port);
-            String proxyHost = proxyAddress.getAddress().toString().substring(0, proxyAddress.getAddress().toString().indexOf("/"));
-            client.getHostConfiguration().setProxy(proxyHost, proxyAddress.getPort());
-            
         
-            ProxyClient.ConnectResponse response = client.connect();
-            socket = response.getSocket();
-            if (socket == null) {
-                ConnectMethod method = response.getConnectMethod();
-                // Read the proxy's HTTP response.
-                if(method.getStatusLine().toString().matches("HTTP/1\\.\\d 407 Proxy Authentication Required")) {
-                    // Proxy server returned 407. We will now try to connect with auth Header
-                    if(proxyUsername != null && proxyPassword != null) {
-                        socket = AuthenticateProxy(method, client,proxyHost, proxyAddress.getPort(),
-                                proxyUsername, proxyPassword);
-                    } else {
-                        throw new ProtocolException("Socket not created: " + method.getStatusLine()); 
-                    }
-                }             
-            }
+            ProxyClient proxyClient = new ProxyClient();
+            // FIXME: proxyClient.getParams() is Deprecated, what to use instead?
+            //proxyClient.getParams().setParameter("http.useragent", "java-apns");
+
+            String proxyHostString = proxyAddress.getAddress().toString().substring(0, proxyAddress.getAddress().toString().indexOf("/"));
+            HttpHost targetHost = new HttpHost(host, port);
+            HttpHost proxyHost = new HttpHost(proxyHostString, proxyAddress.getPort());
+            UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(proxyUsername, proxyPassword);
+
+            // TODO: verify that the Authentications methods are automatically checked (407 StatusLine, Auth scheme is NTLM/Basic/Digest 
+            socket = proxyClient.tunnel(proxyHost, targetHost, credentials);
             
         } catch (Exception e) {
             throw new ProtocolException("Error occurred while creating proxy socket : " + e.toString());
         }
         if (socket != null) {
             logger.debug("Socket for proxy created successfully : " + socket.getRemoteSocketAddress().toString());
-        }
-        return socket;
-    }
-    
-    private Socket AuthenticateProxy(ConnectMethod method, ProxyClient client, 
-            String proxyHost, int proxyPort, 
-            String proxyUsername, String proxyPassword) throws IOException {   
-        if(method.getProxyAuthState().getAuthScheme().getSchemeName().equalsIgnoreCase("ntlm")) {
-            // If Auth scheme is NTLM, set NT credentials with blank host and domain name
-            client.getState().setProxyCredentials(new AuthScope(proxyHost, proxyPort), 
-                            new NTCredentials(proxyUsername, proxyPassword,"",""));
-        } else {
-            // If Auth scheme is Basic/Digest, set regular Credentials
-            client.getState().setProxyCredentials(new AuthScope(proxyHost, proxyPort), 
-                    new UsernamePasswordCredentials(proxyUsername, proxyPassword));
-        }
-        
-        ProxyClient.ConnectResponse response = client.connect();
-        Socket socket = response.getSocket();
-        
-        if (socket == null) {
-            method = response.getConnectMethod();
-            throw new ProtocolException("Proxy Authentication failed. Socket not created: " 
-                    + method.getStatusLine());
         }
         return socket;
     }
