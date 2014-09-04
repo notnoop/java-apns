@@ -22,8 +22,8 @@ public class FixedCertificates {
     public static SSLContext serverContext() {
         try {
             //System.setProperty("javax.net.ssl.trustStore", ClassLoader.getSystemResource(CLIENT_STORE).getPath());
-            InputStream stream = ClassLoader.getSystemResourceAsStream(SERVER_STORE);
-
+            InputStream stream = FixedCertificates.class.getResourceAsStream("/" + SERVER_STORE);
+            assert stream != null;
             return Utilities.newSSLContext(stream, SERVER_PASSWORD, "PKCS12", "sunx509");
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -32,7 +32,8 @@ public class FixedCertificates {
 
     public static SSLContext clientContext() {
         try {
-            InputStream stream = ClassLoader.getSystemResourceAsStream(CLIENT_STORE);
+            InputStream stream = FixedCertificates.class.getResourceAsStream("/" + CLIENT_STORE);
+            assert stream != null;
             SSLContext context = Utilities.newSSLContext(stream, CLIENT_PASSWORD, "PKCS12", "sunx509");
             context.init(null, new TrustManager[] { new X509TrustManagerTrustAll() }, new SecureRandom());
             return context;
