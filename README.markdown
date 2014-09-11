@@ -5,9 +5,15 @@ Build status:
 
 Development - Version 1.0.0
 ---------------------------
-There currently is a perelease for 1.0.0 which fixes a number of problems over 0.2.3. However there's still
-a CI test that sporadically fails, so 1.0.0 is NOT meant for production, yet. Further development for
-1.0.0 happens on [java-apns/java-apns] (https://github.com/java-apns/java-apns)
+There currently is a perelease for 1.0.0 which fixes a number of problems over 0.2.3. 
+There's still a CI test that sporadically fails on Travis-CI only, but not on other test
+machines I have access to. Supposedly it is a still undetected race condition.
+
+However 1.0.0 Beta fixes a *lot* of problems over 0.2.x, so even as it is called beta
+I'd recommend to use the beta instead of the 0.2.3 even for production.
+
+froh42 will return to develop for java-apns in October, so I expect the 1.0.0 final
+to be released start of November.
 
 
 Introduction
@@ -103,43 +109,7 @@ You can use the enhanced notification format to get feedback from Apple about no
          payload);
 
      service.push(notification);
-     
-If you want to use enhanced notifications for error handling, you first have to write a adapter class that implements ApnsDelegate. 
-Within the messageSendFailed method you then may implement your custom code, for example:
 
-     @Override
-     public void messageSendFailed(ApnsNotification message, Throwable e)
-     {
-          System.err.println("MessageSendFailed: " + e.getMessage());
-     }
-
-Next you may instantiate your custom delegate and submit it to your push notification using the withDelegate method of the ApnsServiceBuilder. A very basic example may look like this:
-
-     public void pushMessage(List<String> receivers, String message, String certificatePath, String certificatePass)
-     {
-          // create a new delagate
-          ApnsDelegate delagate = new CustomApnsDelegate();
-     
-          // build a new apns service and submit the created delagate to it
-          ApnsService service = APNS.newService().withCert(certificatePath, certpass).withSandboxDestination().withDelegate(delagate).build();
-     
-          // compose your push notification
-          String payload = APNS.newPayload().alertBody(message).badge(1).noActionButton().build();
-     
-          // push the notification
-          try
-          {
-               System.out.println("Pushing notification.");
-               service.push(receivers, payload);
-          }
-          catch(Exception e)
-          {
-               //TODO error handling
-               System.out.println("Push failed.");
-          }
-     }
-      
-When an error occures while delivering your message, APNS will return an error code before closing the socket. This error code will be received by your ApnsDelegate adapter class where the messageSendFailed method will be called. Also an exception on the ApnsService.push method will be risen.
 
 License
 ----------------
