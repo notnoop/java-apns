@@ -65,6 +65,7 @@ abstract class AbstractApnsService implements ApnsService
         return push(deviceToken, payload, (int) (expiry.getTime() / 1000));
     }
 
+    @Override
     public EnhancedApnsNotification push( final String deviceToken, final String payload, final int expiry )
             throws NetworkIOException
     {
@@ -78,6 +79,13 @@ abstract class AbstractApnsService implements ApnsService
     public EnhancedApnsNotification push( final byte[] deviceToken, final byte[] payload ) throws NetworkIOException
     {
         return push(deviceToken, payload, EnhancedApnsNotification.MAXIMUM_EXPIRY);
+    }
+
+    @Override
+    public EnhancedApnsNotification push( final byte[] deviceToken, final byte[] payload, final Date expiry )
+            throws NetworkIOException
+    {
+        return push(deviceToken, payload, (int) (expiry.getTime() / 1000));
     }
 
     @Override
@@ -104,6 +112,7 @@ abstract class AbstractApnsService implements ApnsService
         return push(deviceTokens, payload, (int) (expiry.getTime() / 1000));
     }
 
+    @Override
     public Collection<EnhancedApnsNotification> push( final Collection<String> deviceTokens, final String payload,
             final int expiry ) throws NetworkIOException
     {
@@ -126,15 +135,19 @@ abstract class AbstractApnsService implements ApnsService
 
     @Override
     public Collection<EnhancedApnsNotification> push( final Collection<byte[]> deviceTokens, final byte[] payload,
+            final Date expiry ) throws NetworkIOException
+    {
+        return push(deviceTokens, payload, (int) (expiry.getTime() / 1000));
+    }
+
+    @Override
+    public Collection<EnhancedApnsNotification> push( final Collection<byte[]> deviceTokens, final byte[] payload,
             final int expiry ) throws NetworkIOException
     {
         final List<EnhancedApnsNotification> notifications =
                 new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
         for (final byte[] deviceToken : deviceTokens) {
-            final EnhancedApnsNotification notification =
-                    new EnhancedApnsNotification(c.incrementAndGet(), expiry, deviceToken, payload);
-            notifications.add(notification);
-            push(notification);
+            notifications.add(push(deviceToken, payload, expiry));
         }
         return notifications;
     }
