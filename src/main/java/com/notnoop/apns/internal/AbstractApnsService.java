@@ -42,33 +42,26 @@ import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 
-abstract class AbstractApnsService implements ApnsService
-{
+abstract class AbstractApnsService implements ApnsService {
     private final ApnsFeedbackConnection feedback;
     private final AtomicInteger c = new AtomicInteger();
 
-    public AbstractApnsService( final ApnsFeedbackConnection feedback )
-    {
+    public AbstractApnsService(final ApnsFeedbackConnection feedback) {
         this.feedback = feedback;
     }
 
     @Override
-    public EnhancedApnsNotification push( final String deviceToken, final String payload ) throws NetworkIOException
-    {
+    public EnhancedApnsNotification push(final String deviceToken, final String payload) throws NetworkIOException {
         return push(deviceToken, payload, EnhancedApnsNotification.MAXIMUM_EXPIRY);
     }
 
     @Override
-    public EnhancedApnsNotification push( final String deviceToken, final String payload, final Date expiry )
-            throws NetworkIOException
-    {
+    public EnhancedApnsNotification push(final String deviceToken, final String payload, final Date expiry) throws NetworkIOException {
         return push(deviceToken, payload, (int) (expiry.getTime() / 1000));
     }
 
     @Override
-    public EnhancedApnsNotification push( final String deviceToken, final String payload, final int expiry )
-            throws NetworkIOException
-    {
+    public EnhancedApnsNotification push(final String deviceToken, final String payload, final int expiry) throws NetworkIOException {
         final EnhancedApnsNotification notification =
                 new EnhancedApnsNotification(c.incrementAndGet(), expiry, deviceToken, payload);
         push(notification);
@@ -76,22 +69,17 @@ abstract class AbstractApnsService implements ApnsService
     }
 
     @Override
-    public EnhancedApnsNotification push( final byte[] deviceToken, final byte[] payload ) throws NetworkIOException
-    {
+    public EnhancedApnsNotification push(final byte[] deviceToken, final byte[] payload) throws NetworkIOException {
         return push(deviceToken, payload, EnhancedApnsNotification.MAXIMUM_EXPIRY);
     }
 
     @Override
-    public EnhancedApnsNotification push( final byte[] deviceToken, final byte[] payload, final Date expiry )
-            throws NetworkIOException
-    {
+    public EnhancedApnsNotification push(final byte[] deviceToken, final byte[] payload, final Date expiry) throws NetworkIOException {
         return push(deviceToken, payload, (int) (expiry.getTime() / 1000));
     }
 
     @Override
-    public EnhancedApnsNotification push( final byte[] deviceToken, final byte[] payload, final int expiry )
-            throws NetworkIOException
-    {
+    public EnhancedApnsNotification push(final byte[] deviceToken, final byte[] payload, final int expiry) throws NetworkIOException {
         final EnhancedApnsNotification notification =
                 new EnhancedApnsNotification(c.incrementAndGet(), expiry, deviceToken, payload);
         push(notification);
@@ -99,23 +87,17 @@ abstract class AbstractApnsService implements ApnsService
     }
 
     @Override
-    public Collection<EnhancedApnsNotification> push( final Collection<String> deviceTokens, final String payload )
-            throws NetworkIOException
-    {
+    public Collection<EnhancedApnsNotification> push(final Collection<String> deviceTokens, final String payload) throws NetworkIOException {
         return push(deviceTokens, payload, EnhancedApnsNotification.MAXIMUM_EXPIRY);
     }
 
     @Override
-    public Collection<EnhancedApnsNotification> push( final Collection<String> deviceTokens, final String payload,
-            final Date expiry ) throws NetworkIOException
-    {
+    public Collection<EnhancedApnsNotification> push(final Collection<String> deviceTokens, final String payload, final Date expiry) throws NetworkIOException {
         return push(deviceTokens, payload, (int) (expiry.getTime() / 1000));
     }
 
     @Override
-    public Collection<EnhancedApnsNotification> push( final Collection<String> deviceTokens, final String payload,
-            final int expiry ) throws NetworkIOException
-    {
+    public Collection<EnhancedApnsNotification> push(final Collection<String> deviceTokens, final String payload, final int expiry) throws NetworkIOException {
         final byte[] messageBytes = Utilities.toUTF8Bytes(payload);
         final List<EnhancedApnsNotification> notifications =
                 new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
@@ -127,23 +109,17 @@ abstract class AbstractApnsService implements ApnsService
     }
 
     @Override
-    public Collection<EnhancedApnsNotification> push( final Collection<byte[]> deviceTokens, final byte[] payload )
-            throws NetworkIOException
-    {
+    public Collection<EnhancedApnsNotification> push(final Collection<byte[]> deviceTokens, final byte[] payload) throws NetworkIOException {
         return push(deviceTokens, payload, EnhancedApnsNotification.MAXIMUM_EXPIRY);
     }
 
     @Override
-    public Collection<EnhancedApnsNotification> push( final Collection<byte[]> deviceTokens, final byte[] payload,
-            final Date expiry ) throws NetworkIOException
-    {
+    public Collection<EnhancedApnsNotification> push(final Collection<byte[]> deviceTokens, final byte[] payload, final Date expiry) throws NetworkIOException {
         return push(deviceTokens, payload, (int) (expiry.getTime() / 1000));
     }
 
     @Override
-    public Collection<EnhancedApnsNotification> push( final Collection<byte[]> deviceTokens, final byte[] payload,
-            final int expiry ) throws NetworkIOException
-    {
+    public Collection<EnhancedApnsNotification> push(final Collection<byte[]> deviceTokens, final byte[] payload, final int expiry) throws NetworkIOException {
         final List<EnhancedApnsNotification> notifications =
                 new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
         for (final byte[] deviceToken : deviceTokens) {
@@ -153,10 +129,10 @@ abstract class AbstractApnsService implements ApnsService
     }
 
     @Override
-    public abstract void push( ApnsNotification message ) throws NetworkIOException;
+    public abstract void push(ApnsNotification message) throws NetworkIOException;
 
     @Override
-    public Map<String, Date> getInactiveDevices( ) throws NetworkIOException
+    public Map<String, Date> getInactiveDevices() throws NetworkIOException
     {
         return feedback.getInactiveDevices();
     }
