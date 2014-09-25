@@ -1,5 +1,6 @@
 package com.notnoop.apns.integration;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,7 @@ public class ApnsSimulatorLongRunningTest extends ApnsSimulatorTestBase {
 
     final Logger logger = LoggerFactory.getLogger(ApnsSimulatorLongRunningTest.class);
 
+    @Ignore("unstable test")
     @Test
     public void multipleTokensBad_issue145() throws InterruptedException {
         final int rounds = 15;

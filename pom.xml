@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.notnoop.apns</groupId>
     <artifactId>apns</artifactId>
-    <version>1.0.0.Beta5-SNAPSHOT</version>
+    <version>1.0.0.bruffos.Beta5-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Java Apple Push Notification Service Library</name>
 
@@ -14,9 +14,9 @@
     </parent>
 
     <scm>
-        <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
-        <developerConnection>scm:git:git@github.com:notnoop/java-apns.git</developerConnection>
-        <url>http://github.com/notnoop/java-apns</url>
+        <connection>scm:git:git://github.com/bruffos/java-apns.git</connection>
+        <developerConnection>scm:git:git@github.com:bruffos/java-apns.git</developerConnection>
+        <url>http://github.com/bruffos/java-apns</url>
         <tag>HEAD</tag>
     </scm>
 
