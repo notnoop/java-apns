@@ -105,6 +105,7 @@ public class ApnsSimulatorTestBase {
      *             <li>-100: Drop connection</li>
      *             <li>below zero: wait (-code) number times a tenth of a second</li>
      *             <li>above zero: send code as APNS error message then drop connection</li>
+     *             <li>above 1000: first sleep number modulo 1000 times a tenth of a second then send digits divided by 1000 as APNS error message and then drop connection </li>
      *             </ul>
      * @return an APNS notification
      */
@@ -124,12 +125,17 @@ public class ApnsSimulatorTestBase {
                 // Sleep
                 deviceToken[2] = (byte) 1;
                 deviceToken[3] = (byte) -code;
-            } else {
+            } else if (code > 0) {
                 // Send APNS error response then drop connection
                 assert code > 0;
                 deviceToken[2] = (byte) 0;
                 deviceToken[3] = (byte) code;
-
+            } else {
+                // Send APNS error response then sleep until drop connection
+                assert code > 1000;
+                deviceToken[2] = (byte) 0;
+                deviceToken[3] = (byte) (code/1000);
+                deviceToken[4] = (byte) (code % 1000);
             }
 
         }

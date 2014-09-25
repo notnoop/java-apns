@@ -13,8 +13,9 @@ public class ApnsSimulatorLongRunningTest extends ApnsSimulatorTestBase {
     public void multipleTokensBad_issue145() throws InterruptedException {
         final int rounds = 15;
         for (int i = 0; i < rounds; ++i) {
+
             logger.debug("*********** "+i);
-            send(8, 0);
+            send(8020, 0);
             assertNumberReceived(2);
         }
 

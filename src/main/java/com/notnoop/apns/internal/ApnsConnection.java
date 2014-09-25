@@ -39,6 +39,8 @@ public interface ApnsConnection extends Closeable {
 
     //Default number of notifications to keep for error purposes
     public static final int DEFAULT_CACHE_LENGTH = 100;
+    public static final int DEFAULT_THREADPOOL_SIZE = 20;
+    public static final int DEFAULT_MONITORING_TIMEOUT = 1;
 
     void sendMessage(ApnsNotification m) throws NetworkIOException;
 

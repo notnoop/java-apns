@@ -99,11 +99,11 @@ public class ApnsServerStub {
         }
 
         if (gatewayThread != null) {
-            gatewayThread.stop();
+            gatewayThread.interrupt();
         }
 
         if (feedbackThread != null) {
-            feedbackThread.stop();
+            feedbackThread.interrupt();
         }
 
     }

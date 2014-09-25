@@ -102,6 +102,8 @@ public class ApnsServiceBuilder {
     private String proxyPassword = null;
     private boolean errorDetection = true;
     private ThreadFactory errorDetectionThreadFactory = null;
+    private int monitoringTimeout = ApnsConnection.DEFAULT_MONITORING_TIMEOUT;
+    private int threadPoolSize = ApnsConnection.DEFAULT_THREADPOOL_SIZE;
 
     /**
      * Constructs a new instance of {@code ApnsServiceBuilder}
@@ -430,6 +432,30 @@ public class ApnsServiceBuilder {
      */
     public ApnsServiceBuilder withCacheLength(int cacheLength) {
         this.cacheLength = cacheLength;
+        return this;
+    }
+
+    /**
+     * Specify the timeout in seconds for monitoring thread before socket is closed
+     * Default is 1 Second
+     *
+     * @param monitoringTimeout timeout in seconds for monitoring thread before socket is closed
+     * @return  this
+     */
+    public ApnsServiceBuilder withMonitoringTimeout(int monitoringTimeout) {
+        this.monitoringTimeout = monitoringTimeout;
+        return this;
+    }
+
+    /**
+     * Specify the size of the ThreadPool for MonitoringThreads.
+     * Default is 20
+     *
+     * @param threadPoolSize size of threadPool for monitoringThreads
+     * @return  this
+     */
+    public ApnsServiceBuilder withThreadPoolSize(int threadPoolSize) {
+        this.threadPoolSize = threadPoolSize;
         return this;
     }
 
