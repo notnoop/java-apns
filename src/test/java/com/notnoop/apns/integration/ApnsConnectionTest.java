@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import uk.org.lidalia.slf4jext.Level;
+import uk.org.lidalia.slf4jtest.TestLoggerFactory;
 
 import static com.notnoop.apns.utils.FixedCertificates.*;
 import static org.junit.Assert.*;
@@ -54,12 +56,13 @@ public class ApnsConnectionTest {
         server = null;
     }
 
+    // ErrorDetection makes the ApnsServerStub act weired.
     @Repeat(count = 50)
     @Test(timeout = 2000)
     public void sendOneSimple() throws InterruptedException {
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
-                .withGatewayDestination(LOCALHOST, gatewayPort)
+                .withGatewayDestination(LOCALHOST, gatewayPort).withNoErrorDetection()
                 .build();
         server.stopAt(msg1.length());
         service.push(msg1);
