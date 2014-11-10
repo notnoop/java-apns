@@ -265,7 +265,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
         if (socket == null || socket.isClosed()) {
             try {
                 if (proxy == null) {
-                    socket = factory.createSocket(host, port);
+                    socket = factory.createSocket();
+                    socket.connect(new InetSocketAddress(host, port),connectTimeout);
                     logger.debug("Connected new socket {}", socket);
                 } else if (proxy.type() == Proxy.Type.HTTP) {
                     TlsTunnelBuilder tunnelBuilder = new TlsTunnelBuilder();
