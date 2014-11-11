@@ -59,6 +59,10 @@ public class MockingUtils {
             for (Socket t : socketMocks)
                 stubbing = stubbing.thenReturn(t);
 
+            stubbing = when(factory.createSocket());
+            for (Socket t : socketMocks)
+                stubbing = stubbing.thenReturn(t);
+
             return factory;
         } catch (Exception e) {
             e.printStackTrace();
