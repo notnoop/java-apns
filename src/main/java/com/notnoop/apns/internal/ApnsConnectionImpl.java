@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -45,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
+
 import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.DeliveryError;
@@ -52,6 +54,7 @@ import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.ReconnectPolicy;
 import com.notnoop.exceptions.ApnsDeliveryErrorException;
 import com.notnoop.exceptions.NetworkIOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -244,9 +247,15 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         }
                         n += count;
                     } catch (IOException ioe) {
-                        if (n == 0)
-                            return false;
-                        throw new IOException("Error after reading "+n+" bytes of packet", ioe);
+                        if (!(ioe instanceof SocketTimeoutException)) {
+                            if (n == 0)
+                                return false;
+                            throw new IOException("Error after reading "+n+" bytes of packet", ioe);
+                        } else {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("just SocketTimeoutException ignore");
+                            }
+                        }
                     }
                 }
                 return true;
