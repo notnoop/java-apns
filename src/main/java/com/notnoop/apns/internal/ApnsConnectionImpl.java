@@ -139,7 +139,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
         Thread t = threadFactory.newThread(new Runnable() {
             final static int EXPECTED_SIZE = 6;
 
-            @SuppressWarnings("InfiniteLoopStatement")
             @Override
             public void run() {
                 logger.debug("Started monitoring thread");
@@ -340,23 +339,29 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 attempts = 0;
                 break;
             } catch (IOException e) {
-                Utilities.close(socket);
-                if (attempts >= RETRIES) {
-                    logger.error("Couldn't send message after " + RETRIES + " retries." + m, e);
-                    delegate.messageSendFailed(m, e);
-                    Utilities.wrapAndThrowAsRuntimeException(e);
-                }
-                // The first failure might be due to closed connection (which in turn might be caused by
-                // a message containing a bad token), so don't delay for the first retry.
-                //
-                // Additionally we don't want to spam the log file in this case, only after the second retry
-                // which uses the delay.
-
-                if (attempts != 1) {
-                    logger.info("Failed to send message " + m + "... trying again after delay", e);
-                    Utilities.sleep(DELAY_IN_MS);
-                }
+                dealException(attempts, m, e);
+            } catch (NetworkIOException e){
+                dealException(attempts, m, e);
             }
+        }
+    }
+
+    private void dealException(int attempts,ApnsNotification m,Exception e){
+        Utilities.close(socket);
+        if (attempts >= RETRIES) {
+            logger.error("Couldn't send message after " + RETRIES + " retries." + m, e);
+            delegate.messageSendFailed(m, e);
+            Utilities.wrapAndThrowAsRuntimeException(e);
+        }
+        // The first failure might be due to closed connection (which in turn might be caused by
+        // a message containing a bad token), so don't delay for the first retry.
+        //
+        // Additionally we don't want to spam the log file in this case, only after the second retry
+        // which uses the delay.
+
+        if (attempts != 1) {
+            logger.info("Failed to send message " + m + "... trying again after delay", e);
+            Utilities.sleep(DELAY_IN_MS);
         }
     }
 
