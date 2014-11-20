@@ -50,7 +50,7 @@ public class SimpleApnsNotificationTest {
         byte[] bytes = msg.marshall();
 
         byte[] dt = decodeHex(deviceToken);
-        assertEquals(dt.length, /* found length */ (bytes[1] << 8) + bytes[2]);
+        assertEquals(dt.length, /* found length */ ((bytes[1] & 0xff) << 8) + (bytes[2]& 0xff));
 
         // verify the device token part
         assertArrayEquals(dt, Utilities.copyOfRange(bytes, 3, 3 + dt.length));
@@ -69,7 +69,7 @@ public class SimpleApnsNotificationTest {
 
         /// verify the payload part
         assertArrayEquals(pl, Utilities.copyOfRange(bytes, plBegin, bytes.length));
-        assertEquals(pl.length, (bytes[plBegin - 2] << 8) + bytes[plBegin - 1]);
+        assertEquals(pl.length, ((bytes[plBegin - 2] & 0xff) << 8) + (bytes[plBegin - 1] & 0xff));
     }
 
     @Theory
