@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import com.notnoop.apns.ApnsDelegate;
+import com.notnoop.apns.StartSendingApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.DeliveryError;
 import com.notnoop.apns.EnhancedApnsNotification;
@@ -314,6 +315,10 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     private synchronized void sendMessage(ApnsNotification m, boolean fromBuffer) throws NetworkIOException {
         logger.debug("sendMessage {} fromBuffer: {}", m, fromBuffer);
+
+        if (delegate instanceof StartSendingApnsDelegate) {
+            ((StartSendingApnsDelegate) delegate).startSending(m, fromBuffer);
+        }
 
         int attempts = 0;
         while (true) {
