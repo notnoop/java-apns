@@ -209,8 +209,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         }
                         logger.debug("resending {} notifications", resendSize);
                         delegate.notificationsResent(resendSize);
-
-                        drainBuffer();
                     }
                     logger.debug("Monitoring input stream closed by EOF");
 
@@ -222,6 +220,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     delegate.connectionClosed(DeliveryError.UNKNOWN, -1);
                 } finally {
                     close();
+                    drainBuffer();
                 }
             }
 
