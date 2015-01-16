@@ -412,7 +412,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     
     private class IdleConnectionCleanupTask implements Runnable {
     
-        	public void run() {
+         public void run() {
              long idleTimeInMillis = System.currentTimeMillis() - idleSince;
              int connectionIdleTimeoutInMillis = connectionIdleTimeout * 1000; 
              logger.debug("IdleConnectionCleanupTask", "APNS Connection Idle For (in seconds) : " + idleTimeInMillis / 1000);
