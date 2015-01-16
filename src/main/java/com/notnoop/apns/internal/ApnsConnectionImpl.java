@@ -40,8 +40,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -77,7 +75,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final boolean autoAdjustCacheLength;
     private final ConcurrentLinkedQueue<ApnsNotification> cachedNotifications, notificationsBuffer;
     private Socket socket;
-    private long idleSince;
+    private long socketLastUsedAt;
     private final AtomicInteger threadId = new AtomicInteger(0);
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port) {
@@ -259,7 +257,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
     }
 
     private synchronized Socket getOrCreateSocket() throws NetworkIOException {
-        if (reconnectPolicy.shouldReconnect()) {
+        long socketIdleSince = System.currentTimeMillis() - socketLastUsedAt;
+        if (reconnectPolicy.shouldReconnect() || socketIdleSince >= connectionIdleTimeout) {
             logger.debug("Reconnecting due to reconnectPolicy dictating it");
             Utilities.close(socket);
             socket = null;
@@ -307,6 +306,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 throw new NetworkIOException(e);
             }
         }
+        
+        socketLastUsedAt = System.currentTimeMillis();
         return socket;
     }
 
@@ -396,37 +397,5 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     public int getCacheLength() {
         return cacheLength;
-    }
-    
-    private void startIdleConnectionCleaner() {
-        if (connectionIdleTimeout > 0) {
-            if (idleConnectionScheduler == null) {
-                idleConnectionScheduler = 
-                    Executors.newSingleThreadScheduledExecutor();
-            }
-        
-           idleConnectionScheduler.schedule(
-               new IdleConnectionCleanupTask(), connectionIdleTimeout, TimeUnit.SECONDS);
-        }
-    }
-    
-    private class IdleConnectionCleanupTask implements Runnable {
-    
-         public void run() {
-             long idleTimeInMillis = System.currentTimeMillis() - idleSince;
-             int connectionIdleTimeoutInMillis = connectionIdleTimeout * 1000; 
-             logger.debug("IdleConnectionCleanupTask", "APNS Connection Idle For (in seconds) : " + idleTimeInMillis / 1000);
-             if (idleTimeInMillis > connectionIdleTimeoutInMillis) {
-                 logger.debug("IdleConnectionCleanupTask", "Closing APNS Connection Idle For (in seconds) : " + idleTimeInMillis / 1000);
-                 Utilities.close(socket);
-                 socket = null;
-                 idleConnectionScheduler.shutdown();
-             } else {
-                 idleConnectionScheduler.schedule(
-                     new IdleConnectionCleanupTask(), 
-                     (connectionIdleTimeoutInMillis - idleTimeInMillis),
-                     TimeUnit.SECONDS);
-             }
-         }
     }
 }
