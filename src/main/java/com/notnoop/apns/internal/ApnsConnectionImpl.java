@@ -75,6 +75,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final boolean autoAdjustCacheLength;
     private final ConcurrentLinkedQueue<ApnsNotification> cachedNotifications, notificationsBuffer;
     private Socket socket;
+    private long socketLastUsedAt;
     private final AtomicInteger threadId = new AtomicInteger(0);
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port) {
@@ -88,12 +89,12 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private ApnsConnectionImpl(SocketFactory factory, String host, int port, Proxy proxy, String proxyUsername, String proxyPassword,
                                ReconnectPolicy reconnectPolicy, ApnsDelegate delegate) {
         this(factory, host, port, proxy, proxyUsername, proxyPassword, reconnectPolicy, delegate, false, null,
-                ApnsConnection.DEFAULT_CACHE_LENGTH, true, 0, 0);
+                ApnsConnection.DEFAULT_CACHE_LENGTH, true, 0, 0, 0);
     }
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port, Proxy proxy, String proxyUsername, String proxyPassword,
                               ReconnectPolicy reconnectPolicy, ApnsDelegate delegate, boolean errorDetection, ThreadFactory tf, int cacheLength,
-                              boolean autoAdjustCacheLength, int readTimeout, int connectTimeout) {
+                              boolean autoAdjustCacheLength, int readTimeout, int connectTimeout, int connectionIdleTimeout) {
         this.factory = factory;
         this.host = host;
         this.port = port;
@@ -106,6 +107,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this.autoAdjustCacheLength = autoAdjustCacheLength;
         this.readTimeout = readTimeout;
         this.connectTimeout = connectTimeout;
+        this.connectionIdleTimeout = connectionIdleTimeout;
         this.proxyUsername = proxyUsername;
         this.proxyPassword = proxyPassword;
         cachedNotifications = new ConcurrentLinkedQueue<ApnsNotification>();
@@ -255,12 +257,16 @@ public class ApnsConnectionImpl implements ApnsConnection {
     }
 
     private synchronized Socket getOrCreateSocket() throws NetworkIOException {
-        if (reconnectPolicy.shouldReconnect()) {
+        long socketIdleSince = System.currentTimeMillis() - socketLastUsedAt;
+        if (reconnectPolicy.shouldReconnect() || socketIdleSince >= connectionIdleTimeout) {
             logger.debug("Reconnecting due to reconnectPolicy dictating it");
             Utilities.close(socket);
             socket = null;
         }
 
+        startIdleConnectionCleaner();
+        idleSince = System.currentTimeMillis();
+        
         if (socket == null || socket.isClosed()) {
             try {
                 if (proxy == null) {
@@ -300,6 +306,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 throw new NetworkIOException(e);
             }
         }
+        
+        socketLastUsedAt = System.currentTimeMillis();
         return socket;
     }
 
@@ -366,7 +374,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     public ApnsConnectionImpl copy() {
         return new ApnsConnectionImpl(factory, host, port, proxy, proxyUsername, proxyPassword, reconnectPolicy.copy(), delegate,
-                errorDetection, threadFactory, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout);
+                errorDetection, threadFactory, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout, connectionIdleTimeout);
     }
 
     public void testConnection() throws NetworkIOException {

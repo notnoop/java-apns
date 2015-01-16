@@ -103,6 +103,8 @@ public class ApnsServiceBuilder {
     private boolean errorDetection = true;
     private ThreadFactory errorDetectionThreadFactory = null;
 
+    private int connectionIdleTimeout = 0;
+    
     /**
      * Constructs a new instance of {@code ApnsServiceBuilder}
      */
@@ -588,6 +590,17 @@ public class ApnsServiceBuilder {
     }
 
     /**
+     * Closes / invalidates connections that are idle for the given idle connection timeout
+     * in milliseconds
+     * 
+     * @return  this
+     */
+    public ApnsServiceBuilder withIdleConnectionTimeout(int idleConnectionTimeout) {
+        this.connectionIdleTimeout = idleConnectionTimeout;
+        return this;
+    }
+    
+    /**
      * Provide a custom source for threads used for monitoring connections.
      *
      * This setting is desired when the application must obtain threads from a
@@ -617,7 +630,7 @@ public class ApnsServiceBuilder {
         ApnsConnection conn = new ApnsConnectionImpl(sslFactory, gatewayHost,
             gatewayPort, proxy, proxyUsername, proxyPassword, reconnectPolicy,
                 delegate, errorDetection, errorDetectionThreadFactory, cacheLength,
-                autoAdjustCacheLength, readTimeout, connectTimeout);
+                autoAdjustCacheLength, readTimeout, connectTimeout, connectionIdleTimeout);
         if (pooledMax != 1) {
             conn = new ApnsPooledConnection(conn, pooledMax, executor);
         }
