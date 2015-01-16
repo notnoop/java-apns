@@ -590,8 +590,9 @@ public class ApnsServiceBuilder {
     }
 
     /**
-     * Closes connections that are idle for the given idle connection timeout
-     *
+     * Closes / invalidates connections that are idle for the given idle connection timeout
+     * in milliseconds
+     * 
      * @return  this
      */
     public ApnsServiceBuilder withIdleConnectionTimeout(int idleConnectionTimeout) {
