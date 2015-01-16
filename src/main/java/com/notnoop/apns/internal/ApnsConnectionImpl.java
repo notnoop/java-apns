@@ -40,6 +40,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -75,6 +77,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private final boolean autoAdjustCacheLength;
     private final ConcurrentLinkedQueue<ApnsNotification> cachedNotifications, notificationsBuffer;
     private Socket socket;
+    private long idleSince;
     private final AtomicInteger threadId = new AtomicInteger(0);
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port) {
@@ -88,12 +91,12 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private ApnsConnectionImpl(SocketFactory factory, String host, int port, Proxy proxy, String proxyUsername, String proxyPassword,
                                ReconnectPolicy reconnectPolicy, ApnsDelegate delegate) {
         this(factory, host, port, proxy, proxyUsername, proxyPassword, reconnectPolicy, delegate, false, null,
-                ApnsConnection.DEFAULT_CACHE_LENGTH, true, 0, 0);
+                ApnsConnection.DEFAULT_CACHE_LENGTH, true, 0, 0, 0);
     }
 
     public ApnsConnectionImpl(SocketFactory factory, String host, int port, Proxy proxy, String proxyUsername, String proxyPassword,
                               ReconnectPolicy reconnectPolicy, ApnsDelegate delegate, boolean errorDetection, ThreadFactory tf, int cacheLength,
-                              boolean autoAdjustCacheLength, int readTimeout, int connectTimeout) {
+                              boolean autoAdjustCacheLength, int readTimeout, int connectTimeout, int connectionIdleTimeout) {
         this.factory = factory;
         this.host = host;
         this.port = port;
@@ -106,6 +109,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         this.autoAdjustCacheLength = autoAdjustCacheLength;
         this.readTimeout = readTimeout;
         this.connectTimeout = connectTimeout;
+        this.connectionIdleTimeout = connectionIdleTimeout;
         this.proxyUsername = proxyUsername;
         this.proxyPassword = proxyPassword;
         cachedNotifications = new ConcurrentLinkedQueue<ApnsNotification>();
@@ -261,6 +265,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
             socket = null;
         }
 
+        startIdleConnectionCleaner();
+        idleSince = System.currentTimeMillis();
+        
         if (socket == null || socket.isClosed()) {
             try {
                 if (proxy == null) {
@@ -366,7 +373,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     public ApnsConnectionImpl copy() {
         return new ApnsConnectionImpl(factory, host, port, proxy, proxyUsername, proxyPassword, reconnectPolicy.copy(), delegate,
-                errorDetection, threadFactory, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout);
+                errorDetection, threadFactory, cacheLength, autoAdjustCacheLength, readTimeout, connectTimeout, connectionIdleTimeout);
     }
 
     public void testConnection() throws NetworkIOException {
@@ -389,5 +396,37 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     public int getCacheLength() {
         return cacheLength;
+    }
+    
+    private void startIdleConnectionCleaner() {
+        if (connectionIdleTimeout > 0) {
+            if (idleConnectionScheduler == null) {
+                idleConnectionScheduler = 
+                    Executors.newSingleThreadScheduledExecutor();
+            }
+        
+           idleConnectionScheduler.schedule(
+               new IdleConnectionCleanupTask(), connectionIdleTimeout, TimeUnit.SECONDS);
+        }
+    }
+    
+    private class IdleConnectionCleanupTask implements Runnable {
+    
+        	public void run() {
+             long idleTimeInMillis = System.currentTimeMillis() - idleSince;
+             int connectionIdleTimeoutInMillis = connectionIdleTimeout * 1000; 
+             logger.debug("IdleConnectionCleanupTask", "APNS Connection Idle For (in seconds) : " + idleTimeInMillis / 1000);
+             if (idleTimeInMillis > connectionIdleTimeoutInMillis) {
+                 logger.debug("IdleConnectionCleanupTask", "Closing APNS Connection Idle For (in seconds) : " + idleTimeInMillis / 1000);
+                 Utilities.close(socket);
+                 socket = null;
+                 idleConnectionScheduler.shutdown();
+             } else {
+                 idleConnectionScheduler.schedule(
+                     new IdleConnectionCleanupTask(), 
+                     (connectionIdleTimeoutInMillis - idleTimeInMillis),
+                     TimeUnit.SECONDS);
+             }
+         }
     }
 }
