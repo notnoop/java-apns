@@ -254,7 +254,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         t.start();
     }
 
-    private synchronized Socket getOrCreateSocket() throws NetworkIOException {
+    private synchronized Socket getOrCreateSocket(boolean resend) throws NetworkIOException {
         if (reconnectPolicy.shouldReconnect()) {
             logger.debug("Reconnecting due to reconnectPolicy dictating it");
             Utilities.close(socket);
@@ -297,7 +297,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 logger.debug("Made a new connection to APNS");
             } catch (IOException e) {
                 logger.error("Couldn't connect to APNS server", e);
-                throw new NetworkIOException(e);
+                throw new NetworkIOException(e, resend);
             }
         }
         return socket;
@@ -318,7 +318,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         while (true) {
             try {
                 attempts++;
-                Socket socket = getOrCreateSocket();
+                Socket socket = getOrCreateSocket(fromBuffer);
                 socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
                 cacheNotification(m);
