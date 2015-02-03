@@ -71,7 +71,9 @@ public final class PayloadBuilder {
 
     /**
      * Sets the alert title text, the text the appears to the user,
-     * to the passed value
+     * to the passed value.
+     *
+     * Used on iOS 8.2, iWatch and also Safari
      *
      * @param title the text to appear to the user
      * @return  this
@@ -79,6 +81,38 @@ public final class PayloadBuilder {
     public PayloadBuilder alertTitle(final String title) {
         customAlert.put("title", title);
         return this;
+    }
+
+    /**
+     * The key to a title string in the Localizable.strings file for the current localization.
+     *
+     * @param key  the localizable message title key
+     * @return  this
+     */
+    public PayloadBuilder localizedTitleKey(final String key) {
+        customAlert.put("title-loc-key", key);
+        return this;
+    }
+
+    /**
+     * Sets the arguments for the localizable title key.
+     *
+     * @param arguments the arguments to the localized alert message
+     * @return  this
+     */
+    public PayloadBuilder localizedTitleArguments(final Collection<String> arguments) {
+        customAlert.put("title-loc-args", arguments);
+        return this;
+    }
+
+    /**
+     * Sets the arguments for the localizable title key.
+     *
+     * @param arguments the arguments to the localized alert message
+     * @return  this
+     */
+    public PayloadBuilder localizedTitleArguments(final String... arguments) {
+        return localizedTitleArguments(Arrays.asList(arguments));
     }
 
     /**
