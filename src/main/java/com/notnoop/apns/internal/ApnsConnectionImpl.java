@@ -297,6 +297,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 logger.debug("Made a new connection to APNS");
             } catch (IOException e) {
                 logger.error("Couldn't connect to APNS server", e);
+                // indicate to clients whether this is a resend or initial send
                 throw new NetworkIOException(e, resend);
             }
         }
@@ -352,7 +353,15 @@ public class ApnsConnectionImpl implements ApnsConnection {
     private synchronized void drainBuffer() {
         logger.debug("draining buffer");
         while (!notificationsBuffer.isEmpty()) {
-            sendMessage(notificationsBuffer.poll(), true);
+            final ApnsNotification notification = notificationsBuffer.poll();
+            try {
+                sendMessage(notification, true);
+            }
+            catch (NetworkIOException ex) {
+                // at this point we are retrying the submission of messages but failing to connect to APNS, therefore
+                // notify the client of this
+                delegate.messageSendFailed(notification, ex);
+            }
         }
     }
 
