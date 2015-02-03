@@ -78,6 +78,18 @@ public class PayloadBuilderTest {
     }
 
     @Test
+    public void localizedTitleKeyAndArguments() {
+        final PayloadBuilder builder = new PayloadBuilder()
+                .localizedTitleKey("GAME_PLAY_REQUEST_FORMAT")
+                .localizedTitleArguments("Jenna", "Frank");
+        builder.sound("chime");
+
+        final String expected = "{\"aps\":{\"sound\":\"chime\",\"alert\":{\"title-loc-key\":\"GAME_PLAY_REQUEST_FORMAT\",\"title-loc-args\":[\"Jenna\",\"Frank\"]}}}";
+        final String actual = builder.toString();
+        assertEqualsJson(expected, actual);
+    }
+
+    @Test
     public void localizedOneWithArray() {
         final PayloadBuilder builder = new PayloadBuilder()
         .localizedKey("GAME_PLAY_REQUEST_FORMAT")
