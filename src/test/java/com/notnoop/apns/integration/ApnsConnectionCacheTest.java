@@ -4,6 +4,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.notnoop.apns.APNS;
 import com.notnoop.apns.ApnsDelegate;
+import com.notnoop.apns.StartSendingApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
 import com.notnoop.apns.DeliveryError;
@@ -53,6 +54,7 @@ public class ApnsConnectionCacheTest {
         final CountDownLatch sync = new CountDownLatch(20);
         final AtomicInteger numResent = new AtomicInteger();
         final AtomicInteger numSent = new AtomicInteger();
+        final AtomicInteger numStartSend = new AtomicInteger();
         int EXPECTED_RESEND_COUNT = 7;
         int EXPECTED_SEND_COUNT = 12;
         server.getWaitForError().acquire();
@@ -60,7 +62,14 @@ public class ApnsConnectionCacheTest {
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
                 .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
-                .withDelegate(new ApnsDelegate() {
+                .withDelegate(new StartSendingApnsDelegate() {
+
+            public void startSending(final ApnsNotification message, final boolean resent) {
+                if (!resent) {
+                    numStartSend.incrementAndGet();
+                }
+            }
+
             public void messageSent(ApnsNotification message, boolean resent) {
                 if (!resent) {
                     numSent.incrementAndGet();
@@ -104,6 +113,7 @@ public class ApnsConnectionCacheTest {
 
         Assert.assertEquals(EXPECTED_RESEND_COUNT, numResent.get());
         Assert.assertEquals(EXPECTED_SEND_COUNT, numSent.get());
+        Assert.assertEquals(EXPECTED_SEND_COUNT + 1, numStartSend.get());
 
     }
 
@@ -119,6 +129,7 @@ public class ApnsConnectionCacheTest {
         final CountDownLatch sync = new CountDownLatch(6);
         final AtomicInteger numResent = new AtomicInteger();
         final AtomicInteger numSent = new AtomicInteger();
+        final AtomicInteger numStartSend = new AtomicInteger();
         int EXPECTED_RESEND_COUNT = 2;
         int EXPECTED_SEND_COUNT = 3;
         server.getWaitForError().acquire();
@@ -126,7 +137,14 @@ public class ApnsConnectionCacheTest {
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
                 .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
-                .withDelegate(new ApnsDelegate() {
+                .withDelegate(new StartSendingApnsDelegate() {
+
+            public void startSending(final ApnsNotification message, final boolean resent) {
+                if (!resent) {
+                    numStartSend.incrementAndGet();
+                }
+            }
+
             public void messageSent(ApnsNotification message, boolean resent) {
                 if (!resent) {
                     numSent.incrementAndGet();
@@ -163,6 +181,7 @@ public class ApnsConnectionCacheTest {
 
         Assert.assertEquals(EXPECTED_RESEND_COUNT, numResent.get());
         Assert.assertEquals(EXPECTED_SEND_COUNT, numSent.get());
+        Assert.assertEquals(EXPECTED_SEND_COUNT + 1, numStartSend.get());
 
     }
 
@@ -177,13 +196,21 @@ public class ApnsConnectionCacheTest {
         server = new ApnsServerStub(FixedCertificates.serverContext().getServerSocketFactory());
         final CountDownLatch sync = new CountDownLatch(1);
         final AtomicInteger numError = new AtomicInteger();
+        final AtomicInteger numStartSend = new AtomicInteger();
         int EXPECTED_ERROR_COUNT = 1;
         server.getWaitForError().acquire();
         server.start();
         ApnsService service =
                 APNS.newService().withSSLContext(clientContext())
                 .withGatewayDestination(LOCALHOST, server.getEffectiveGatewayPort())
-                .withDelegate(new ApnsDelegate() {
+                .withDelegate(new StartSendingApnsDelegate() {
+
+            public void startSending(final ApnsNotification message, final boolean resent) {
+                if (!resent) {
+                    numStartSend.incrementAndGet();
+                }
+            }
+
             public void messageSent(ApnsNotification message, boolean resent) {
             }
 
@@ -212,6 +239,7 @@ public class ApnsConnectionCacheTest {
         sync.await();
 
         Assert.assertEquals(EXPECTED_ERROR_COUNT, numError.get());
+        Assert.assertEquals(EXPECTED_ERROR_COUNT, numStartSend.get());
     }
 
     /**
