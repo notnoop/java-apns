@@ -44,8 +44,20 @@ Features:
   *  Supports connection pooling
   *  Supports re-transmission of Notifications after error
 
+Getting started
+---------------
+
+Add the following dependencies to your `pom.xml` file:
+
+
+        <dependency>
+             <groupId>com.notnoop.apns</groupId>
+             <artifactId>apns</artifactId>
+             <version>1.0.0.Beta6</version>
+        </dependency>
+
 Sample Code
-----------------
+-----------
 
 To send a notification, you can do it in two steps:
 
