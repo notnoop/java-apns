@@ -323,8 +323,8 @@ public abstract class ApnsServerSimulator {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             DataOutputStream dos = new DataOutputStream(os);
             final int unixTime = (int) (new Date().getTime() / 1000);
-            dos.write(unixTime);
-            dos.write((short) token.length);
+            dos.writeInt(unixTime);
+            dos.writeShort((short) token.length);
             dos.write(token);
             dos.close();
             inputOutputSocket.syncWrite(os.toByteArray());
