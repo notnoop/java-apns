@@ -100,7 +100,7 @@ public final class TlsTunnelBuilder {
             if (socket == null) {
                 ConnectMethod method = response.getConnectMethod();
                 // Read the proxy's HTTP response.
-                if(method.getStatusLine().toString().matches("HTTP/1\\.\\d 407 Proxy Authentication Required")) {
+                if(method.getStatusLine().getStatusCode() == 407) {
                     // Proxy server returned 407. We will now try to connect with auth Header
                     if(proxyUsername != null && proxyPassword != null) {
                         socket = AuthenticateProxy(method, client,proxyHost, proxyAddress.getPort(),
