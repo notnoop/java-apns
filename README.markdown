@@ -59,7 +59,7 @@ Add the following dependencies to your `pom.xml` file:
 Sample Code
 -----------
 
-To send a notification, you can do it in two steps:
+To send a notification, you can do it in three steps:
 
 1. Setup the connection
 
