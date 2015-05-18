@@ -157,7 +157,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         Utilities.close(socket);
 
                         int command = bytes[0] & 0xFF;
-                        if (command != 8) {
+                        // A status code of 10 indicates that the APNs server closed the connection,
+                        // The notification identifier in the error response indicates the last notification that was successfully sent.
+                        if (command != 8 && command != 10) {
                             throw new IOException("Unexpected command byte " + command);
                         }
                         int statusCode = bytes[1] & 0xFF;
@@ -185,8 +187,10 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         }
 
                         if (foundNotification) {
-                            logger.debug("delegate.messageSendFailed, message id {}", notification.getIdentifier());
-                            delegate.messageSendFailed(notification, new ApnsDeliveryErrorException(e));
+                            if (DeliveryError.INVALID_TOKEN == e) {
+                                logger.debug("delegate.messageSendFailed, message id {}", notification.getIdentifier());
+                                delegate.messageSendFailed(notification, new ApnsDeliveryErrorException(e));
+                            }
                         } else {
                             cachedNotifications.addAll(tempCache);
                             int resendSize = tempCache.size();
@@ -195,8 +199,11 @@ public class ApnsConnectionImpl implements ApnsConnection {
                                 cacheLength = cacheLength + (resendSize / 2);
                                 delegate.cacheLengthExceeded(cacheLength);
                             }
-                            logger.debug("delegate.messageSendFailed, unknown id");
-                            delegate.messageSendFailed(null, new ApnsDeliveryErrorException(e));
+
+                            if (DeliveryError.INVALID_TOKEN == e) {
+                                logger.debug("delegate.messageSendFailed, unknown id");
+                                delegate.messageSendFailed(null, new ApnsDeliveryErrorException(e));
+                            }
                         }
 
                         int resendSize = 0;
