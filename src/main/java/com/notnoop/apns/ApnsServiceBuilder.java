@@ -170,7 +170,7 @@ public class ApnsServiceBuilder {
      */
     public ApnsServiceBuilder withCert(InputStream stream, String password)
     throws InvalidSSLConfig {
-        assertPasswordNotEmpty(password);
+        //assertPasswordNotEmpty(password);
         return withSSLContext(
                 newSSLContext(stream, password,
                         KEYSTORE_TYPE, KEY_ALGORITHM));
@@ -196,17 +196,17 @@ public class ApnsServiceBuilder {
      */
     public ApnsServiceBuilder withCert(KeyStore keyStore, String password)
     throws InvalidSSLConfig {
-        assertPasswordNotEmpty(password);
+        //assertPasswordNotEmpty(password);
         return withSSLContext(
                 newSSLContext(keyStore, password, KEY_ALGORITHM));
     }
     
-	private void assertPasswordNotEmpty(String password) {
-		if (password == null || password.length() == 0) {
-            throw new IllegalArgumentException("Passwords must be specified." +
-                    "Oracle Java SDK does not support passwordless p12 certificates");
-        }
-	}
+//	private void assertPasswordNotEmpty(String password) {
+//		if (password == null || password.length() == 0) {
+//            throw new IllegalArgumentException("Passwords must be specified." +
+//                    "Oracle Java SDK does not support passwordless p12 certificates");
+//        }
+//	}
     
     /**
      * Specify the SSLContext that should be used to initiate the
