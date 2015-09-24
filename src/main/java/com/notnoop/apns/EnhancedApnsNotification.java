@@ -37,7 +37,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Represents an APNS notification to be sent to Apple service.
+ * @deprecated use BinaryApnsNotification instead.
  */
+@Deprecated
 public class EnhancedApnsNotification implements ApnsNotification {
 
     private final static byte COMMAND = 1;
@@ -50,7 +52,7 @@ public class EnhancedApnsNotification implements ApnsNotification {
     public static int INCREMENT_ID() {
         return nextId.incrementAndGet();
     }
-    
+
     /**
      * The infinite future for the purposes of Apple expiry date
      */

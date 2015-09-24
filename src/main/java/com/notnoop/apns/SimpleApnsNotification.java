@@ -47,7 +47,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * As push messages sent after a malformed notification are discarded by APNS messages will get lost
  * and not be delivered with the SimpleApnsNotification.
  *
- * @deprecated use EnhancedApnsNotification instead.
+ * @deprecated use BinaryApnsNotification instead.
  */
 @SuppressWarnings("deprecation")
 @Deprecated
