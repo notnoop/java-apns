@@ -1,8 +1,9 @@
 package com.notnoop.apns.internal;
 
+import static java.util.concurrent.Executors.defaultThreadFactory;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -40,15 +41,21 @@ public class BatchApnsService extends AbstractApnsService {
 
 	private ScheduledExecutorService scheduleService;
 	private ScheduledFuture<?> taskFuture;
-	
+
 	private Runnable batchRunner = new SendMessagesBatch();
 
-	public BatchApnsService(ApnsConnection prototype, ApnsFeedbackConnection feedback, int batchWaitTimeInSec, int maxBachWaitTimeInSec, ThreadFactory tf) {
+    public BatchApnsService(ApnsConnection prototype, ApnsFeedbackConnection feedback, int batchWaitTimeInSec, int maxBachWaitTimeInSec, ThreadFactory tf) {
+        this(prototype, feedback, batchWaitTimeInSec, maxBachWaitTimeInSec,
+                new ScheduledThreadPoolExecutor(1,
+                        tf != null ? tf : defaultThreadFactory()));
+    }
+
+    public BatchApnsService(ApnsConnection prototype, ApnsFeedbackConnection feedback, int batchWaitTimeInSec, int maxBachWaitTimeInSec, ScheduledExecutorService executor) {
 		super(feedback);
 		this.prototype = prototype;
 		this.batchWaitTimeInSec = batchWaitTimeInSec;
 		this.maxBatchWaitTimeInSec = maxBachWaitTimeInSec;
-		this.scheduleService = new ScheduledThreadPoolExecutor(1, tf == null ? Executors.defaultThreadFactory() : tf);
+		this.scheduleService = executor != null ? executor : new ScheduledThreadPoolExecutor(1, defaultThreadFactory());
 	}
 
 	public void start() {
