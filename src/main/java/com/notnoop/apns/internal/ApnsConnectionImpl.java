@@ -277,7 +277,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     try {
                         proxySocket = new Socket(proxy);
                         proxySocket.connect(new InetSocketAddress(host, port), connectTimeout);
-                        socket = ((SSLSocketFactory) factory).createSocket(proxySocket, host, port, false);
+                        socket = ((SSLSocketFactory) factory).createSocket(proxySocket, host, port, true);
                         success = true;
                     } finally {
                         if (!success) {
