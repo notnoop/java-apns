@@ -174,9 +174,11 @@ public class ApnsServiceBuilder {
     public ApnsServiceBuilder withCert(InputStream stream, String password)
     throws InvalidSSLConfig {
         assertPasswordNotEmpty(password);
-        return withSSLContext(
-                newSSLContext(stream, password,
-                        KEYSTORE_TYPE, KEY_ALGORITHM));
+        return withSSLContext(new SSLContextBuilder()
+                .withAlgorithm(KEY_ALGORITHM)
+                .withCertificateKeyStore(stream, password, KEYSTORE_TYPE)
+                .withDefaultTrustKeyStore()
+                .build());
     }
 
     /**
@@ -200,8 +202,11 @@ public class ApnsServiceBuilder {
     public ApnsServiceBuilder withCert(KeyStore keyStore, String password)
     throws InvalidSSLConfig {
         assertPasswordNotEmpty(password);
-        return withSSLContext(
-                newSSLContext(keyStore, password, KEY_ALGORITHM));
+        return withSSLContext(new SSLContextBuilder()
+                .withAlgorithm(KEY_ALGORITHM)
+                .withCertificateKeyStore(keyStore, password)
+                .withDefaultTrustKeyStore()
+                .build());
     }
     
 	private void assertPasswordNotEmpty(String password) {

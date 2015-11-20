@@ -40,6 +40,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
+
+import com.notnoop.apns.internal.SSLContextBuilder;
 import com.notnoop.apns.internal.Utilities;
 import com.notnoop.exceptions.InvalidSSLConfig;
 import com.notnoop.exceptions.RuntimeIOException;
@@ -145,8 +147,11 @@ public class ApnsServerSocketBuilder {
 	public ApnsServerSocketBuilder withCert(InputStream stream, String password)
 			throws InvalidSSLConfig {
 		assertPasswordNotEmpty(password);
-		return withSSLContext(newSSLContext(stream, password, KEYSTORE_TYPE,
-				KEY_ALGORITHM));
+		return withSSLContext(new SSLContextBuilder()
+				.withAlgorithm(KEY_ALGORITHM)
+				.withCertificateKeyStore(stream, password, KEYSTORE_TYPE)
+				.withDefaultTrustKeyStore()
+				.build());
 	}
 
 	/**
@@ -170,7 +175,11 @@ public class ApnsServerSocketBuilder {
 	public ApnsServerSocketBuilder withCert(KeyStore keyStore, String password)
 			throws InvalidSSLConfig {
 		assertPasswordNotEmpty(password);
-		return withSSLContext(newSSLContext(keyStore, password, KEY_ALGORITHM));
+		return withSSLContext(new SSLContextBuilder()
+				.withAlgorithm(KEY_ALGORITHM)
+				.withCertificateKeyStore(keyStore, password)
+				.withDefaultTrustKeyStore()
+				.build());
 	}
 
 	private void assertPasswordNotEmpty(String password) {

@@ -47,7 +47,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 import com.notnoop.exceptions.InvalidSSLConfig;
 import com.notnoop.exceptions.NetworkIOException;
@@ -72,44 +71,6 @@ public final class Utilities {
     public static final int MAX_PAYLOAD_LENGTH = 2048;
 
     private Utilities() { throw new AssertionError("Uninstantiable class"); }
-
-    public static SSLSocketFactory newSSLSocketFactory(final InputStream cert, final String password,
-         final String ksType, final String ksAlgorithm) throws InvalidSSLConfig {
-        final SSLContext context = newSSLContext(cert, password, ksType, ksAlgorithm);
-        return context.getSocketFactory();
-    }
-
-    public static SSLContext newSSLContext(final InputStream cert, final String password,
-            final String ksType, final String ksAlgorithm) throws InvalidSSLConfig {
-           try {
-               final KeyStore ks = KeyStore.getInstance(ksType);
-               ks.load(cert, password.toCharArray());
-               return newSSLContext(ks, password, ksAlgorithm);
-           } catch (final Exception e) {
-               throw new InvalidSSLConfig(e);
-           }
-       }
-    
-    public static SSLContext newSSLContext(final KeyStore ks, final String password,
-            final String ksAlgorithm) throws InvalidSSLConfig {
-           try {
-               // Get a KeyManager and initialize it
-               final KeyManagerFactory kmf = KeyManagerFactory.getInstance(ksAlgorithm);
-               kmf.init(ks, password.toCharArray());
-
-               // Get a TrustManagerFactory with the DEFAULT KEYSTORE, so we have all
-               // the certificates in cacerts trusted
-               final TrustManagerFactory tmf = TrustManagerFactory.getInstance(ksAlgorithm);
-               tmf.init((KeyStore)null);
-
-               // Get the SSLContext to help create SSLSocketFactory
-               final SSLContext sslContext = SSLContext.getInstance("TLS");
-               sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-               return sslContext;
-           } catch (final GeneralSecurityException e) {
-               throw new InvalidSSLConfig(e);
-           }
-       }
 
     private static final Pattern pattern = Pattern.compile("[ -]");
     public static byte[] decodeHex(final String deviceToken) {

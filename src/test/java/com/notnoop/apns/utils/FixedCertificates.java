@@ -1,13 +1,10 @@
 package com.notnoop.apns.utils;
 
-import java.io.InputStream;
-import java.security.SecureRandom;
+import com.notnoop.apns.internal.SSLContextBuilder;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-
-import com.notnoop.apns.internal.Utilities;
+import java.io.InputStream;
 
 public class FixedCertificates {
 
@@ -21,10 +18,13 @@ public class FixedCertificates {
 
     public static SSLContext serverContext() {
         try {
-            //System.setProperty("javax.net.ssl.trustStore", ClassLoader.getSystemResource(CLIENT_STORE).getPath());
             InputStream stream = FixedCertificates.class.getResourceAsStream("/" + SERVER_STORE);
             assert stream != null;
-            return Utilities.newSSLContext(stream, SERVER_PASSWORD, "PKCS12", "sunx509");
+            return new SSLContextBuilder()
+                    .withAlgorithm("sunx509")
+                    .withCertificateKeyStore(stream, SERVER_PASSWORD, "PKCS12")
+                    .withTrustManager(new X509TrustManagerTrustAll())
+                    .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -34,9 +34,11 @@ public class FixedCertificates {
         try {
             InputStream stream = FixedCertificates.class.getResourceAsStream("/" + CLIENT_STORE);
             assert stream != null;
-            SSLContext context = Utilities.newSSLContext(stream, CLIENT_PASSWORD, "PKCS12", "sunx509");
-            context.init(null, new TrustManager[] { new X509TrustManagerTrustAll() }, new SecureRandom());
-            return context;
+            return new SSLContextBuilder()
+                    .withAlgorithm("sunx509")
+                    .withCertificateKeyStore(stream, CLIENT_PASSWORD, "PKCS12")
+                    .withTrustManager(new X509TrustManagerTrustAll())
+                    .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
