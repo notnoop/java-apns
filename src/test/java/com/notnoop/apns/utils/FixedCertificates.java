@@ -11,6 +11,9 @@ public class FixedCertificates {
     public static final String CLIENT_STORE = "clientStore.p12";
     public static final String CLIENT_PASSWORD = "123456";
 
+    public static final String CLIENT_MULTI_KEY_STORE = "clientStore.jks";
+    public static final String CLIENT_MULTI_KEY_PASSWORD = "123456";
+
     public static final String SERVER_STORE = "serverStore.p12";
     public static final String SERVER_PASSWORD = "123456";
 
@@ -41,6 +44,20 @@ public class FixedCertificates {
             return new SSLContextBuilder()
                     .withAlgorithm("sunx509")
                     .withCertificateKeyStore(stream, CLIENT_PASSWORD, "PKCS12")
+                    .withTrustManager(new X509TrustManagerTrustAll())
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static SSLContext clientMultiKeyContext(String keyAlias) {
+        try {
+            InputStream stream = FixedCertificates.class.getResourceAsStream("/" + CLIENT_MULTI_KEY_STORE);
+            assert stream != null;
+            return new SSLContextBuilder()
+                    .withAlgorithm("sunx509")
+                    .withCertificateKeyStore(stream, CLIENT_MULTI_KEY_PASSWORD, "JKS", keyAlias)
                     .withTrustManager(new X509TrustManagerTrustAll())
                     .build();
         } catch (Exception e) {

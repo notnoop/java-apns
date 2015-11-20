@@ -8,14 +8,19 @@ import com.notnoop.apns.utils.ApnsServerStub;
 import com.notnoop.apns.utils.junit.DumpThreadsOnErrorRule;
 import com.notnoop.apns.utils.junit.Repeat;
 import com.notnoop.apns.utils.junit.RepeatRule;
+import com.notnoop.exceptions.NetworkIOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import static com.notnoop.apns.utils.FixedCertificates.*;
-import static org.junit.Assert.*;
+import static com.notnoop.apns.utils.FixedCertificates.LOCALHOST;
+import static com.notnoop.apns.utils.FixedCertificates.clientContext;
+import static com.notnoop.apns.utils.FixedCertificates.clientMultiKeyContext;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 
 @SuppressWarnings("ALL")
@@ -120,6 +125,34 @@ public class ApnsConnectionTest {
         server.getMessages().acquire();
 
         assertArrayEquals(msg1.marshall(), server.getReceived().toByteArray());
+    }
+
+    @Test(timeout = 2000)
+    public void sendOneSimpleMultiKey() throws InterruptedException {
+        ApnsService service =
+                APNS.newService().withSSLContext(clientMultiKeyContext("notnoop-client"))
+                        .withGatewayDestination(LOCALHOST, gatewayPort)
+                        .build();
+        server.stopAt(msg1.length());
+        service.push(msg1);
+        server.getMessages().acquire();
+
+        assertArrayEquals(msg1.marshall(), server.getReceived().toByteArray());
+    }
+
+    @Test(timeout = 2000)
+    public void sendOneSimpleClientCertFail() throws InterruptedException {
+        ApnsService service =
+                APNS.newService().withSSLContext(clientMultiKeyContext("notused"))
+                        .withGatewayDestination(LOCALHOST, gatewayPort)
+                        .build();
+        server.stopAt(msg1.length());
+        try {
+            service.push(msg1);
+            fail();
+        } catch (NetworkIOException e) {
+            assertTrue("Expected bad_certifcate exception", e.getMessage().contains("bad_certificate"));
+        }
     }
 
 }
