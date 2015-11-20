@@ -44,6 +44,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.SocketFactory;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
 import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.StartSendingApnsDelegate;
@@ -334,6 +335,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 //logger.debug("Message \"{}\" sent", m);
                 attempts = 0;
                 break;
+            } catch (SSLHandshakeException e) {
+                // No use retrying this, it's dead Jim
+                throw new NetworkIOException(e);
             } catch (IOException e) {
                 Utilities.close(socket);
                 if (attempts >= RETRIES) {
