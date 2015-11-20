@@ -32,6 +32,29 @@ public class SSLContextBuilder {
         }
     }
 
+    public SSLContextBuilder withTrustKeyStore(InputStream keyStoreStream, String keyStorePassword, String keyStoreType) throws InvalidSSLConfig {
+        try {
+            final KeyStore ks = KeyStore.getInstance(keyStoreType);
+            ks.load(keyStoreStream, keyStorePassword.toCharArray());
+            return withTrustKeyStore(ks, keyStorePassword);
+        } catch (GeneralSecurityException e) {
+            throw new InvalidSSLConfig(e);
+        } catch (IOException e) {
+            throw new InvalidSSLConfig(e);
+        }
+
+    }
+    public SSLContextBuilder withTrustKeyStore(KeyStore keyStore, String keyStorePassword) throws InvalidSSLConfig {
+        try {
+            TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(algorithm);
+            trustManagerFactory.init(keyStore);
+            trustManagers = trustManagerFactory.getTrustManagers();
+            return this;
+        } catch (GeneralSecurityException e) {
+            throw new InvalidSSLConfig(e);
+        }
+    }
+
     public SSLContextBuilder withTrustManager(TrustManager trustManager) {
         trustManagers = new TrustManager[] { trustManager };
         return this;

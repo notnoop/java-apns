@@ -1,16 +1,16 @@
 package com.notnoop.apns.utils;
 
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLServerSocket;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.net.ServerSocketFactory;
 
 public class ApnsServerStub {
 
@@ -70,8 +70,8 @@ public class ApnsServerStub {
 
     Thread gatewayThread;
     Thread feedbackThread;
-    ServerSocket gatewaySocket;
-    ServerSocket feedbackSocket;
+    SSLServerSocket gatewaySocket;
+    SSLServerSocket feedbackSocket;
 
     public void start() {
         gatewayThread = new GatewayRunner();
@@ -152,10 +152,10 @@ public class ApnsServerStub {
 
         @SuppressWarnings("InfiniteLoopStatement")
         public void run() {
-
-
+            Thread.currentThread().setName("GatewayThread");
             try {
-                gatewaySocket = sslFactory.createServerSocket(gatewayPort);
+                gatewaySocket = (SSLServerSocket)sslFactory.createServerSocket(gatewayPort);
+                gatewaySocket.setNeedClientAuth(true);
             } catch (IOException e) {
                 messages.release();
                 throw new RuntimeException(e);
@@ -215,8 +215,10 @@ public class ApnsServerStub {
     private class FeedbackRunner extends Thread {
 
         public void run() {
+            Thread.currentThread().setName("FeedbackThread");
             try {
-                feedbackSocket = sslFactory.createServerSocket(feedbackPort);
+                feedbackSocket = (SSLServerSocket)sslFactory.createServerSocket(feedbackPort);
+                feedbackSocket.setNeedClientAuth(true);
             } catch (IOException e) {
                 e.printStackTrace();
                 messages.release();

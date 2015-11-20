@@ -14,16 +14,20 @@ public class FixedCertificates {
     public static final String SERVER_STORE = "serverStore.p12";
     public static final String SERVER_PASSWORD = "123456";
 
+    public static final String SERVER_TRUST_STORE = "serverTrustStore.p12";
+    public static final String SERVER_TRUST_PASSWORD = "123456";
+
     public static final String LOCALHOST = "localhost";
 
     public static SSLContext serverContext() {
         try {
             InputStream stream = FixedCertificates.class.getResourceAsStream("/" + SERVER_STORE);
+            InputStream trustStream = FixedCertificates.class.getResourceAsStream("/" + SERVER_TRUST_STORE);
             assert stream != null;
             return new SSLContextBuilder()
                     .withAlgorithm("sunx509")
                     .withCertificateKeyStore(stream, SERVER_PASSWORD, "PKCS12")
-                    .withTrustManager(new X509TrustManagerTrustAll())
+                    .withTrustKeyStore(trustStream, SERVER_TRUST_PASSWORD, "PKCS12")
                     .build();
         } catch (Exception e) {
             throw new RuntimeException(e);
