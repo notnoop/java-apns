@@ -138,6 +138,37 @@
                     </instructions>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.11</version>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <strictCheck>true</strictCheck>
+                    <aggregate>true</aggregate>
+                    <header>LICENSE</header>
+                    <validHeaders>
+                        <validHeader>LICENSE.contributor</validHeader>
+                    </validHeaders>
+                    <mapping>
+                        <xml>XML_STYLE</xml>
+                        <java>SLASHSTAR_STYLE</java>
+                        <clj>SEMICOLON_STYLE</clj>
+                    </mapping>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                    <includes>
+                        <include>src/**/*.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
             <!--
 
             We need to wait for findbugs 3.0.0 to test on JDK 8
