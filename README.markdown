@@ -160,4 +160,4 @@ Licensed under the [New 3-Clause BSD License](http://www.opensource.org/licenses
 
 Contact
 ---------------
-Support mailing list: http://groups.google.com/group/java-apns-discuss
+Support mailing list: http://groups.google.com/group/java-apns-discuss 
