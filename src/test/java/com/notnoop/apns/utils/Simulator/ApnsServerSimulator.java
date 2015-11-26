@@ -85,14 +85,14 @@ public abstract class ApnsServerSimulator {
                 gatewaySocket.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Can not close gatewaySocket properly", e);
         }
         try {
             if (feedbackSocket != null) {
                 feedbackSocket.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warn("Can not close feedbackSocket properly", e);
         }
 
         if (gatewayThread != null) {
@@ -141,9 +141,10 @@ public abstract class ApnsServerSimulator {
                     try {
                         handleGatewayConnection(new InputOutputSocket(gatewaySocket.accept()));
                     } catch (SocketException ex) {
+                        logger.warn("Interruption while handling gateway connection", ex);
                         interrupt();
                     } catch (IOException ioe) {
-                        ioe.printStackTrace();
+                        logger.warn("An error occured while handling gateway connection", ioe);
                     }
                 }
             } finally {
@@ -186,6 +187,7 @@ public abstract class ApnsServerSimulator {
                             break;
                     }
                 } catch (IOException ioe) {
+                	logger.warn("An error occured while reading notification", ioe);
                     Thread.currentThread().interrupt();
                 }
             }
@@ -255,7 +257,7 @@ public abstract class ApnsServerSimulator {
             try {
                 gatewaySocket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.warn("Can not close gatewaySocket properly", e);
             }
         }
     }
@@ -310,9 +312,10 @@ public abstract class ApnsServerSimulator {
                     try {
                         handleFeedbackConnection(new InputOutputSocket(feedbackSocket.accept()));
                     } catch (SocketException ex) {
+                        logger.warn("Interruption while handling feedback connection", ex);
                         interrupt();
                     } catch (IOException ioe) {
-                        ioe.printStackTrace();
+                        logger.warn("An error occured while handling feedback connection", ioe);
                     }
                 }
             } finally {
@@ -331,7 +334,7 @@ public abstract class ApnsServerSimulator {
                         sendFeedback(inputOutputSocket);
                     } catch (IOException ioe) {
                         // An exception is unexpected here. Close the current connection and bail out.
-                        ioe.printStackTrace();
+                        logger.warn("An error occured while sending feedback", ioe);
                     } finally {
                         inputOutputSocket.close();
                     }

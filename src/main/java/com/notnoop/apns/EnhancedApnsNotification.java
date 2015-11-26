@@ -34,12 +34,16 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import com.notnoop.apns.internal.Utilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Represents an APNS notification to be sent to Apple service.
  */
 public class EnhancedApnsNotification implements ApnsNotification {
-
+	
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnhancedApnsNotification.class);
     private final static byte COMMAND = 1;
     private static AtomicInteger nextId = new AtomicInteger(0);
     private final int identifier;
@@ -168,7 +172,8 @@ public class EnhancedApnsNotification implements ApnsNotification {
         String payloadString;
         try {
             payloadString = new String(payload, "UTF-8");
-        } catch (Exception ex) {
+        } catch (UnsupportedEncodingException ex) {
+            LOGGER.debug("UTF-8 charset not found on the JRE", ex);
             payloadString = "???";
         }
         return "Message(Id="+identifier+"; Token="+Utilities.encodeHex(deviceToken)+"; Payload="+payloadString+")";

@@ -41,6 +41,8 @@ import java.net.SocketException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ApnsServerStub {
 
@@ -70,7 +72,8 @@ public class ApnsServerStub {
         server.start();
         return server;
     }
-
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApnsServerStub.class);
     private final AtomicInteger toWaitBeforeSend = new AtomicInteger(0);
     private final ByteArrayOutputStream received;
     private final ByteArrayOutputStream toSend;
@@ -118,14 +121,14 @@ public class ApnsServerStub {
                 gatewaySocket.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warn("Can not close gatewaySocket properly", e);
         }
         try {
             if (feedbackSocket != null) {
                 feedbackSocket.close();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warn("Can not close feedbackSocket properly", e);
         }
 
         if (gatewayThread != null) {
@@ -146,7 +149,7 @@ public class ApnsServerStub {
             gatewayOutputStream.write(buf.array());
             gatewayOutputStream.flush();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOGGER.warn("An error occured with accessing gateway", ex);
         }
     }
 
@@ -227,14 +230,14 @@ public class ApnsServerStub {
                         in.close();
                     }
                 } catch (IOException ioex) {
-                    System.err.println(ioex.toString());
+                    LOGGER.warn("Can not close socket properly", ioex);
                 }
                 try {
                     if (gatewayOutputStream != null) {
                         gatewayOutputStream.close();
                     }
                 } catch (IOException ioex) {
-                    System.err.println(ioex.toString());
+                    LOGGER.warn("Can not close gatewayOutputStream properly", ioex);
                 }
                 messages.release();
             }

@@ -147,6 +147,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     try {
                         in = socket.getInputStream();
                     } catch (IOException ioe) {
+                        logger.warn("The value of socket is null", ioe);
                         in = null;
                     }
 
