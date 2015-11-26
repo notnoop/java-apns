@@ -70,7 +70,7 @@ public class ApnsFeedbackParsingUtils {
                    || (Arrays.equals(firstDevice, thirdDevice)));
     }
 
-    static int simpleDate = 0;
+    static int simpleDate;
     public static byte[] simple = pack(
             /* time_t */  new byte[] {0, 0, 0, 0},
             /* length */  new byte[] { 0, 32 },

@@ -90,8 +90,8 @@ public class ApnsServiceBuilder {
 
     private SSLContext sslContext;
 
-    private int readTimeout = 0;
-    private int connectTimeout = 0;
+    private int readTimeout;
+    private int connectTimeout;
 
     private String gatewayHost;
     private int gatewayPort = -1;
@@ -101,23 +101,23 @@ public class ApnsServiceBuilder {
     private int pooledMax = 1;
     private int cacheLength = ApnsConnection.DEFAULT_CACHE_LENGTH;
     private boolean autoAdjustCacheLength = true;
-    private ExecutorService executor = null;
+    private ExecutorService executor;
 
     private ReconnectPolicy reconnectPolicy = ReconnectPolicy.Provided.EVERY_HALF_HOUR.newObject();
-    private boolean isQueued = false;
-    private ThreadFactory queueThreadFactory = null;
+    private boolean isQueued;
+    private ThreadFactory queueThreadFactory;
     
-    private boolean isBatched = false;
+    private boolean isBatched;
     private int batchWaitTimeInSec;
     private int batchMaxWaitTimeInSec;
-    private ScheduledExecutorService batchThreadPoolExecutor = null;
+    private ScheduledExecutorService batchThreadPoolExecutor;
     
     private ApnsDelegate delegate = ApnsDelegate.EMPTY;
-    private Proxy proxy = null;
-    private String proxyUsername = null;
-    private String proxyPassword = null;
+    private Proxy proxy;
+    private String proxyUsername;
+    private String proxyPassword;
     private boolean errorDetection = true;
-    private ThreadFactory errorDetectionThreadFactory = null;
+    private ThreadFactory errorDetectionThreadFactory;
 
     /**
      * Constructs a new instance of {@code ApnsServiceBuilder}
