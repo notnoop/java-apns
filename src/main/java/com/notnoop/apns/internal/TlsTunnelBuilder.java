@@ -122,7 +122,7 @@ public final class TlsTunnelBuilder {
     private Socket AuthenticateProxy(ConnectMethod method, ProxyClient client, 
             String proxyHost, int proxyPort, 
             String proxyUsername, String proxyPassword) throws IOException {   
-        if(method.getProxyAuthState().getAuthScheme().getSchemeName().equalsIgnoreCase("ntlm")) {
+        if("ntlm".equalsIgnoreCase(method.getProxyAuthState().getAuthScheme().getSchemeName())) {
             // If Auth scheme is NTLM, set NT credentials with blank host and domain name
             client.getState().setProxyCredentials(new AuthScope(proxyHost, proxyPort), 
                             new NTCredentials(proxyUsername, proxyPassword,"",""));

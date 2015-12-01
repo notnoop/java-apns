@@ -75,7 +75,7 @@ public class MainClass {
         };
 
         final ApnsService svc = APNS.newService()
-                .withAppleDestination(args[0].equals("p"))
+                .withAppleDestination("p".equals(args[0]))
                 .withCert(new FileInputStream(args[1]), args[2])
                 .withDelegate(delegate)
                 .build();
