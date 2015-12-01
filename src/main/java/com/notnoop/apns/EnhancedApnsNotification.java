@@ -112,7 +112,7 @@ public class EnhancedApnsNotification implements ApnsNotification {
         return expiry;
     }
 
-    private byte[] marshall = null;
+    private byte[] marshall;
     /**
      * Returns the binary representation of the message as expected by the
      * APNS server.

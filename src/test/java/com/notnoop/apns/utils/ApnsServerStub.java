@@ -83,7 +83,7 @@ public class ApnsServerStub {
     private final int feedbackPort;
     private int effectiveGatewayPort;
     private int effectiveFeedbackPort;
-    private OutputStream gatewayOutputStream = null;
+    private OutputStream gatewayOutputStream;
 
     public ApnsServerStub(ServerSocketFactory sslFactory) {
         this(sslFactory, 0, 0);

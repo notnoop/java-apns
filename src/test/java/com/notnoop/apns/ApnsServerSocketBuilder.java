@@ -70,7 +70,7 @@ public class ApnsServerSocketBuilder {
 	private SSLContext sslContext;
 	private int gatewayPort = -1;
 	private int feedbackPort = -1;
-	private ExecutorService executor = null;
+	private ExecutorService executor;
 	private ApnsServerService serverService = ApnsServerService.EMPTY;
 	private ApnsServerExceptionDelegate exceptionDelegate = ApnsServerExceptionDelegate.EMPTY;
 
