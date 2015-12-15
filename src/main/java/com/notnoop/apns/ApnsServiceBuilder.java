@@ -55,7 +55,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static com.notnoop.apns.internal.Utilities.PRODUCTION_FEEDBACK_HOST;
 import static com.notnoop.apns.internal.Utilities.PRODUCTION_FEEDBACK_PORT;
@@ -546,7 +549,8 @@ public class ApnsServiceBuilder {
      * connections.
      */
     public ApnsServiceBuilder asPool(int maxConnections) {
-        return asPool(Executors.newFixedThreadPool(maxConnections), maxConnections);
+        ThreadPoolExecutor threadPool = new ThreadPoolExecutor(maxConnections, maxConnections, 0L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+        return asPool(threadPool, maxConnections);
     }
 
     /**
