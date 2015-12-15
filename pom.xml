@@ -81,11 +81,9 @@
             <plugin>  
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
-		<!--
                 <configuration>
                     <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
-		-->
                 <executions>
                     <execution>
                         <id>generate-javadoc</id>
@@ -135,6 +133,8 @@
                         <Bundle-Name>${project.groupId}</Bundle-Name>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
+                        <Export-Package>com.notnoop.apns,com.notnoop.exceptions</Export-Package>
+                        <Private-Package>com.notnoop.apns.internal,com.notnoop.json</Private-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -167,6 +167,9 @@
                     <includes>
                         <include>src/**/*.java</include>
                     </includes>
+                    <excludes>
+                    	<exclude>src/**/json/*.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <!--
@@ -299,13 +302,6 @@
             <version>1.9.5</version>
             <type>jar</type>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.1.4</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
