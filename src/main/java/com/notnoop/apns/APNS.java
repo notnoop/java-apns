@@ -30,6 +30,8 @@
  */
 package com.notnoop.apns;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * The main class to interact with the APNS Service.
  *
@@ -45,7 +47,14 @@ public final class APNS {
      * Returns a new Payload builder
      */
     public static PayloadBuilder newPayload() {
-        return new PayloadBuilder();
+        return newPayload(DefaultObjectMapper.get());
+    }
+
+    /**
+     * Returns a new Payload builder which uses the given {@link ObjectMapper} to build the payload.
+     */
+    public static PayloadBuilder newPayload(ObjectMapper mapper) {
+        return new PayloadBuilder(mapper);
     }
 
     /**

@@ -42,7 +42,7 @@ import com.notnoop.apns.internal.Utilities;
  * specified by Apple Push Notification Programming Guide.
  */
 public final class PayloadBuilder {
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
 
     private final Map<String, Object> root;
     private final Map<String, Object> aps;
@@ -52,9 +52,18 @@ public final class PayloadBuilder {
      * Constructs a new instance of {@code PayloadBuilder}
      */
     PayloadBuilder() {
+        this(DefaultObjectMapper.get());
+    }
+
+    /**
+     * Constructs a new instance of {@code PayloadBuilder}
+     * which uses the given {@link ObjectMapper} to build the payload.
+     */
+    PayloadBuilder(ObjectMapper mapper) {
         root = new HashMap<String, Object>();
         aps = new HashMap<String, Object>();
         customAlert = new HashMap<String, Object>();
+        this.mapper = mapper;
     }
 
     /**
@@ -251,8 +260,8 @@ public final class PayloadBuilder {
 
     /**
      * With iOS7 it is possible to have the application wake up before the user opens the app.
-     * 
-     * The same key-word can also be used to send 'silent' notifications. With these 'silent' notification 
+     *
+     * The same key-word can also be used to send 'silent' notifications. With these 'silent' notification
      * a different app delegate is being invoked, allowing the app to perform background tasks.
      *
      * @return this
@@ -511,10 +520,12 @@ public final class PayloadBuilder {
 
     private PayloadBuilder(final Map<String, Object> root,
             final Map<String, Object> aps,
-            final Map<String, Object> customAlert) {
+            final Map<String, Object> customAlert,
+            final ObjectMapper mapper) {
         this.root = new HashMap<String, Object>(root);
         this.aps = new HashMap<String, Object>(aps);
         this.customAlert = new HashMap<String, Object>(customAlert);
+        this.mapper = mapper;
     }
 
     /**
@@ -523,13 +534,17 @@ public final class PayloadBuilder {
      * @return a copy of this builder
      */
     public PayloadBuilder copy() {
-        return new PayloadBuilder(root, aps, customAlert);
+        ObjectMapper mapper = DefaultObjectMapper.get() != this.mapper
+            ? this.mapper.copy() // custom mapper, should be cloned
+            : this.mapper; // default mapper, no need for cloning
+
+        return new PayloadBuilder(root, aps, customAlert, mapper);
     }
 
     /**
      * @return a new instance of Payload Builder
      */
     public static PayloadBuilder newPayload() {
-        return new PayloadBuilder();
+        return new PayloadBuilder(DefaultObjectMapper.get());
     }
 }
