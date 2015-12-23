@@ -33,6 +33,7 @@ package com.notnoop.apns.internal;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 //import java.net.InetSocketAddress;
 //import java.net.Proxy;
 //import java.net.Socket;
@@ -72,6 +73,6 @@ public class TlsTunnelBuilderTest {
     }
 
     private InputStream inputStream(String content) throws IOException {
-        return new ByteArrayInputStream(content.getBytes("UTF-8"));
+        return new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
     }
 }

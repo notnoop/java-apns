@@ -38,6 +38,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -110,11 +111,7 @@ public final class Utilities {
     }
 
     public static byte[] toUTF8Bytes(final String s) {
-        try {
-            return s.getBytes("UTF-8");
-        } catch (final UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
+        return s.getBytes(StandardCharsets.UTF_8);
     }
 
     public static byte[] marshall(final byte command, final byte[] deviceToken, final byte[] payload) {
