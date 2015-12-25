@@ -13,5 +13,6 @@ public interface StartSendingApnsDelegate extends ApnsDelegate {
      * @param resent whether the notification is being resent after an error
      */
     public void startSending(ApnsNotification message, boolean resent);
+    //add commit change and compare
 
 }
