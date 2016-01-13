@@ -30,35 +30,40 @@
  */
 package com.notnoop.apns.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-//import java.net.InetSocketAddress;
-//import java.net.Proxy;
-//import java.net.Socket;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockserver.integration.ClientAndProxy;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.UnknownHostException;
+
 import static org.junit.Assert.fail;
+import static org.mockserver.integration.ClientAndProxy.startClientAndProxy;
 
 public class TlsTunnelBuilderTest {
+    private static final int MOCK_PROXY_PORT = 1090;
 
-    @Test
-    public void makeTunnelSuccess() throws IOException {
-        /* Uncomment this test to verify with your proxy settings */
-        /*try {
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.mydomain.com", 8080));
+    private static ClientAndProxy mockProxy;
 
-            InetSocketAddress proxyAddress = (InetSocketAddress) proxy.address();
-            Socket proxySocket = new Socket(proxyAddress.getAddress(), proxyAddress.getPort());
-            InetSocketAddress destAddress = new InetSocketAddress("myhost.com", 2195);
+    private static String localhostName;
+    private static String localhostAddress;
 
-            new TlsTunnelBuilder().makeTunnel(destAddress.getAddress().toString(), 
-                                              destAddress.getPort(), 
-                                              "proxy-username", "proxy-password", 
-                                              proxyAddress);
-        } catch (IOException ex){
-            fail();
-        }*/
-        
+    @BeforeClass
+    public static void beforeClass() throws UnknownHostException {
+        mockProxy = startClientAndProxy(MOCK_PROXY_PORT);
+
+        final InetAddress localHost = InetAddress.getLocalHost();
+        localhostAddress = localHost.getHostAddress();
+        localhostName = localHost.getHostName();
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        mockProxy.stop();
     }
 
     @Test
@@ -66,12 +71,35 @@ public class TlsTunnelBuilderTest {
         try {
             new TlsTunnelBuilder().makeTunnel("origin.example.com", 9876, null, null, null);
             fail();
-        } catch (IOException expected) {
+        } catch (final IOException expected) {
             // No operation
         }
     }
 
-    private InputStream inputStream(String content) throws IOException {
-        return new ByteArrayInputStream(content.getBytes("UTF-8"));
+    @Test
+    public void makeTunnelByHostNameSuccess() {
+        makeTunnelSuccess(localhostName);
+    }
+
+    @Test
+    public void makeTunnelByHostAddressSuccess() {
+        makeTunnelSuccess(localhostAddress);
+    }
+
+    private void makeTunnelSuccess(final String proxyHost) {
+        try {
+            final Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, MOCK_PROXY_PORT));
+
+            final InetSocketAddress proxyAddress = (InetSocketAddress) proxy.address();
+            final InetSocketAddress destAddress = new InetSocketAddress("example.com", 80);
+
+            new TlsTunnelBuilder().makeTunnel(
+                    destAddress.getAddress().toString(),
+                    destAddress.getPort(),
+                    "", "",
+                    proxyAddress);
+        } catch (final IOException ignored) {
+            fail();
+        }
     }
 }
