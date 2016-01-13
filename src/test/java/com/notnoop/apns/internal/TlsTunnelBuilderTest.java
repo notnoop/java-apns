@@ -36,7 +36,6 @@ import org.junit.Test;
 import org.mockserver.integration.ClientAndProxy;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.UnknownHostException;
@@ -49,16 +48,9 @@ public class TlsTunnelBuilderTest {
 
     private static ClientAndProxy mockProxy;
 
-    private static String localhostName;
-    private static String localhostAddress;
-
     @BeforeClass
     public static void beforeClass() throws UnknownHostException {
         mockProxy = startClientAndProxy(MOCK_PROXY_PORT);
-
-        final InetAddress localHost = InetAddress.getLocalHost();
-        localhostAddress = localHost.getHostAddress();
-        localhostName = localHost.getHostName();
     }
 
     @AfterClass
@@ -78,12 +70,17 @@ public class TlsTunnelBuilderTest {
 
     @Test
     public void makeTunnelByHostNameSuccess() {
-        makeTunnelSuccess(localhostName);
+        makeTunnelSuccess("localhost");
     }
 
     @Test
     public void makeTunnelByHostAddressSuccess() {
-        makeTunnelSuccess(localhostAddress);
+        makeTunnelSuccess("127.0.0.1");
+    }
+
+    @Test
+    public void makeTunnelByHostAddressV6Success() {
+        makeTunnelSuccess("::1");
     }
 
     private void makeTunnelSuccess(final String proxyHost) {
