@@ -38,7 +38,6 @@ import org.mockserver.integration.ClientAndProxy;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-import java.net.UnknownHostException;
 
 import static org.junit.Assert.fail;
 import static org.mockserver.integration.ClientAndProxy.startClientAndProxy;
@@ -49,7 +48,7 @@ public class TlsTunnelBuilderTest {
     private static ClientAndProxy mockProxy;
 
     @BeforeClass
-    public static void beforeClass() throws UnknownHostException {
+    public static void beforeClass() {
         mockProxy = startClientAndProxy(MOCK_PROXY_PORT);
     }
 

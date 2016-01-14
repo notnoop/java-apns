@@ -87,7 +87,14 @@ public final class TlsTunnelBuilder {
             ProxyClient client = new ProxyClient();
             client.getParams().setParameter("http.useragent", "java-apns");
             client.getHostConfiguration().setHost(host, port);
-            String proxyHost = proxyInetAddress.getHostName();
+
+            /**
+             * There is a bug in an OpenJDK (e.g. https://github.com/travis-ci/travis-ci/issues/5227)
+             * that causes buffer overflow for local addresses. So it would be wise to use host's IP
+             * here since we will still send Host header and will specify target URL in
+             * CONNECT request
+             */
+            String proxyHost = proxyInetAddress.getHostAddress();
             client.getHostConfiguration().setProxy(proxyHost, proxyAddress.getPort());
 
 
