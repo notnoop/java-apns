@@ -30,48 +30,110 @@
  */
 package com.notnoop.apns.internal;
 
-import java.io.ByteArrayInputStream;
+import static org.junit.Assert.assertNotNull;
+
+import com.sun.net.httpserver.HttpServer;
+
 import java.io.IOException;
-import java.io.InputStream;
-//import java.net.InetSocketAddress;
-//import java.net.Proxy;
-//import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.fail;
+import org.littleshoot.proxy.HttpProxyServer;
+import org.littleshoot.proxy.ProxyAuthenticator;
+import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 public class TlsTunnelBuilderTest {
 
+    private static final String PROXY_USERNAME = "proxy-username";
+    private static final String PROXY_PASSWORD = "proxy-password";
+    private TestHttpService testHttpService;
+    private String remoteHost;
+    private int remoteport = 9999;
+    private int localport = 8888;
+    private HttpProxyServer server;
+
+    @Before
+    public void setUp() throws UnknownHostException {
+
+        InetSocketAddress address = new InetSocketAddress(remoteport);
+        testHttpService = new TestHttpService(address);
+        remoteHost = address.getHostName();
+
+        server = DefaultHttpProxyServer.bootstrap()
+                .withProxyAuthenticator(new ProxyAuthenticator() {
+                    @Override
+                    public boolean authenticate(String userName, String password) {
+                        return PROXY_USERNAME.equals(userName) && PROXY_PASSWORD.equals(password);
+                    }
+                })
+                .withPort(localport)
+                .start();
+    }
+
+    @After
+    public void tearDown() {
+        testHttpService.stop();
+        server.stop();
+    }
+
     @Test
     public void makeTunnelSuccess() throws IOException {
-        /* Uncomment this test to verify with your proxy settings */
-        /*try {
-            Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy.mydomain.com", 8080));
+        /* Change host in this test to verify with your proxy settings */
 
-            InetSocketAddress proxyAddress = (InetSocketAddress) proxy.address();
-            Socket proxySocket = new Socket(proxyAddress.getAddress(), proxyAddress.getPort());
-            InetSocketAddress destAddress = new InetSocketAddress("myhost.com", 2195);
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", localport));
 
-            new TlsTunnelBuilder().makeTunnel(destAddress.getAddress().toString(), 
-                                              destAddress.getPort(), 
-                                              "proxy-username", "proxy-password", 
-                                              proxyAddress);
-        } catch (IOException ex){
-            fail();
-        }*/
+        InetSocketAddress proxyAddress = (InetSocketAddress) proxy.address();
+        Socket proxySocket = new Socket(proxyAddress.getAddress(), proxyAddress.getPort());
+        assertNotNull(proxySocket);
+        proxySocket.close();
+
+        InetSocketAddress destAddress = new InetSocketAddress(remoteHost, remoteport);
+
+        Socket remoteAddress = new Socket(destAddress.getAddress(), destAddress.getPort());
+        assertNotNull(remoteAddress);
+        remoteAddress.close();
+
+        Socket socket = new TlsTunnelBuilder()
+                .makeTunnel(
+                        remoteHost,
+                        remoteport,
+                        PROXY_USERNAME,
+                        PROXY_PASSWORD,
+                        proxyAddress);
         
+        assertNotNull(socket);
     }
 
-    @Test
+    @Test(expected = IOException.class)
     public void invalidProxyParams() throws IOException {
-        try {
-            new TlsTunnelBuilder().makeTunnel("origin.example.com", 9876, null, null, null);
-            fail();
-        } catch (IOException expected) {
-            // No operation
-        }
+        new TlsTunnelBuilder().makeTunnel("origin.example.com", 9876, null, null, null);
     }
 
-    private InputStream inputStream(String content) throws IOException {
-        return new ByteArrayInputStream(content.getBytes("UTF-8"));
+
+    public class TestHttpService {
+
+        private HttpServer server;
+
+        public TestHttpService(InetSocketAddress inetSocketAddress) {
+            try {
+                server = HttpServer.create(inetSocketAddress, 0);
+                server.createContext("/");
+                server.setExecutor(null);
+                server.start();
+            } catch (IOException e) {
+                throw new IllegalStateException("Could not get ip to localhost", e);
+            }
+        }
+
+        public void stop() {
+            server.stop(0);
+        }
+
     }
+    
 }
