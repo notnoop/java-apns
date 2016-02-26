@@ -132,8 +132,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
         Utilities.close(socket);
     }
 
-    private void monitorSocket(final Socket socket) {
-        logger.debug("Launching Monitoring Thread for socket {}", socket);
+    private void monitorSocket(final Socket socketToMonitor) {
+        logger.debug("Launching Monitoring Thread for socket {}", socketToMonitor);
 
         Thread t = threadFactory.newThread(new Runnable() {
             final static int EXPECTED_SIZE = 6;
@@ -145,7 +145,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 try {
                     InputStream in;
                     try {
-                        in = socket.getInputStream();
+                        in = socketToMonitor.getInputStream();
                     } catch (IOException ioe) {
                         in = null;
                     }
@@ -155,7 +155,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         logger.debug("Error-response packet {}", Utilities.encodeHex(bytes));
                         // Quickly close socket, so we won't ever try to send push notifications
                         // using the defective socket.
-                        Utilities.close(socket);
+                        Utilities.close(socketToMonitor);
 
                         int command = bytes[0] & 0xFF;
                         if (command != 8) {
@@ -221,7 +221,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                     logger.info("Exception while waiting for error code", e);
                     delegate.connectionClosed(DeliveryError.UNKNOWN, -1);
                 } finally {
-                    close();
+                    Utilities.close(socketToMonitor);
                     drainBuffer();
                 }
             }
