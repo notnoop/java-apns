@@ -108,7 +108,7 @@ You can use the enhanced notification format to get feedback from Apple about no
 
      String payload = APNS.newPayload()
                 .badge(3)
-                .customField("secret", "what do you think?");
+                .customField("secret", "what do you think?")
                 .localizedKey("GAME_PLAY_REQUEST_FORMAT")
                 .localizedArguments("Jenna", "Frank")
                 .actionKey("Play").build();
