@@ -36,8 +36,12 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -61,6 +65,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(ApnsConnectionImpl.class);
 
+    Map<String, Set<DeliveryError>> deliveryErrorDevices = new HashMap<String, Set<DeliveryError>>();
     private final SocketFactory factory;
     private final String host;
     private final int port;
@@ -132,7 +137,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         Utilities.close(socket);
     }
 
-    private void monitorSocket(final Socket socket) {
+    private void monitorSocket(final ApnsNotification apnsNotification, final Socket socket) {
         logger.debug("Launching Monitoring Thread for socket {}", socket);
 
         Thread t = threadFactory.newThread(new Runnable() {
@@ -164,6 +169,15 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         int statusCode = bytes[1] & 0xFF;
                         DeliveryError e = DeliveryError.ofCode(statusCode);
 
+                        String token = Utilities.encodeHex(apnsNotification.getDeviceToken());
+                        Set<DeliveryError> deliveryErrors = deliveryErrorDevices.get(token);
+                        if (deliveryErrors == null) {
+                        	deliveryErrors = new HashSet<DeliveryError>();
+                        	
+                        	deliveryErrorDevices.put(token, deliveryErrors);
+                        }
+                        deliveryErrors.add(e);
+                        
                         int id = Utilities.parseBytes(bytes[2], bytes[3], bytes[4], bytes[5]);
 
                         logger.debug("Closed connection cause={}; id={}", e, id);
@@ -256,7 +270,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         t.start();
     }
 
-    private synchronized Socket getOrCreateSocket(boolean resend) throws NetworkIOException {
+    private synchronized Socket getOrCreateSocket(ApnsNotification apnsNotification, boolean resend) throws NetworkIOException {
         if (reconnectPolicy.shouldReconnect()) {
             logger.debug("Reconnecting due to reconnectPolicy dictating it");
             Utilities.close(socket);
@@ -292,7 +306,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 socket.setKeepAlive(true);
 
                 if (errorDetection) {
-                    monitorSocket(socket);
+                    monitorSocket(apnsNotification, socket);
                 }
 
                 reconnectPolicy.reconnected();
@@ -325,7 +339,7 @@ public class ApnsConnectionImpl implements ApnsConnection {
         while (true) {
             try {
                 attempts++;
-                Socket socket = getOrCreateSocket(fromBuffer);
+                Socket socket = getOrCreateSocket(m, fromBuffer);
                 socket.getOutputStream().write(m.marshall());
                 socket.getOutputStream().flush();
                 cacheNotification(m);
@@ -408,4 +422,9 @@ public class ApnsConnectionImpl implements ApnsConnection {
     public int getCacheLength() {
         return cacheLength;
     }
+
+	@Override
+	public Map<String, Set<DeliveryError>> getDeliveryErrorDevices() {
+		return deliveryErrorDevices;
+	}
 }

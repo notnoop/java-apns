@@ -32,7 +32,9 @@ package com.notnoop.apns.internal;
 
 import static java.util.concurrent.Executors.defaultThreadFactory;
 
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -41,6 +43,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import com.notnoop.apns.ApnsNotification;
+import com.notnoop.apns.DeliveryError;
 import com.notnoop.exceptions.NetworkIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,5 +142,10 @@ public class BatchApnsService extends AbstractApnsService {
 				Utilities.close(newConnection);
 			}
 		}
+	}
+
+	@Override
+	public Map<String, Set<DeliveryError>> getDeliveryErrorDevices() {
+		throw new UnsupportedOperationException();
 	}
 }

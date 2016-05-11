@@ -30,8 +30,11 @@
  */
 package com.notnoop.apns.internal;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 import com.notnoop.apns.ApnsNotification;
+import com.notnoop.apns.DeliveryError;
 import com.notnoop.exceptions.NetworkIOException;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
@@ -118,4 +121,9 @@ public class ApnsPooledConnection implements ApnsConnection {
     public int getCacheLength() {
         return prototypes.peek().getCacheLength();
     }
+
+	@Override
+	public Map<String, Set<DeliveryError>> getDeliveryErrorDevices() {
+		return prototype.getDeliveryErrorDevices();
+	}
 }
