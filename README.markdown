@@ -122,6 +122,13 @@ You can use the enhanced notification format to get feedback from Apple about no
 
      service.push(notification);
 
+The feedback is sent to a delegate which has to be registered with the service:
+
+       ApnsService service =
+            APNS.newService()
+            ...
+            .withDelegate(myDelegate)
+            .build();
 
 License
 ----------------
