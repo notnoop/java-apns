@@ -6,19 +6,26 @@
     <packaging>jar</packaging>
     <name>Java Apple Push Notification Service Library</name>
 
-    <!-- Inherit the Sonatype OSS deployment configuration -->
-    <parent>
-        <groupId>org.sonatype.oss</groupId>
-        <artifactId>oss-parent</artifactId>
-        <version>9</version>
-    </parent>
-
     <scm>
         <connection>scm:git:git://github.com/encapsecurity/java-apns.git</connection>
         <developerConnection>scm:git:git@github.com:encapsecurity/java-apns.git</developerConnection>
         <url>http://github.com/encapsecurity/java-apns</url>
         <tag>apns-1.0.0.Beta7-EC-3.2.0</tag>
     </scm>
+
+    <!-- DISTRIBUTION AND DEPLOYMENT -->
+    <distributionManagement>
+        <repository>
+            <id>encap-release-repo</id>
+            <url>https://test.encap.no/repository/content/repositories/releases</url>
+            <uniqueVersion>true</uniqueVersion>
+        </repository>
+        <snapshotRepository>
+            <id>encap-snapshot-repo</id>
+            <url>https://test.encap.no/repository/content/repositories/snapshots</url>
+            <uniqueVersion>true</uniqueVersion>
+        </snapshotRepository>
+    </distributionManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
