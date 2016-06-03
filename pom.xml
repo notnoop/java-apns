@@ -14,9 +14,9 @@
     </parent>
 
     <scm>
-        <connection>scm:git:git://github.com/notnoop/java-apns.git</connection>
-        <developerConnection>scm:git:git@github.com:notnoop/java-apns.git</developerConnection>
-        <url>http://github.com/notnoop/java-apns</url>
+        <connection>scm:git:git://github.com/encapsecurity/java-apns.git</connection>
+        <developerConnection>scm:git:git@github.com:encapsecurity/java-apns.git</developerConnection>
+        <url>http://github.com/encapsecurity/java-apns</url>
         <tag>apns-1.0.0.Beta7-EC-3.2.0</tag>
     </scm>
 
@@ -66,7 +66,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
-                    <archive> 
+                    <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
                 </configuration>
@@ -78,14 +78,14 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>  
+            <plugin>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.9.1</version>
-		<!--
-                <configuration>
-                    <additionalparam>-Xdoclint:none</additionalparam>
-                </configuration>
-		-->
+                <!--
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+                -->
                 <executions>
                     <execution>
                         <id>generate-javadoc</id>
@@ -125,9 +125,9 @@
                     <execution>
                         <id>bundle-manifest</id>
                         <phase>process-classes</phase>
-                        <goals>   
+                        <goals>
                             <goal>manifest</goal>
-                        </goals>  
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>
