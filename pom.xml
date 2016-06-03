@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.notnoop.apns</groupId>
     <artifactId>apns</artifactId>
-    <version>1.0.0.Beta7-EC-3.2.1</version>
+    <version>1.0.1.Beta7-EC-3.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Java Apple Push Notification Service Library</name>
 
@@ -17,7 +17,7 @@
         <connection>scm:git:git://github.com/encapsecurity/java-apns.git</connection>
         <developerConnection>scm:git:git@github.com:encapsecurity/java-apns.git</developerConnection>
         <url>http://github.com/encapsecurity/java-apns</url>
-        <tag>apns-1.0.0.Beta7-EC-3.2.1</tag>
+        <tag>apns-1.0.0.Beta7-EC-3.2.0</tag>
     </scm>
 
     <properties>
