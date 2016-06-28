@@ -33,11 +33,14 @@ package com.notnoop.apns.utils.Simulator;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wrap some of the boilerplate code using socket, enable passing around a socket together with its streams.
  */
 public class InputOutputSocket {
+    private static final Logger LOGGER = LoggerFactory.getLogger(InputOutputSocket.class);
     private final Socket socket;
     private final ApnsInputStream inputStream;
     private final DataOutputStream outputStream;
@@ -75,19 +78,19 @@ public class InputOutputSocket {
         try {
             inputStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warn("Can not close inputStream properly", e);
         }
 
         try {
             outputStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warn("Can not close outputStream properly", e);
         }
 
         try {
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.warn("Can not close socket properly", e);
         }
     }
 

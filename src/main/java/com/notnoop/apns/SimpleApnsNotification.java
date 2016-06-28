@@ -34,7 +34,9 @@ import java.util.Arrays;
 
 import com.notnoop.apns.internal.Utilities;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.io.UnsupportedEncodingException;
 
 /**
  * Represents an APNS notification to be sent to Apple service. This is for legacy use only
@@ -52,7 +54,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressWarnings("deprecation")
 @Deprecated
 public class SimpleApnsNotification implements ApnsNotification {
-
+	
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleApnsNotification.class);
     private final static byte COMMAND = 0;
     private final byte[] deviceToken;
     private final byte[] payload;
@@ -155,7 +158,8 @@ public class SimpleApnsNotification implements ApnsNotification {
         String payloadString;
         try {
             payloadString = new String(payload, "UTF-8");
-        } catch (Exception ex) {
+        } catch (UnsupportedEncodingException ex) {
+            LOGGER.debug("UTF-8 charset not found on the JRE", ex);
             payloadString = "???";
         }
         return "Message(Token="+Utilities.encodeHex(deviceToken)+"; Payload="+payloadString+")";
