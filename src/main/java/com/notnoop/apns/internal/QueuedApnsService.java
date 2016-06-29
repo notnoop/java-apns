@@ -32,6 +32,7 @@ package com.notnoop.apns.internal;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.DeliveryError;
 import com.notnoop.exceptions.NetworkIOException;
 
 public class QueuedApnsService extends AbstractApnsService {
@@ -122,5 +124,10 @@ public class QueuedApnsService extends AbstractApnsService {
     public void testConnection() throws NetworkIOException {
         service.testConnection();
     }
+
+	@Override
+	public Map<String, Set<DeliveryError>> getDeliveryErrorDevices() {
+		throw new UnsupportedOperationException();
+	}
 
 }

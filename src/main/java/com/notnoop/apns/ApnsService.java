@@ -33,6 +33,7 @@ package com.notnoop.apns;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Set;
 
 import com.notnoop.exceptions.NetworkIOException;
 
@@ -160,6 +161,16 @@ public interface ApnsService {
      */
     Map<String, Date> getInactiveDevices() throws NetworkIOException;
 
+    /**
+     * Returns the list of devices got a bad status when tring to send
+     *
+     * The result is map, mapping the device tokens as Hex Strings
+     * mapped to a set of DeliveryError
+     * @throws NetworkIOException if a network error occurred
+     *      while retrieving invalid device connection
+     */
+    Map<String, Set<DeliveryError>> getDeliveryErrorDevices();
+    
     /**
      * Test that the service is setup properly and the Apple servers
      * are reachable.

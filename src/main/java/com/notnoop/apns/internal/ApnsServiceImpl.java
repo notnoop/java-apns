@@ -30,7 +30,11 @@
  */
 package com.notnoop.apns.internal;
 
+import java.util.Map;
+import java.util.Set;
+
 import com.notnoop.apns.ApnsNotification;
+import com.notnoop.apns.DeliveryError;
 import com.notnoop.exceptions.NetworkIOException;
 
 public class ApnsServiceImpl extends AbstractApnsService {
@@ -56,4 +60,9 @@ public class ApnsServiceImpl extends AbstractApnsService {
     public void testConnection() {
         connection.testConnection();
     }
+
+	@Override
+	public Map<String, Set<DeliveryError>> getDeliveryErrorDevices() {
+		return connection.getDeliveryErrorDevices();
+	}
 }

@@ -33,6 +33,8 @@ package com.notnoop.apns.internal;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import org.junit.Test;
@@ -40,6 +42,7 @@ import static org.mockito.Mockito.*;
 
 import com.notnoop.apns.ApnsNotification;
 import com.notnoop.apns.ApnsService;
+import com.notnoop.apns.DeliveryError;
 import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 
@@ -146,5 +149,10 @@ public class QueuedApnsServiceTest {
         public int getCacheLength() {
             return -1;
         }
+
+		@Override
+		public Map<String, Set<DeliveryError>> getDeliveryErrorDevices() {
+			throw new UnsupportedOperationException();
+		}
     }
 }

@@ -31,8 +31,11 @@
 package com.notnoop.apns.internal;
 
 import java.io.Closeable;
+import java.util.Map;
+import java.util.Set;
 
 import com.notnoop.apns.ApnsNotification;
+import com.notnoop.apns.DeliveryError;
 import com.notnoop.exceptions.NetworkIOException;
 
 public interface ApnsConnection extends Closeable {
@@ -49,4 +52,6 @@ public interface ApnsConnection extends Closeable {
     void setCacheLength(int cacheLength);
     
     int getCacheLength();
+    
+    Map<String, Set<DeliveryError>> getDeliveryErrorDevices();
 }
