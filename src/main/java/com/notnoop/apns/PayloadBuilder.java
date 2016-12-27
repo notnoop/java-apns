@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.notnoop.apns.internal.Utilities;
 
@@ -263,11 +264,24 @@ public final class PayloadBuilder {
     }
 
     /**
-     * Set the notification localized key for the alert body
-     * message.
+     * In order for the push notification to get picked up by UNNotificationServiceExtension, the
+     * aps dictionary must include 'mutable-content' key with value set to 1.
      *
-     * @param key   the localizable message body key
-     * @return  this
+     * @see https://developer.apple.com/reference/usernotifications/unnotificationserviceextension
+     *
+     * @return this
+     */
+    public PayloadBuilder mutableContent() {
+        aps.put("mutable-content", 1);
+        return this;
+    }
+
+    /**
+     * Set the notification localized key for the alert body message.
+     *
+     * @param key
+     *            the localizable message body key
+     * @return this
      */
     public PayloadBuilder localizedKey(final String key) {
         customAlert.put("loc-key", key);

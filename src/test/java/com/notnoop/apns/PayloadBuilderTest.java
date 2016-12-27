@@ -570,4 +570,14 @@ public class PayloadBuilderTest {
         final String actual = builder.toString();
         assertEqualsJson(expected, actual);
     }
+
+    @Test
+    public void mutableConentMessage() {
+        final PayloadBuilder builder = new PayloadBuilder();
+        builder.mutableContent();
+
+        final String expected = "{\"aps\":{\"mutable-content\":1}}";
+        final String actual = builder.toString();
+        assertEqualsJson(expected, actual);
+    }
 }
