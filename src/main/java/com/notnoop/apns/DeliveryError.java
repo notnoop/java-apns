@@ -49,6 +49,7 @@ public enum DeliveryError {
     INVALID_TOPIC_SIZE(6),
     INVALID_PAYLOAD_SIZE(7),
     INVALID_TOKEN(8),
+    SHUTDOWN(10),
 
     NONE(255),
     UNKNOWN(254);
