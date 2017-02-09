@@ -81,7 +81,7 @@ public class ApnsFeedbackConnection {
                 attempts++;
                 final Map<String, Date> result = getInactiveDevicesImpl();
 
-                attempts = 0;
+              //  attempts = 0;
                 return result;
             } catch (final Exception e) {
                 logger.warn("Failed to retrieve invalid devices", e);
