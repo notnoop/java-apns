@@ -277,11 +277,11 @@ public final class PayloadBuilder {
     }
 
     /**
-     * Set the notification localized key for the alert body message.
+     * Set the notification localized key for the alert body
+     * message.
      *
-     * @param key
-     *            the localizable message body key
-     * @return this
+     * @param key   the localizable message body key
+     * @return  this
      */
     public PayloadBuilder localizedKey(final String key) {
         customAlert.put("loc-key", key);
