@@ -5,7 +5,7 @@ Build status:
 
 Development - Version 1.0.0
 ---------------------------
-There currently is a perelease for 1.0.0 which fixes a number of problems over 0.2.3. 
+There currently is a prerelease for 1.0.0 which fixes a number of problems over 0.2.3. 
 There's still a CI test that sporadically fails on Travis-CI only, but not on other test
 machines I have access to. Supposedly it is a still undetected race condition.
 
