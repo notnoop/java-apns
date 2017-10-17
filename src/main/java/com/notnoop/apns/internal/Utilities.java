@@ -39,6 +39,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.ProtocolException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.util.Date;
@@ -293,4 +295,41 @@ public final class Utilities {
         return s;
     }
 
+    public static String defaultString(String input, String defaultString) {
+        if (input == null || input.isEmpty()) {
+            return defaultString;
+        }
+        return input;
+    }
+
+    public static String getHostOrIp(InetSocketAddress socketAddress) throws ProtocolException {
+        /**
+         *  InetAdress could be null if it is unresolved.
+         *  Ref: http://download.java.net/jdk7/archive/b123/docs/api/java/net/InetSocketAddress.html#getAddress()
+         */
+        if (socketAddress.getAddress() == null) {
+            throw new ProtocolException("Hostname address could not be resolved!");
+        }
+
+        /**
+         * The string returned is of the form: hostname / literal IP address. If the host name is unresolved, no
+         * reverse name service lookup is performed. The hostname part will be represented by an empty string.
+         * Ref: https://docs.oracle.com/javase/7/docs/api/java/net/InetAddress.html#toString()
+         */
+        String hostIp = socketAddress.getAddress().toString();
+        String[] parts = hostIp.split("/");
+
+        String result;
+
+        if (parts.length > 0) {
+            // Favours hostname over IP address, but falls back to IP address if hostname lookup had failed.
+            result = Utilities.defaultString(parts[0], parts[1]);
+        } else {
+            // According to the javadoc this should not happen, but let's be prepared.
+            logger.debug("Unexpected hostname lookup result : " + hostIp);
+            result = hostIp;
+        }
+
+        return result;
+    }
 }

@@ -31,7 +31,12 @@
 package com.notnoop.apns.internal;
 
 import org.junit.Assert;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.ProtocolException;
 
 public class UtilitiesTest {
 
@@ -83,5 +88,22 @@ public class UtilitiesTest {
             Assert.assertArrayEquals(expected_NFD, bytes);
         }
 
+    }
+
+    @Test
+    public void testHostOrIpLoopback() throws IOException {
+        String hostname = Utilities.getHostOrIp(new InetSocketAddress("127.0.0.1", 8080));
+        assertTrue("getHostOrIp", "127.0.0.1".equals(hostname));
+    }
+
+    @Test(expected = ProtocolException.class)
+    public void testHostOrIpInvalidHost() throws IOException {
+        Utilities.getHostOrIp(new InetSocketAddress("someveryveryveryv3ryveryv3ryveryveryv3rylonginvalidhostname", 8080));
+    }
+
+    @Test
+    public void testHostOrIpValidHost() throws IOException {
+        String hostname = Utilities.getHostOrIp(new InetSocketAddress("example.org", 8080));
+        assertTrue("getHostOrIp", "example.org".equals(hostname));
     }
 }

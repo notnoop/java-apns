@@ -90,10 +90,10 @@ public final class TlsTunnelBuilder {
             ProxyClient client = new ProxyClient();
             client.getParams().setParameter("http.useragent", "java-apns");
             client.getHostConfiguration().setHost(host, port);
-            String proxyHost = proxyAddress.getAddress().toString().substring(0, proxyAddress.getAddress().toString().indexOf("/"));
-            client.getHostConfiguration().setProxy(proxyHost, proxyAddress.getPort());
             
-        
+            String proxyHost = Utilities.getHostOrIp(proxyAddress);
+            client.getHostConfiguration().setProxy(proxyHost, proxyAddress.getPort());
+
             ProxyClient.ConnectResponse response = client.connect();
             socket = response.getSocket();
             if (socket == null) {
@@ -102,7 +102,7 @@ public final class TlsTunnelBuilder {
                 if(method.getStatusLine().getStatusCode() == 407) {
                     // Proxy server returned 407. We will now try to connect with auth Header
                     if(proxyUsername != null && proxyPassword != null) {
-                        socket = AuthenticateProxy(method, client,proxyHost, proxyAddress.getPort(),
+                        socket = AuthenticateProxy(method, client, proxyHost, proxyAddress.getPort(),
                                 proxyUsername, proxyPassword);
                     } else {
                         throw new ProtocolException("Socket not created: " + method.getStatusLine()); 
