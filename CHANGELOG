@@ -1,7 +1,7 @@
 Changelog of java-apns
 
 Version 0.2.4.build-SNAPSHOT - (in progress)
-  - Performance testing java-apns (#95)
+  - Prmance testing java-apns (#95)
 
 Version 0.2.3 - Mar 30, 2013
   - return back to com.notnoop.apns group id (#91)
