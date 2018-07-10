@@ -88,6 +88,34 @@ public final class PayloadBuilder {
     }
 
     /**
+     * Sets the alert to be specified as a String to display as the message text of the alert or banner.
+     * https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html#//apple_ref/doc/uid/TP40008194-CH17-SW1
+     *
+     * @return  this
+     */
+    public PayloadBuilder alert(final String alert) {
+        if (alert != null && !alert.trim().isEmpty()) {
+            aps.put("alert", alert);
+        }
+        return this;
+    }
+
+     /**
+     * Sets the extension notification type 'mutable-content' so that the client
+     * can let the OS know that they are not using the standard JSON format,
+     * rather a customised one which we will be parsed and let the OS know what contents needs to be shown.
+     * https://developer.apple.com/documentation/usernotifications/unnotificationserviceextension#overview
+     *
+     * @return this
+     */
+    public PayloadBuilder mutableContent(final boolean setMutableContent) {
+        if (setMutableContent) {
+            aps.put("mutable-content", 1);
+        }
+        return this;
+    }
+
+    /**
      * Sets the notification badge to be displayed next to the
      * application icon.
      *
