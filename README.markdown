@@ -1,3 +1,10 @@
+Warning
+-------
+
+Apple will no longer support the legacy binary protocol after March 31, 2021. Java-Apns will stop working. See [details](https://developer.apple.com/news/?id=uzyxiriy) in their announcement.
+
+It is recommended to use [Pushy](https://github.com/jchambers/pushy) instead, which supports Apple's HTTP/2-based APNs protocol.
+
 Build status:
 
    * Main fork [![Build Status](https://travis-ci.org/notnoop/java-apns.png)](https://travis-ci.org/notnoop/java-apns)
