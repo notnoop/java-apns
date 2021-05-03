@@ -20,7 +20,7 @@ However 1.0.0 Beta fixes a *lot* of problems over 0.2.x, so even as it is called
 I'd recommend to use the beta instead of the 0.2.3 even for production.
 
 froh42 will return to develop for java-apns in October, so I expect the 1.0.0 final
-to be released start of November.
+to be released start of November. Edited!
 
 
 Introduction
