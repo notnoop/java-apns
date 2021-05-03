@@ -33,34 +33,17 @@ package com.notnoop.apns;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * The main class to interact with the APNS Service.
- *
- * Provides an interface to create the {@link ApnsServiceBuilder} and
- * {@code ApnsNotification} payload.
- *
+ * An {@link ObjectMapper} holder.
  */
-public final class APNS {
+class DefaultObjectMapper {
 
-    private APNS() { throw new AssertionError("Uninstantiable class"); }
+  private static final ObjectMapper defaultMapper = new ObjectMapper();
 
-    /**
-     * Returns a new Payload builder
-     */
-    public static PayloadBuilder newPayload() {
-        return newPayload(DefaultObjectMapper.get());
-    }
+  /**
+   * Returns the default {@link ObjectMapper} instance.
+   */
+  public static ObjectMapper get() {
+    return defaultMapper;
+  }
 
-    /**
-     * Returns a new Payload builder which uses the given {@link ObjectMapper} to build the payload.
-     */
-    public static PayloadBuilder newPayload(ObjectMapper mapper) {
-        return new PayloadBuilder(mapper);
-    }
-
-    /**
-     * Returns a new APNS Service for sending iPhone notifications
-     */
-    public static ApnsServiceBuilder newService() {
-        return new ApnsServiceBuilder();
-    }
 }
