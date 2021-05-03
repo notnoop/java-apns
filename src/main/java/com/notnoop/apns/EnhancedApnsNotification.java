@@ -40,7 +40,9 @@ import java.io.UnsupportedEncodingException;
 
 /**
  * Represents an APNS notification to be sent to Apple service.
+ * @deprecated use BinaryApnsNotification instead.
  */
+@Deprecated
 public class EnhancedApnsNotification implements ApnsNotification {
 	
     private static final Logger LOGGER = LoggerFactory.getLogger(EnhancedApnsNotification.class);
@@ -54,7 +56,7 @@ public class EnhancedApnsNotification implements ApnsNotification {
     public static int INCREMENT_ID() {
         return nextId.incrementAndGet();
     }
-    
+
     /**
      * The infinite future for the purposes of Apple expiry date
      */
