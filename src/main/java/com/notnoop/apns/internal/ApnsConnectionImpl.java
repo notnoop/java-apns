@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -46,6 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSocketFactory;
+
 import com.notnoop.apns.ApnsDelegate;
 import com.notnoop.apns.StartSendingApnsDelegate;
 import com.notnoop.apns.ApnsNotification;
@@ -54,6 +56,7 @@ import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.apns.ReconnectPolicy;
 import com.notnoop.exceptions.ApnsDeliveryErrorException;
 import com.notnoop.exceptions.NetworkIOException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +141,6 @@ public class ApnsConnectionImpl implements ApnsConnection {
         Thread t = threadFactory.newThread(new Runnable() {
             final static int EXPECTED_SIZE = 6;
 
-            @SuppressWarnings("InfiniteLoopStatement")
             @Override
             public void run() {
                 logger.debug("Started monitoring thread");
@@ -246,9 +248,15 @@ public class ApnsConnectionImpl implements ApnsConnection {
                         }
                         n += count;
                     } catch (IOException ioe) {
-                        if (n == 0)
-                            return false;
-                        throw new IOException("Error after reading "+n+" bytes of packet", ioe);
+                        if (!(ioe instanceof SocketTimeoutException)) {
+                            if (n == 0)
+                                return false;
+                            throw new IOException("Error after reading "+n+" bytes of packet", ioe);
+                        } else {
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("just SocketTimeoutException ignore");
+                            }
+                        }
                     }
                 }
                 return true;
@@ -267,7 +275,8 @@ public class ApnsConnectionImpl implements ApnsConnection {
         if (socket == null || socket.isClosed()) {
             try {
                 if (proxy == null) {
-                    socket = factory.createSocket(host, port);
+                    socket = factory.createSocket();
+                    socket.connect(new InetSocketAddress(host, port),connectTimeout);
                     logger.debug("Connected new socket {}", socket);
                 } else if (proxy.type() == Proxy.Type.HTTP) {
                     TlsTunnelBuilder tunnelBuilder = new TlsTunnelBuilder();
@@ -340,23 +349,29 @@ public class ApnsConnectionImpl implements ApnsConnection {
                 // No use retrying this, it's dead Jim
                 throw new NetworkIOException(e);
             } catch (IOException e) {
-                Utilities.close(socket);
-                if (attempts >= RETRIES) {
-                    logger.error("Couldn't send message after " + RETRIES + " retries." + m, e);
-                    delegate.messageSendFailed(m, e);
-                    Utilities.wrapAndThrowAsRuntimeException(e);
-                }
-                // The first failure might be due to closed connection (which in turn might be caused by
-                // a message containing a bad token), so don't delay for the first retry.
-                //
-                // Additionally we don't want to spam the log file in this case, only after the second retry
-                // which uses the delay.
-
-                if (attempts != 1) {
-                    logger.info("Failed to send message " + m + "... trying again after delay", e);
-                    Utilities.sleep(DELAY_IN_MS);
-                }
+                dealException(attempts, m, e);
+            } catch (NetworkIOException e){
+                dealException(attempts, m, e);
             }
+        }
+    }
+
+    private void dealException(int attempts,ApnsNotification m,Exception e){
+        Utilities.close(socket);
+        if (attempts >= RETRIES) {
+            logger.error("Couldn't send message after " + RETRIES + " retries." + m, e);
+            delegate.messageSendFailed(m, e);
+            Utilities.wrapAndThrowAsRuntimeException(e);
+        }
+        // The first failure might be due to closed connection (which in turn might be caused by
+        // a message containing a bad token), so don't delay for the first retry.
+        //
+        // Additionally we don't want to spam the log file in this case, only after the second retry
+        // which uses the delay.
+
+        if (attempts != 1) {
+            logger.info("Failed to send message " + m + "... trying again after delay", e);
+            Utilities.sleep(DELAY_IN_MS);
         }
     }
 
