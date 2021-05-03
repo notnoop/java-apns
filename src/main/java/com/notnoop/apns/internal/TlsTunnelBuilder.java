@@ -30,20 +30,16 @@
  */
 package com.notnoop.apns.internal;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ProtocolException;
-import java.net.Proxy;
-import java.net.Socket;
-import javax.net.ssl.SSLSocketFactory;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import org.apache.commons.httpclient.ConnectMethod;
-import org.apache.commons.httpclient.NTCredentials;
-import org.apache.commons.httpclient.ProxyClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.net.*;
+import java.net.ProtocolException;
 
 /**
  * Establishes a TLS connection using an HTTP proxy. See <a
@@ -51,9 +47,9 @@ import org.slf4j.LoggerFactory;
  * not support proxies requiring a "Proxy-Authorization" header.
  */
 public final class TlsTunnelBuilder {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(TlsTunnelBuilder.class);
-    
+
     public Socket build(SSLSocketFactory factory, Proxy proxy, String proxyUsername, String proxyPassword, String host, int port)
             throws IOException {
         boolean success = false;
@@ -64,7 +60,7 @@ public final class TlsTunnelBuilder {
             proxySocket = makeTunnel(host, port, proxyUsername, proxyPassword, proxyAddress);
 
             // Handshake with the origin server.
-            if(proxySocket ==  null) {
+            if (proxySocket == null) {
                 throw new ProtocolException("Unable to create tunnel through proxy server.");
             }
             Socket socket = factory.createSocket(proxySocket, host, port, true /* auto close */);
@@ -79,69 +75,84 @@ public final class TlsTunnelBuilder {
 
     @SuppressFBWarnings(value = "VA_FORMAT_STRING_USES_NEWLINE",
             justification = "use <CR><LF> as according to RFC, not platform-linefeed")
-    Socket makeTunnel(String host, int port, String proxyUsername, 
-            String proxyPassword, InetSocketAddress proxyAddress) throws IOException {
-        if(host == null || port < 0 || host.isEmpty() || proxyAddress == null){
-            throw new ProtocolException("Incorrect parameters to build tunnel.");   
+    Socket makeTunnel(String host, int port, String proxyUsername,
+                      String proxyPassword, InetSocketAddress proxyAddress) throws IOException {
+        if (host == null || port < 0 || host.isEmpty() || proxyAddress == null) {
+            throw new ProtocolException("Incorrect parameters to build tunnel.");
         }
-        logger.debug("Creating socket for Proxy : " + proxyAddress.getAddress() + ":" + proxyAddress.getPort());
+        final InetAddress proxyInetAddress = proxyAddress.getAddress();
+        logger.debug("Creating socket for Proxy : " + proxyInetAddress + ":" + proxyAddress.getPort());
         Socket socket;
         try {
             ProxyClient client = new ProxyClient();
             client.getParams().setParameter("http.useragent", "java-apns");
             client.getHostConfiguration().setHost(host, port);
-            String proxyHost = proxyAddress.getAddress().toString().substring(0, proxyAddress.getAddress().toString().indexOf("/"));
+
+            /**
+             * There is a bug in an OpenJDK (e.g. https://github.com/travis-ci/travis-ci/issues/5227)
+             * that causes buffer overflow for local addresses. So it would be wise to use host's IP
+             * here since we will still send Host header and will specify target URL in
+             * CONNECT request
+             */
+            String proxyHost = proxyInetAddress.getHostAddress();
             client.getHostConfiguration().setProxy(proxyHost, proxyAddress.getPort());
-            
-        
+
+
             ProxyClient.ConnectResponse response = client.connect();
             socket = response.getSocket();
             if (socket == null) {
                 ConnectMethod method = response.getConnectMethod();
                 // Read the proxy's HTTP response.
-                if(method.getStatusLine().getStatusCode() == 407) {
+                final StatusLine statusLine = method.getStatusLine();
+                int statusCode = statusLine.getStatusCode();
+                if (statusCode == 407) {
                     // Proxy server returned 407. We will now try to connect with auth Header
-                    if(proxyUsername != null && proxyPassword != null) {
-                        socket = AuthenticateProxy(method, client,proxyHost, proxyAddress.getPort(),
+                    if (proxyUsername != null && proxyPassword != null) {
+                        socket = AuthenticateProxy(method, client, proxyHost, proxyAddress.getPort(),
                                 proxyUsername, proxyPassword);
                     } else {
-                        throw new ProtocolException("Socket not created: " + method.getStatusLine()); 
+                        throw new ProtocolException("Socket not created: " + statusLine);
                     }
-                }             
+                } else {
+                    logger.error("Received bad status from proxy server: " + statusLine);
+                }
             }
-            
+
         } catch (Exception e) {
             throw new ProtocolException("Error occurred while creating proxy socket : " + e.toString());
         }
         if (socket != null) {
             logger.debug("Socket for proxy created successfully : " + socket.getRemoteSocketAddress().toString());
+        } else {
+            logger.error("Socket for proxy wasn't created");
         }
+
         return socket;
     }
-    
-    private Socket AuthenticateProxy(ConnectMethod method, ProxyClient client, 
-            String proxyHost, int proxyPort, 
-            String proxyUsername, String proxyPassword) throws IOException {   
-        if("ntlm".equalsIgnoreCase(method.getProxyAuthState().getAuthScheme().getSchemeName())) {
+
+    private Socket AuthenticateProxy(ConnectMethod method, ProxyClient client,
+                                     String proxyHost, int proxyPort,
+                                     String proxyUsername, String proxyPassword) throws IOException {
+        if ("ntlm".equalsIgnoreCase(method.getProxyAuthState().getAuthScheme().getSchemeName())) {
             // If Auth scheme is NTLM, set NT credentials with blank host and domain name
-            client.getState().setProxyCredentials(new AuthScope(proxyHost, proxyPort), 
-                            new NTCredentials(proxyUsername, proxyPassword,"",""));
+            client.getState().setProxyCredentials(new AuthScope(proxyHost, proxyPort),
+                    new NTCredentials(proxyUsername, proxyPassword, "", ""));
         } else {
             // If Auth scheme is Basic/Digest, set regular Credentials
-            client.getState().setProxyCredentials(new AuthScope(proxyHost, proxyPort), 
+            client.getState().setProxyCredentials(new AuthScope(proxyHost, proxyPort),
                     new UsernamePasswordCredentials(proxyUsername, proxyPassword));
         }
-        
+
         ProxyClient.ConnectResponse response = client.connect();
         Socket socket = response.getSocket();
-        
+
         if (socket == null) {
             method = response.getConnectMethod();
-            throw new ProtocolException("Proxy Authentication failed. Socket not created: " 
+            throw new ProtocolException("Proxy Authentication failed. Socket not created: "
                     + method.getStatusLine());
         }
         return socket;
     }
-    
+
 }
 
