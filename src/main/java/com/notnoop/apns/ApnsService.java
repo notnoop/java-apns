@@ -67,6 +67,8 @@ public interface ApnsService {
 
     EnhancedApnsNotification push(String deviceToken, String payload, Date expiry) throws NetworkIOException;
 
+    EnhancedApnsNotification push(String deviceToken, String payload, int expiry) throws NetworkIOException;
+
     /**
      * Sends a push notification with the provided {@code payload} to the
      * iPhone of {@code deviceToken}.
@@ -81,6 +83,8 @@ public interface ApnsService {
      *      attempting to send the message
      */
     ApnsNotification push(byte[] deviceToken, byte[] payload) throws NetworkIOException;
+
+    EnhancedApnsNotification push(byte[] deviceToken, byte[] payload, Date expiry) throws NetworkIOException;
 
     EnhancedApnsNotification push(byte[] deviceToken, byte[] payload, int expiry) throws NetworkIOException;
 
@@ -98,7 +102,10 @@ public interface ApnsService {
      *      attempting to send the message
      */
     Collection<? extends ApnsNotification> push(Collection<String> deviceTokens, String payload) throws NetworkIOException;
+
     Collection<? extends EnhancedApnsNotification> push(Collection<String> deviceTokens, String payload, Date expiry) throws NetworkIOException;
+
+    Collection<? extends EnhancedApnsNotification> push(Collection<String> deviceTokens, String payload, int expiry) throws NetworkIOException;
 
     /**
      * Sends a bulk push notification with the provided
@@ -114,6 +121,9 @@ public interface ApnsService {
      *      attempting to send the message
      */
     Collection<? extends ApnsNotification> push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException;
+
+    Collection<? extends EnhancedApnsNotification> push(Collection<byte[]> deviceTokens, byte[] payload, Date expiry) throws NetworkIOException;
+
     Collection<? extends EnhancedApnsNotification> push(Collection<byte[]> deviceTokens, byte[] payload, int expiry) throws NetworkIOException;
 
     /**
@@ -168,5 +178,5 @@ public interface ApnsService {
      *      or the service cannot send notifications for now
      */
     void testConnection() throws NetworkIOException;
-    
+
 }

@@ -43,92 +43,97 @@ import com.notnoop.apns.EnhancedApnsNotification;
 import com.notnoop.exceptions.NetworkIOException;
 
 abstract class AbstractApnsService implements ApnsService {
-    private ApnsFeedbackConnection feedback;
-    private AtomicInteger c = new AtomicInteger();
+    private final ApnsFeedbackConnection feedback;
+    private final AtomicInteger c = new AtomicInteger();
 
-    public AbstractApnsService(ApnsFeedbackConnection feedback) {
+    public AbstractApnsService(final ApnsFeedbackConnection feedback) {
         this.feedback = feedback;
     }
 
-    public EnhancedApnsNotification push(String deviceToken, String payload) throws NetworkIOException {
-        EnhancedApnsNotification notification =
-            new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, deviceToken, payload);
-        push(notification);
-        return notification;
+    @Override
+    public EnhancedApnsNotification push(final String deviceToken, final String payload) throws NetworkIOException {
+        return push(deviceToken, payload, EnhancedApnsNotification.MAXIMUM_EXPIRY);
     }
 
-    public EnhancedApnsNotification push(String deviceToken, String payload, Date expiry) throws NetworkIOException {
-        EnhancedApnsNotification notification =
-            new EnhancedApnsNotification(c.incrementAndGet(), (int)(expiry.getTime() / 1000), deviceToken, payload);
-        push(notification);
-        return notification;
+    @Override
+    public EnhancedApnsNotification push(final String deviceToken, final String payload, final Date expiry) throws NetworkIOException {
+        return push(deviceToken, payload, (int) (expiry.getTime() / 1000));
     }
 
-    public EnhancedApnsNotification push(byte[] deviceToken, byte[] payload) throws NetworkIOException {
-        EnhancedApnsNotification notification =
-            new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, deviceToken, payload);
-        push(notification);
-        return notification;
-    }
-
-    public EnhancedApnsNotification push(byte[] deviceToken, byte[] payload, int expiry) throws NetworkIOException {
-        EnhancedApnsNotification notification =
-            new EnhancedApnsNotification(c.incrementAndGet(), expiry, deviceToken, payload);
-        push(notification);
-        return notification;
-    }
-
-    public Collection<EnhancedApnsNotification> push(Collection<String> deviceTokens, String payload) throws NetworkIOException {
-        byte[] messageBytes = Utilities.toUTF8Bytes(payload);
-        List<EnhancedApnsNotification> notifications = new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
-        for (String deviceToken : deviceTokens) {
-            byte[] dtBytes = Utilities.decodeHex(deviceToken);
-            EnhancedApnsNotification notification =
-                new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, dtBytes, messageBytes);
-            notifications.add(notification);
-            push(notification);
-        }
-        return notifications;
-    }
-
-    public Collection<EnhancedApnsNotification> push(Collection<String> deviceTokens, String payload, Date expiry) throws NetworkIOException {
-        byte[] messageBytes = Utilities.toUTF8Bytes(payload);
-        List<EnhancedApnsNotification> notifications = new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
-        for (String deviceToken : deviceTokens) {
-            byte[] dtBytes = Utilities.decodeHex(deviceToken);
-            EnhancedApnsNotification notification =
-                new EnhancedApnsNotification(c.incrementAndGet(), (int)(expiry.getTime() / 1000), dtBytes, messageBytes);
-            notifications.add(notification);
-            push(notification);
-        }
-        return notifications;
-    }
-
-    public Collection<EnhancedApnsNotification> push(Collection<byte[]> deviceTokens, byte[] payload) throws NetworkIOException {
-        List<EnhancedApnsNotification> notifications = new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
-        for (byte[] deviceToken : deviceTokens) {
-            EnhancedApnsNotification notification =
-                new EnhancedApnsNotification(c.incrementAndGet(), EnhancedApnsNotification.MAXIMUM_EXPIRY, deviceToken, payload);
-            notifications.add(notification);
-            push(notification);
-        }
-        return notifications;
-    }
-
-    public Collection<EnhancedApnsNotification> push(Collection<byte[]> deviceTokens, byte[] payload, int expiry) throws NetworkIOException {
-        List<EnhancedApnsNotification> notifications = new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
-        for (byte[] deviceToken : deviceTokens) {
-            EnhancedApnsNotification notification =
+    @Override
+    public EnhancedApnsNotification push(final String deviceToken, final String payload, final int expiry) throws NetworkIOException {
+        final EnhancedApnsNotification notification =
                 new EnhancedApnsNotification(c.incrementAndGet(), expiry, deviceToken, payload);
-            notifications.add(notification);
-            push(notification);
+        push(notification);
+        return notification;
+    }
+
+    @Override
+    public EnhancedApnsNotification push(final byte[] deviceToken, final byte[] payload) throws NetworkIOException {
+        return push(deviceToken, payload, EnhancedApnsNotification.MAXIMUM_EXPIRY);
+    }
+
+    @Override
+    public EnhancedApnsNotification push(final byte[] deviceToken, final byte[] payload, final Date expiry) throws NetworkIOException {
+        return push(deviceToken, payload, (int) (expiry.getTime() / 1000));
+    }
+
+    @Override
+    public EnhancedApnsNotification push(final byte[] deviceToken, final byte[] payload, final int expiry) throws NetworkIOException {
+        final EnhancedApnsNotification notification =
+                new EnhancedApnsNotification(c.incrementAndGet(), expiry, deviceToken, payload);
+        push(notification);
+        return notification;
+    }
+
+    @Override
+    public Collection<EnhancedApnsNotification> push(final Collection<String> deviceTokens, final String payload) throws NetworkIOException {
+        return push(deviceTokens, payload, EnhancedApnsNotification.MAXIMUM_EXPIRY);
+    }
+
+    @Override
+    public Collection<EnhancedApnsNotification> push(final Collection<String> deviceTokens, final String payload, final Date expiry) throws NetworkIOException {
+        return push(deviceTokens, payload, (int) (expiry.getTime() / 1000));
+    }
+
+    @Override
+    public Collection<EnhancedApnsNotification> push(final Collection<String> deviceTokens, final String payload, final int expiry) throws NetworkIOException {
+        final byte[] messageBytes = Utilities.toUTF8Bytes(payload);
+        final List<EnhancedApnsNotification> notifications =
+                new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
+        for (final String deviceToken : deviceTokens) {
+            final byte[] dtBytes = Utilities.decodeHex(deviceToken);
+            notifications.add(push(dtBytes, messageBytes, expiry));
         }
         return notifications;
     }
 
+    @Override
+    public Collection<EnhancedApnsNotification> push(final Collection<byte[]> deviceTokens, final byte[] payload) throws NetworkIOException {
+        return push(deviceTokens, payload, EnhancedApnsNotification.MAXIMUM_EXPIRY);
+    }
+
+    @Override
+    public Collection<EnhancedApnsNotification> push(final Collection<byte[]> deviceTokens, final byte[] payload, final Date expiry) throws NetworkIOException {
+        return push(deviceTokens, payload, (int) (expiry.getTime() / 1000));
+    }
+
+    @Override
+    public Collection<EnhancedApnsNotification> push(final Collection<byte[]> deviceTokens, final byte[] payload, final int expiry) throws NetworkIOException {
+        final List<EnhancedApnsNotification> notifications =
+                new ArrayList<EnhancedApnsNotification>(deviceTokens.size());
+        for (final byte[] deviceToken : deviceTokens) {
+            notifications.add(push(deviceToken, payload, expiry));
+        }
+        return notifications;
+    }
+
+    @Override
     public abstract void push(ApnsNotification message) throws NetworkIOException;
 
-    public Map<String, Date> getInactiveDevices() throws NetworkIOException {
+    @Override
+    public Map<String, Date> getInactiveDevices() throws NetworkIOException
+    {
         return feedback.getInactiveDevices();
     }
 }
