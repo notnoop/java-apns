@@ -34,16 +34,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.notnoop.apns.internal.Utilities;
+import com.notnoop.json.JSONObject;
 
 /**
  * Represents a builder for constructing Payload requests, as
  * specified by Apple Push Notification Programming Guide.
  */
 public final class PayloadBuilder {
-    private static final ObjectMapper mapper = new ObjectMapper();
-
     private final Map<String, Object> root;
     private final Map<String, Object> aps;
     private final Map<String, Object> customAlert;
@@ -471,7 +470,7 @@ public final class PayloadBuilder {
             root.put("aps", aps);
         }
         try {
-            return mapper.writeValueAsString(root);
+        	return new JSONObject(root).toString();
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }

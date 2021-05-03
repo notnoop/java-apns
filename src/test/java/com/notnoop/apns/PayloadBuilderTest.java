@@ -30,16 +30,23 @@
  */
 package com.notnoop.apns;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Random;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.notnoop.apns.internal.Utilities;
-import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNot.*;
-import static org.hamcrest.core.StringContains.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.Random;
+
+import org.junit.Test;
+
+import com.notnoop.apns.internal.Utilities;
+import com.notnoop.json.JSONObject;
+import com.notnoop.json.JSONTokener;
 
 @SuppressWarnings("deprecation")
 public class PayloadBuilderTest {
@@ -451,13 +458,8 @@ public class PayloadBuilderTest {
     }
 
     private void assertEqualsJson(final String expected, final String actual) {
-        final ObjectMapper mapper = new ObjectMapper();
         try {
-            @SuppressWarnings("unchecked")
-            final
-            Map<String, Object> exNode = mapper.readValue(expected, Map.class),
-                 acNode = mapper.readValue(actual, Map.class);
-            assertEquals(exNode, acNode);
+        	assertEquals(new JSONObject(expected), new JSONObject(actual));
         } catch (final Exception e) {
             throw new IllegalStateException(e);
         }
