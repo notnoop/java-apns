@@ -8,3 +8,7 @@ jdk:
 notifications:
   email:
     - java-apns@frohwalt.de
+
+cache:
+  directories:
+  - $HOME/.m2
